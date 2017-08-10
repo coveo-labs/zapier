@@ -19,7 +19,8 @@ describe('creates', () => {
     it('should push some text', (done) => {
       const bundle = {
         inputData: {
-          url: 'https://www.youtube.com/watch?v=Y3gC7NizMd4',
+          docId: 'https://www.youtube.com/watch?v=Y3gC7NizMd4',
+          text: 'some text',
           sourceId: 'xwxuywk76hes5gq2y65gh5cjdi-myorgsarecursed',
           orgId: 'myorgsarecursed',
           apiKey: 'xx341750b0-f929-4390-b4ed-f99060810e7f',
