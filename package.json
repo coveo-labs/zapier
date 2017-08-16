@@ -1,11 +1,11 @@
 {
-  "name": "zapier-platform-example-app-create",
-  "version": "0.1.5",
-  "description": "An example app for the Zapier platform.",
-  "repository": "zapier/zapier-platform-example-app-create",
-  "homepage": "https://zapier.com/",
-  "author": "Bryan Helmig <bryan@zapier.com>",
-  "license": "BSD-3-Clause",
+  "name": "coveo-push",
+  "version": "2.0.0",
+  "description": "Send data to a Coveo Cloud V2 Push source",
+  "repository": "Malpp/zapier",
+  "homepage": "https://coveo.com/",
+  "author": "Peter McCormick <pmccormick@coveo.com>",
+  "license": "MIT",
   "main": "index.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha --recursive"
