@@ -21,7 +21,7 @@ describe('creates', () => {
         inputData: {
           docId: 'https://www.youtube.com/watch?v=Y3gC7NizMd4',
           text: 'some text',
-          sourceId: 'xwxuywk76hes5gq2y65gh5cjdi-myorgsarecursed',
+          sourceId: 'syxjf4ckgric4ndrcd6dpaslum-myorgsarecursed',
           orgId: 'myorgsarecursed',
           apiKey: 'xx341750b0-f929-4390-b4ed-f99060810e7f',
           platform: 'pushdev.cloud.coveo.com'

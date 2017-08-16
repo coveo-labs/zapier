@@ -1,16 +1,6 @@
 const base64 = require('base-64');
 const pako = require('pako');
 
-//https://stackoverflow.com/questions/6965107/converting-between-strings-and-arraybuffers
-function str2ab(str) {
-  var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
-  var bufView = new Uint16Array(buf);
-  for (var i = 0, strLen = str.length; i < strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  return buf;
-}
-
 // We recommend writing your creates separate like this and rolling them
 // into the App definition at the end.
 module.exports = {
@@ -26,22 +16,72 @@ module.exports = {
 
   // `operation` is where the business logic goes.
   operation: {
+    //App template input
     inputFields: [
-      { key: 'text', required: true, type: 'string' },
-      { key: 'docId', required: true, type: 'string' },
-      { key: 'sourceId', required: true, type: 'string' },
-      { key: 'orgId', required: true, type: 'string' },
-      { key: 'apiKey', required: true, type: 'string' },
-      { key: 'platform', required: true, choices: { 'pushdev.cloud.coveo.com': 'dev', 'pushqa.cloud.coveo.com': 'qa', 'push.cloud.coveo.com': 'prod' } }
+      {
+        key: 'metadata',
+        required: false,
+        type: 'string',
+        label: 'Metadata',
+        helpText: 'Zapier is weird, so you need to pass your metadata as=> key:data',
+        list: true
+      },
+      {
+        key: 'binaryData',
+        required: false,
+        type: 'string',
+        label: 'Binary Data',
+        helpText: 'The data placed in the CompressedBinaryData field'
+      },
+      {
+        key: 'docId',
+        required: true,
+        type: 'string',
+        label: 'Document ID (url)',
+        helpText: 'The document ID, usually a URL'
+      },
+      {
+        key: 'sourceId',
+        required: true,
+        type: 'string',
+        label: 'Source ID'
+      },
+      {
+        key: 'orgId',
+        required: true,
+        type: 'string',
+        label: 'Cloud V2 Organization ID'
+      },
+      {
+        key: 'apiKey',
+        required: true,
+        type: 'string',
+        label: 'Push API key'
+      },
+      {
+        key: 'platform',
+        required: true,
+        choices: { 'pushdev.cloud.coveo.com': 'dev', 'pushqa.cloud.coveo.com': 'qa', 'push.cloud.coveo.com': 'prod' },
+        helpText: 'The platform in which your org lives in'
+      }
     ],
+    //Action function
     perform: (z, bundle) => {
-      const compressed = base64.encode(pako.deflate(bundle.inputData.text, { to: 'string' }));
-      var promise = z.request({
+      const compressed = base64.encode(pako.deflate(bundle.inputData.binaryData, { to: 'string' }));
+      let jsonToSend = {
+        CompressedBinaryData: compressed,
+        compressionType: 'Zlib'
+      };
+      for (let i = 0; i < bundle.inputData.metadata.length; i++) {
+        let splitString = bundle.inputData.metadata[i].split(':');
+        let key = splitString[0];
+        let data = splitString.slice(1).join(':')
+        jsonToSend[key] = data;
+      }
+      let promise = z.request({
         url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
         method: 'PUT',
-        body: JSON.stringify({
-          CompressedBinaryData: compressed
-        }),
+        body: JSON.stringify(jsonToSend),
         params: {
           documentId: encodeURI(bundle.inputData.docId)
         },
@@ -52,7 +92,13 @@ module.exports = {
         }
       });
 
-      return promise.then((response) => JSON.parse(response.content));
+      return promise.then(response => function (response) {
+        if (response.content !== 'null') {
+          throw new z.errors.HaltedError(z.JSON.stringify(response.content));
+        }
+        return { key: response.content };
+      }(response)
+      );
     },
 
     // In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
@@ -66,6 +112,6 @@ module.exports = {
     // field definitions. The result will be used to augment the sample.
     // outputFields: () => { return []; }
     // Alternatively, a static field definition should be provided, to specify labels for the fields
-    // outputFields: {}
+    outputFields: [{ key: 'null' }]
   }
 };
