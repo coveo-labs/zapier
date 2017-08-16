@@ -13,9 +13,9 @@ const appTester = zapier.createAppTester(App);
       {key: 'platform', required: true, choices: {dev: 'pushdev.cloud.coveo.com', qa: 'pushqa.cloud.coveo.com', prod: 'push.cloud.coveo.com'}}
 `
 
-describe('creates', () => {
+describe('pushes', () => {
 
-  describe('create push create', () => {
+  describe('push content', () => {
     it('should push some text', (done) => {
       const bundle = {
         inputData: {

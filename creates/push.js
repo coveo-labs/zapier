@@ -67,16 +67,21 @@ module.exports = {
     ],
     //Action function
     perform: (z, bundle) => {
-      const compressed = base64.encode(pako.deflate(bundle.inputData.binaryData, { to: 'string' }));
+      let compressed = ""
+      if(bundle.inputData.binaryData){
+        compressed = base64.encode(pako.deflate(bundle.inputData.binaryData, { to: 'string' }));
+      }
       let jsonToSend = {
         CompressedBinaryData: compressed,
         compressionType: 'Zlib'
       };
-      for (let i = 0; i < bundle.inputData.metadata.length; i++) {
-        let splitString = bundle.inputData.metadata[i].split(':');
-        let key = splitString[0];
-        let data = splitString.slice(1).join(':')
-        jsonToSend[key] = data;
+      if (bundle.inputData.metadata) {
+        for (let i = 0; i < bundle.inputData.metadata.length; i++) {
+          let splitString = bundle.inputData.metadata[i].split(':');
+          let key = splitString[0];
+          let data = splitString.slice(1).join(':')
+          jsonToSend[key] = data;
+        }
       }
       let promise = z.request({
         url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
