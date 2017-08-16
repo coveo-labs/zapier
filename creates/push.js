@@ -92,12 +92,12 @@ module.exports = {
         }
       });
 
-      return promise.then(response => function (response) {
+      return promise.then(response => {
         if (response.content !== 'null') {
           throw new z.errors.HaltedError(z.JSON.stringify(response.content));
         }
         return { key: response.content };
-      }(response)
+      }
       );
     },
 
