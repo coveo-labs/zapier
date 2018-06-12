@@ -19,7 +19,7 @@ describe('pushes', () => {
     it('should push some text', (done) => {
       const bundle = {
         inputData: {
-          docId: 'https://www.youtube.com/watch?v=w3Gt42kVgCw',
+          docId: 'https://www.youtube.com/watch?v=1rmo3fKeveo',
           text: 'some text',
           sourceId: 'wbacha42szsafnirfla6zycawy-bryanarnoldlw2s8vft',
           orgId: 'bryanarnoldlw2s8vft',
