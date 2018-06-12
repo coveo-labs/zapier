@@ -53,21 +53,22 @@ module.exports = {
         label: 'Cloud V2 Organization ID'
       },
       {
-        key: 'apiKey',
-        required: true,
-        type: 'string',
-        label: 'Push API key'
-      },
-      {
         key: 'platform',
         required: true,
         choices: { 'pushdev.cloud.coveo.com': 'dev', 'pushqa.cloud.coveo.com': 'qa', 'push.cloud.coveo.com': 'prod' },
         helpText: 'The platform in which your org lives in'
+      },
+      {
+	key: 'text',
+	required: true,
+	type: 'string',
+	helpText: 'Set note for information sent'
       }
     ],
     //Action function
     perform: (z, bundle) => {
       let compressed = ""
+      let apiKey = "xxb8c53956-b063-4504-8a3b-805359fc1d0e"
       if(bundle.inputData.binaryData){
         compressed = base64.encode(pako.deflate(bundle.inputData.binaryData, { to: 'string' }));
       }
@@ -88,12 +89,13 @@ module.exports = {
         method: 'PUT',
         body: JSON.stringify(jsonToSend),
         params: {
+	  text: bundle.inputData.text,
           documentId: encodeURI(bundle.inputData.docId)
         },
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${bundle.inputData.apiKey}`
+	  'Authorization': `Bearer ${apiKey}`
         }
       });
 
@@ -117,6 +119,10 @@ module.exports = {
     // field definitions. The result will be used to augment the sample.
     // outputFields: () => { return []; }
     // Alternatively, a static field definition should be provided, to specify labels for the fields
-    outputFields: [{ key: 'null' }]
+    outputFields: [
+	{key: 'docuID', label: 'Document ID sent:'},
+	{key: 'orgID', label: 'Cloud org:'},
+	{key: 'text', label: 'Note:'}
+    ]
   }
 };
