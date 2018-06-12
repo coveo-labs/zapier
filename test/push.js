@@ -19,12 +19,12 @@ describe('pushes', () => {
     it('should push some text', (done) => {
       const bundle = {
         inputData: {
-          docId: 'https://www.youtube.com/watch?v=Y3gC7NizMd4',
+          docId: 'https://www.youtube.com/watch?v=w3Gt42kVgCw',
           text: 'some text',
-          sourceId: 'syxjf4ckgric4ndrcd6dpaslum-myorgsarecursed',
-          orgId: 'myorgsarecursed',
-          apiKey: 'xx341750b0-f929-4390-b4ed-f99060810e7f',
-          platform: 'pushdev.cloud.coveo.com'
+          sourceId: 'wbacha42szsafnirfla6zycawy-bryanarnoldlw2s8vft',
+          orgId: 'bryanarnoldlw2s8vft',
+          apiKey: 'xxb8c53956-b063-4504-8a3b-805359fc1d0e',
+          platform: 'push.cloud.coveo.com'
         }
       };
 
