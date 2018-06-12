@@ -59,10 +59,17 @@ module.exports = {
         helpText: 'The platform in which your org lives in'
       },
       {
-	key: 'text',
+	key: 'title',
 	required: true,
 	type: 'string',
-	helpText: 'Set note for information sent'
+	helpText: 'Title of submission'
+      },
+      {
+	key: 'note',
+	required: true,
+	type: 'string',
+	label: 'Note',
+	helpText: 'Note of what the document submitted is' 
       }
     ],
     //Action function
@@ -84,17 +91,27 @@ module.exports = {
           jsonToSend[key] = data;
         }
       }
-      let promise = z.request({
+      const promise = z.request({
         url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
         method: 'PUT',
-        body: JSON.stringify(jsonToSend),
-        params: {
-	  text: bundle.inputData.text,
-          documentId: encodeURI(bundle.inputData.docId)
-        },
+        body: JSON.stringify({
+	 documentId: bundle.inputData.docId,
+	 title: bundle.inputData.title,
+	 platform: bundle.inputData.platform,
+	 orgId: bundle.inputData.orgId,
+	 sourceId: bundle.inputData.sourceId,
+	 note: bundle.inputData.note, 	 	  
+	}),
+	params:{
+	 documentId: encodeURI(bundle.inputData.docId),
+	 title: bundle.inputData.title,
+	 orgid: bundle.inputData.orgId,
+	 sourceid: bundle.inputData.sourceId,
+	 note: bundle.inputData.note
+	},
         headers: {
-          'Accept': 'application/json',
           'Content-Type': 'application/json',
+	  'Accept': 'application/json',
 	  'Authorization': `Bearer ${apiKey}`
         }
       });
@@ -105,24 +122,24 @@ module.exports = {
         }
         return { key: response.content };
       }
-      );
+      );   
     },
 
     // In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
     // from the API, Zapier will fallback to this hard-coded sample. It should reflect the data structure of
     // returned records, and have obviously dummy values that we can show to any user.
     sample: {
-      "error": "Failed to connect"
+   	docId: 'https://www.coveo.com/en',
+	sourceId: 'YOUR SOURCE ID',
+	orgId: 'YOUR ORGANIZATION ID',
+	platform: 'push.cloud.coveo.com',
+	tite: 'Evernote Schedule'	   
     },
 
     // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
     // field definitions. The result will be used to augment the sample.
     // outputFields: () => { return []; }
     // Alternatively, a static field definition should be provided, to specify labels for the fields
-    outputFields: [
-	{key: 'docuID', label: 'Document ID sent:'},
-	{key: 'orgID', label: 'Cloud org:'},
-	{key: 'text', label: 'Note:'}
-    ]
+    outputFields: []
   }
 };
