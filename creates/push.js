@@ -10,8 +10,8 @@ module.exports = {
   // for users. Zapier will put them into the UX.
   noun: 'Push',
   display: {
-    label: 'Push Url',
-    description: 'Push URL content to Push Source.'
+    label: 'Push',
+    description: 'Push content to Push Source.'
   },
 
   // `operation` is where the business logic goes.
@@ -19,95 +19,68 @@ module.exports = {
     //App template input
     inputFields: [
       {
-        key: 'metadata',
-        required: false,
-        type: 'string',
-        label: 'Metadata',
-        helpText: 'Zapier is weird, so you need to pass your metadata as=> key:data',
-        list: true
-      },
-      {
-        key: 'binaryData',
-        required: false,
-        type: 'string',
-        label: 'Binary Data',
-        helpText: 'The data placed in the CompressedBinaryData field'
-      },
-      {
         key: 'docId',
         required: true,
         type: 'string',
-        label: 'Document ID (url)',
-        helpText: 'The document ID, usually a URL'
+        label: 'Document Url',
+        helpText: 'The URL to your document, if applicable.'
       },
       {
         key: 'sourceId',
         required: true,
         type: 'string',
-        label: 'Source ID'
+        label: 'Source ID in the Coveo Cloud V2 Organization you wish to push to.'
       },
       {
         key: 'orgId',
         required: true,
         type: 'string',
-        label: 'Cloud V2 Organization ID'
+        label: 'The Cloud V2 Organization ID where your source is located.'
       },
       {
         key: 'platform',
         required: true,
         choices: { 'pushdev.cloud.coveo.com': 'dev', 'pushqa.cloud.coveo.com': 'qa', 'push.cloud.coveo.com': 'prod' },
-        helpText: 'The platform in which your org lives in'
+        helpText: 'The platform in which your organization lives.'
       },
       {
 	key: 'title',
 	required: true,
 	type: 'string',
-	helpText: 'Title of submission'
+	helpText: 'Title of submission.'
       },
       {
-	key: 'note',
+	key: 'content',
 	required: true,
 	type: 'string',
-	label: 'Note',
-	helpText: 'Note of what the document submitted is' 
+	label: 'File Content',
+	helpText: 'Any content you wish to include about the pushed file. Can be description of the file, additional urls to access, etc..' 
+      },
+      {
+	key: 'data',
+	required: false,
+	type: 'string',
+	label: 'Submission Description',
+	helpText: 'Description of the purpose of the submission (i.e. Adding new file).'
       }
     ],
     //Action function
     perform: (z, bundle) => {
-      let compressed = ""
       let apiKey = "xxb8c53956-b063-4504-8a3b-805359fc1d0e"
-      if(bundle.inputData.binaryData){
-        compressed = base64.encode(pako.deflate(bundle.inputData.binaryData, { to: 'string' }));
-      }
-      let jsonToSend = {
-        CompressedBinaryData: compressed,
-        compressionType: 'Zlib'
-      };
-      if (bundle.inputData.metadata) {
-        for (let i = 0; i < bundle.inputData.metadata.length; i++) {
-          let splitString = bundle.inputData.metadata[i].split(':');
-          let key = splitString[0];
-          let data = splitString.slice(1).join(':')
-          jsonToSend[key] = data;
-        }
-      }
       const promise = z.request({
         url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
         method: 'PUT',
         body: JSON.stringify({
 	 documentId: bundle.inputData.docId,
 	 title: bundle.inputData.title,
-	 platform: bundle.inputData.platform,
-	 orgId: bundle.inputData.orgId,
-	 sourceId: bundle.inputData.sourceId,
-	 note: bundle.inputData.note, 	 	  
+	 content: bundle.inputData.content,
+	 Data: bundle.inputData.data, 	 	  
 	}),
 	params:{
 	 documentId: encodeURI(bundle.inputData.docId),
 	 title: bundle.inputData.title,
-	 orgid: bundle.inputData.orgId,
-	 sourceid: bundle.inputData.sourceId,
-	 note: bundle.inputData.note
+	 content: encodeURI(bundle.inputData.content),
+	 Data: bundle.inputData.data
 	},
         headers: {
           'Content-Type': 'application/json',
@@ -116,13 +89,8 @@ module.exports = {
         }
       });
 
-      return promise.then(response => {
-        if (response.content !== 'null') {
-          throw new z.errors.HaltedError(z.JSON.stringify(response.content));
-        }
-        return { key: response.content };
-      }
-      );   
+      return promise;
+         
     },
 
     // In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
@@ -133,13 +101,21 @@ module.exports = {
 	sourceId: 'YOUR SOURCE ID',
 	orgId: 'YOUR ORGANIZATION ID',
 	platform: 'push.cloud.coveo.com',
-	tite: 'Evernote Schedule'	   
+	title: 'Evernote Schedule',
+	content: 'PDF of file...',
+	data: 'Adding missing files from project'	   
     },
 
     // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
     // field definitions. The result will be used to augment the sample.
     // outputFields: () => { return []; }
     // Alternatively, a static field definition should be provided, to specify labels for the fields
-    outputFields: []
+    outputFields: [
+	{key: 'docId', label: 'Document Url'},
+	{key: 'title', label: 'File Title'},
+	{key: 'content', label: 'Additional content about the file pushed'},
+	{key: 'data', label: 'Description of purpose of the pushed file'}
+
+    ]
   }
 };
