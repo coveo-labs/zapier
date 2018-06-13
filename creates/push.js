@@ -10,8 +10,8 @@ module.exports = {
   // for users. Zapier will put them into the UX.
   noun: 'Push',
   display: {
-    label: 'Push Url Content',
-    description: 'Push content to a specified push source with a url.'
+    label: 'Push/Update Url Content',
+    description: 'Push/Update content to a specified push source with a url.'
   },
 
   // `operation` is where the business logic goes.
@@ -66,35 +66,20 @@ module.exports = {
     ],
     //Action function
     perform: (z, bundle) => {
-      let apiKey = "xxb8c53956-b063-4504-8a3b-805359fc1d0e";
-
-	let contentURIFix = bundle.inputData.content.split(' ');
-	
-	for(i = 0; i < contentURIFix.length; i++){
-
-		if(contentURIFix[i].includes('https://') || contentURIFix[i].includes('www.')){
-
-			encodeURI(contentURIFix[i]);
-
-		}	
-
-	}
-
-	let finalContent = contentURIFix.join(' ');	
-
+      let apiKey = "";	
       const promise = z.request({
         url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
         method: 'PUT',
         body: JSON.stringify({
 	 documentId: bundle.inputData.docId,
 	 title: bundle.inputData.title,
-	 content: finalContent,
+	 content: bundle.inputData.content,
 	 Data: bundle.inputData.data, 	 	  
 	}),
 	params:{
 	 documentId: encodeURI(bundle.inputData.docId),
 	 title: bundle.inputData.title,
-	 content: finalContent,
+	 content: bundle.inputData.content,
 	 Data: bundle.inputData.data
 	},
         headers: {

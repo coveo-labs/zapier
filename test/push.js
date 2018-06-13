@@ -9,17 +9,17 @@ const appTester = zapier.createAppTester(App);
 
 describe('pushes', () => {
 
-  describe('push content', () => {
+  describe('Push content', () => {
     it('should push some text', (done) => {
       const bundle = {
         inputData: {
           docId: 'https://docs.google.com/presentation/d/163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE/preview?ouid=112521140643491791554',
           title: 'Language Development and Technology',
-          sourceId: 'wbacha42szsafnirfla6zycawy-bryanarnoldlw2s8vf',
+          sourceId: 'wbacha42szsafnirfla6zycawy-bryanarnoldlw2s8vft',
           orgId: 'bryanarnoldlw2s8vft',
           platform: 'push.cloud.coveo.com',
-	  content: 'File download: https://docs.google.com/feeds/download/presentations/Export?id=163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE&exportFormat=pdf\nFile PDF: https://docs.google.com/feeds/download/presentations/Export?id=163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE&exportFormat=pdf',
-	  data: 'Old presentation I did for LING3610W.'
+	  content: 'PDF Download: https://docs.google.com/feeds/download/presentations/Export?id=163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE&exportFormat=pdf',
+	  data: 'Old presentation I did for LING 3610W.'
         }
       };
 
