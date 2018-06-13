@@ -10,8 +10,8 @@ module.exports = {
   // for users. Zapier will put them into the UX.
   noun: 'Push',
   display: {
-    label: 'Push',
-    description: 'Push content to Push Source.'
+    label: 'Push Url Content',
+    description: 'Push content to a specified push source with a url.'
   },
 
   // `operation` is where the business logic goes.
@@ -23,7 +23,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document Url',
-        helpText: 'The URL to your document, if applicable.'
+        helpText: 'The URL to your document or page.'
       },
       {
         key: 'sourceId',
@@ -54,7 +54,7 @@ module.exports = {
 	required: true,
 	type: 'string',
 	label: 'File Content',
-	helpText: 'Any content you wish to include about the pushed file. Can be description of the file, additional urls to access, etc..' 
+	helpText: 'Any content you wish to include about the pushed file. Format this in any way you wish, but keep it consistent. Can be description of the file, additional urls to access, download link of file, etc...' 
       },
       {
 	key: 'data',
@@ -66,20 +66,35 @@ module.exports = {
     ],
     //Action function
     perform: (z, bundle) => {
-      let apiKey = "xxb8c53956-b063-4504-8a3b-805359fc1d0e"
+      let apiKey = "xxb8c53956-b063-4504-8a3b-805359fc1d0e";
+
+	let contentURIFix = bundle.inputData.content.split(' ');
+	
+	for(i = 0; i < contentURIFix.length; i++){
+
+		if(contentURIFix[i].includes('https://') || contentURIFix[i].includes('www.')){
+
+			encodeURI(contentURIFix[i]);
+
+		}	
+
+	}
+
+	let finalContent = contentURIFix.join(' ');	
+
       const promise = z.request({
         url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
         method: 'PUT',
         body: JSON.stringify({
 	 documentId: bundle.inputData.docId,
 	 title: bundle.inputData.title,
-	 content: bundle.inputData.content,
+	 content: finalContent,
 	 Data: bundle.inputData.data, 	 	  
 	}),
 	params:{
 	 documentId: encodeURI(bundle.inputData.docId),
 	 title: bundle.inputData.title,
-	 content: encodeURI(bundle.inputData.content),
+	 content: finalContent,
 	 Data: bundle.inputData.data
 	},
         headers: {
@@ -89,7 +104,18 @@ module.exports = {
         }
       });
 
-      return promise;
+      return promise.then(response => { 
+ 
+	if(response.status >= 400){
+
+		throw new z.errors.HaltedError('Error occured. Multiple possible reasons (note: more than one can occur at a time): incorrect token/API key, incorrect sourceId/orgID/Platform, or a timeout.\nPlease check the following and try again. Specific error message: ' + z.JSON.parse(response.content).message);
+
+	}
+
+	return {Code: '202',
+		Message: 'Success!'};
+
+     });
          
     },
 
@@ -98,12 +124,12 @@ module.exports = {
     // returned records, and have obviously dummy values that we can show to any user.
     sample: {
    	docId: 'https://www.coveo.com/en',
-	sourceId: 'YOUR SOURCE ID',
-	orgId: 'YOUR ORGANIZATION ID',
+	sourceId: '<source ID>',
+	orgId: '<organization ID>',
 	platform: 'push.cloud.coveo.com',
-	title: 'Evernote Schedule',
-	content: 'PDF of file...',
-	data: 'Adding missing files from project'	   
+	title: 'Coveo.com',
+	content: 'File PDF: <insert pdf file link or download here>',
+	data: 'Adding Coveo.com to source.'	   
     },
 
     // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
@@ -115,7 +141,6 @@ module.exports = {
 	{key: 'title', label: 'File Title'},
 	{key: 'content', label: 'Additional content about the file pushed'},
 	{key: 'data', label: 'Description of purpose of the pushed file'}
-
     ]
   }
 };
