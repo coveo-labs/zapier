@@ -7,6 +7,15 @@ const zapier = require('zapier-platform-core');
 const App = require('../index');
 const appTester = zapier.createAppTester(App);
 
+`
+ {key: 'url', required: true, type: 'string'},
+	{key: 'title', required: true, type: 'string'},
+      {key: 'sourceId', required: true, type: 'string'},
+      {key: 'orgId', required: true, type: 'string'},
+      {key: 'apiKey', required: true, type: 'string'},
+      {key: 'platform', required: true, choices: {dev: 'pushdev.cloud.coveo.com', qa: 'pushqa.cloud.coveo.com', prod: 'push.cloud.coveo.com'}}
+`
+
 describe('pushes', () => {
 
   describe('Push content', () => {
@@ -15,11 +24,15 @@ describe('pushes', () => {
         inputData: {
           docId: 'https://docs.google.com/presentation/d/163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE/preview?ouid=112521140643491791554',
           title: 'Language Development and Technology',
-          sourceId: 'wbacha42szsafnirfla6zycawy-bryanarnoldlw2s8vft',
-          orgId: 'bryanarnoldlw2s8vft',
-          platform: 'push.cloud.coveo.com',
-	  content: 'PDF Download: https://docs.google.com/feeds/download/presentations/Export?id=163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE&exportFormat=pdf',
-	  data: 'Old presentation I did for LING 3610W.'
+          sourceId: 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas',
+          orgId: 'bryanarnoldzapier9xh3mbas',
+	  apiKey: 'xx756e6a60-1c10-4345-aabe-7f9e1778c39a',
+          platform: 'pushdev.cloud.coveo.com',
+	  data: 'Old presentation I did for LING 3610W.',
+	  thumbnail: 'https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.presentation',
+	  download: 'https://docs.google.com/feeds/download/presentations/Export?id=163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE&exportFormat=pdf',
+	  additional: 'https://zapier.com/engine/hydrate/3406357/.eJwtjlFrwjAUhf9KycOexGprO1eQMZyOQRE2hvOthOQ27ZrmhuRa7cT_vih7PIfv3PtdWGs8cSOgaiUr0mW2XMySxwmrW9CyMrwHVoSggU2YaEB0VQdjABezPM0CJ9AQGKpotDdyF7DuxJ3yrLiwo9Oha4isL-JYovBThag0TAX2cQ0gfWhPRiOXsXXgwyVOLRofb84WHT23cjXP03Xysdu__CZPlZbZ_POHknMuk73byvfmsB6-VTmWh_Jt2DzAfbZF13NaWUvn4FPfUxD5z9SSvrmW3KgjVxC9wgAabR--R9zI6AtEY1CjGtn1-gcTqGN7:1fT7ei:_XzlRCnmT37hhNbETiLMS-doNOY/',
+	  content: 'I think I got an A on this...'
         }
       };
 

@@ -23,7 +23,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document Url',
-        helpText: 'The URL to your document or page.'
+        helpText: 'The main URL to your document or page you wish to push.'
       },
       {
         key: 'sourceId',
@@ -50,23 +50,48 @@ module.exports = {
 	helpText: 'Title of submission.'
       },
       {
-	key: 'content',
-	required: true,
-	type: 'string',
-	label: 'File Content',
-	helpText: 'Any content you wish to include about the pushed file. Format this in any way you wish, but keep it consistent. Can be description of the file, additional urls to access, download link of file, etc...' 
+        key: 'data',
+        required: false,
+        type: 'string',
+        label: 'Submission Description',
+        helpText: 'Description of the purpose of the submission (i.e. Adding missing file).'
       },
       {
-	key: 'data',
+	key: 'thumbnail',
 	required: false,
 	type: 'string',
-	label: 'Submission Description',
-	helpText: 'Description of the purpose of the submission (i.e. Adding new file).'
+	label: 'Thumbnail',
+	helpText: 'Thumbnail to go with the main url supplied.'
+      },
+      {
+	key: 'download',
+	required: false,
+	type: 'string',
+	label: 'Download link',
+	helpText: 'Download links of the file if they exist.'
+      },
+      {
+	key: 'additional',
+	required: false,
+	type: 'string',
+	label: 'Additional Links',
+	helpText: 'Any other links you wish to provide to view your document or supplement it (i.e. preview pages or pairing attachments to the primary file submitted.'
+      },
+      {
+	key: 'content',
+	required: false,
+	type: 'string',
+	label: 'Additional Content',
+	helpText: 'Any content you wish to include about the pushed file. Format this in any way you wish, but keep it consistent. Can be longer description of the file, other comments or notes, additional urls or links to the file, etc...' 
       }
     ],
     //Action function
     perform: (z, bundle) => {
-      let apiKey = "";	
+	let apiKey = 'xx756e6a60-1c10-4345-aabe-7f9e1778c39a';
+	let compressed = ""
+      if (bundle.inputData.download) {
+        compressed = base64.encode(pako.deflate(bundle.inputData.download, { to: 'string' }));
+      }	
       const promise = z.request({
         url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
         method: 'PUT',
@@ -74,18 +99,25 @@ module.exports = {
 	 documentId: bundle.inputData.docId,
 	 title: bundle.inputData.title,
 	 content: bundle.inputData.content,
-	 Data: bundle.inputData.data, 	 	  
+	 Data: bundle.inputData.data,
+	 thumbnail: bundle.inputData.thumbnail,
+	 description: bundle.inputData.description,
+	 documentdownload: bundle.inputData.download,
+	 additionallinks: bundle.inputData.additional,	  	 	  
 	}),
 	params:{
 	 documentId: encodeURI(bundle.inputData.docId),
 	 title: bundle.inputData.title,
 	 content: bundle.inputData.content,
-	 Data: bundle.inputData.data
+	 Data: bundle.inputData.data,
+	 thumbnail: bundle.inputData.thumbnail,
+	 description: bundle.inputData.description,
+	 documentdownload: bundle.inputData.download,
+	 additionallinks: bundle.inputData.additional
 	},
         headers: {
           'Content-Type': 'application/json',
 	  'Accept': 'application/json',
-	  'Authorization': `Bearer ${apiKey}`
         }
       });
 
@@ -108,13 +140,15 @@ module.exports = {
     // from the API, Zapier will fallback to this hard-coded sample. It should reflect the data structure of
     // returned records, and have obviously dummy values that we can show to any user.
     sample: {
-   	docId: 'https://www.coveo.com/en',
-	sourceId: '<source ID>',
-	orgId: '<organization ID>',
+   	docId: 'file://folder/my-file.html',
+	sourceId: 'rp5rxzbdz753uhndklv2ztkfgy-mycoveocloudv2organizationg8tp8wu3',
+	orgId: 'mycoveocloudv2organizationg8tp8wu3',
 	platform: 'push.cloud.coveo.com',
-	title: 'Coveo.com',
-	content: 'File PDF: <insert pdf file link or download here>',
-	data: 'Adding Coveo.com to source.'	   
+	title: 'my-file.html',
+	data: 'Adding test file to push source.',
+	download: '<download link here (pdf or other)>',
+	additional: '<other links relating to main pushed file here>',
+	content: 'Note: to be included in search api page implementation later for more testing.',
     },
 
     // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
