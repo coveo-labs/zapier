@@ -1,7 +1,7 @@
 const base64 = require('base-64');
 
 const getAccessToken = (z, bundle) => {
-	const promise = z.request(`https://platformdev.cloud.coveo.com/token`, {
+	const promise = z.request(`https://platformdev.cloud.coveo.com/oauth/token#`, {
 		method: 'POST',
 		body: {
 			code: bundle.inputData.code,
@@ -10,7 +10,7 @@ const getAccessToken = (z, bundle) => {
 		},
 		headers: {
 			'content-type': 'application/x-www-form-urlencoded',
-			'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_S)}`
+			'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET)}`
 		}
 	});
 

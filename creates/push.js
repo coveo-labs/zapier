@@ -87,7 +87,7 @@ module.exports = {
     ],
     //Action function
     perform: (z, bundle) => {
-	let apiKey = 'xx756e6a60-1c10-4345-aabe-7f9e1778c39a';
+	let apiKey = '';
 	let compressed = ""
       if (bundle.inputData.download) {
         compressed = base64.encode(pako.deflate(bundle.inputData.download, { to: 'string' }));
@@ -118,6 +118,7 @@ module.exports = {
         headers: {
           'Content-Type': 'application/json',
 	  'Accept': 'application/json',
+	  'Authorization': `Bearer ${apiKey}`
         }
       });
 

@@ -7,15 +7,6 @@ const zapier = require('zapier-platform-core');
 const App = require('../index');
 const appTester = zapier.createAppTester(App);
 
-`
- {key: 'url', required: true, type: 'string'},
-	{key: 'title', required: true, type: 'string'},
-      {key: 'sourceId', required: true, type: 'string'},
-      {key: 'orgId', required: true, type: 'string'},
-      {key: 'apiKey', required: true, type: 'string'},
-      {key: 'platform', required: true, choices: {dev: 'pushdev.cloud.coveo.com', qa: 'pushqa.cloud.coveo.com', prod: 'push.cloud.coveo.com'}}
-`
-
 describe('pushes', () => {
 
   describe('Push content', () => {
@@ -26,7 +17,6 @@ describe('pushes', () => {
           title: 'Language Development and Technology',
           sourceId: 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas',
           orgId: 'bryanarnoldzapier9xh3mbas',
-	  apiKey: 'xx756e6a60-1c10-4345-aabe-7f9e1778c39a',
           platform: 'pushdev.cloud.coveo.com',
 	  data: 'Old presentation I did for LING 3610W.',
 	  thumbnail: 'https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.presentation',
