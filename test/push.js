@@ -12,6 +12,13 @@ describe('pushes', () => {
   describe('Push content', () => {
     it('should push some text', (done) => {
       const bundle = {
+	authData: {
+
+	  access_token: 'xx756e6a60-1c10-4345-aabe-7f9e1778c39a',
+	  refresh_token: 'xx756e6a60-1c10-4345-aabe-7f9e1778c39a',
+
+	},
+	
         inputData: {
           docId: 'https://docs.google.com/presentation/d/163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE/preview?ouid=112521140643491791554',
           title: 'Language Development and Technology',

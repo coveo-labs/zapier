@@ -1,7 +1,8 @@
 const base64 = require('base-64');
+const index = require('./index');
 
 const getAccessToken = (z, bundle) => {
-	const promise = z.request(`https://platformdev.cloud.coveo.com/oauth/token#`, {
+	const promise = z.request(`https://platformdev.cloud.coveo.com/oauth/token`, {
 		method: 'POST',
 		body: {
 			code: bundle.inputData.code,
