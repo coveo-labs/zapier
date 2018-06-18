@@ -11,11 +11,12 @@ describe('pushes', () => {
 
   describe('Push content', () => {
     it('should push some text', (done) => {
+    zapier.tools.env.inject();
       const bundle = {
 	authData: {
 
-	  access_token: 'xx756e6a60-1c10-4345-aabe-7f9e1778c39a',
-	  refresh_token: 'xx756e6a60-1c10-4345-aabe-7f9e1778c39a',
+	  access_token: process.env.ACCESS_TOKEN,
+	  refresh_token: process.env.REFRESH_TOKEN,
 
 	},
 	
