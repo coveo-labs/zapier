@@ -1,6 +1,3 @@
-process.env.CLIENT_ID = process.env.CLIENT_ID;
-process.env.CLIENT_SECRET = process.env.CLIENT_SECRET;
-
 const push = require('./creates/push');
 const authentication = require('./authentication');
 const {includeBearerToken} = require('./before-handlers');

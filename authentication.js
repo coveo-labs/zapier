@@ -1,5 +1,7 @@
 'use strict';
 
+const base64 = require('base-64');
+
 const baseOauthUrl = 'https://platformdev.cloud.coveo.com/oauth';
 // To get your OAuth2 redirect URI, run `zapier describe` and update this variable.
 // Will looke like 'https://zapier.com/dashboard/auth/oauth/return/App123CLIAPI/'
@@ -9,17 +11,17 @@ const getAuthorizeURL = (z, bundle) => {
   let url = `${baseOauthUrl}/authorize`;
 
   const urlParts = [
-    `response_type=token`,
+    'response_type=code',
     `redirect_uri=${encodeURIComponent(bundle.inputData.redirect_uri)}`,
-    `realm=Platform`,
+    'realm=Platform',
     `client_id=${process.env.CLIENT_ID}`,
-    `scope=full`,
-    `state=oauth2`,
+    'scope=full',
+    `state=${bundle.inputData.state}`
   ];
 
   const finalUrl = `${url}?${urlParts.join('&')}`;
 
-  z.console.log(finalUrl);  
+  z.console.log('Authorization Url: ' + finalUrl);
 
   return finalUrl;
 
@@ -32,14 +34,16 @@ const getAccessToken = (z, bundle) => {
     code: bundle.inputData.code,
     client_id: process.env.CLIENT_ID,
     client_secret: process.env.CLIENT_SECRET,
-    grant_type: 'authorization_code',
+    redirect_uri: `${encodeURIComponent(bundle.inputData.redirect_uri)}`,
+    grant_type: 'authorization_code'
   };
 
   const promise = z.request(url, {
     method: 'POST',
     body,
     headers: {
-      'content-type': 'application/x-www-form-urlencoded'
+      'content-type': 'application/x-www-form-urlencoded',
+      'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET)}`
     }
   });
 
@@ -51,9 +55,10 @@ const getAccessToken = (z, bundle) => {
     const result = z.JSON.parse(response.content);
     return {
       access_token: result.access_token,
-      refresh_token: result.refresh_token,
-      id_token: result.id_token,
+      refresh_token: result.refresh_token
     };
+
+	z.console.log('Access Token: ' + result.access_token);
   });
 };
 
@@ -71,7 +76,8 @@ const refreshAccessToken = (z, bundle) => {
     method: 'POST',
     body,
     headers: {
-      'content-type': 'application/x-www-form-urlencoded'
+      	'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET)}`,
+	'content-type': 'application/x-www-form-urlencoded'
     }
   });
 
@@ -95,7 +101,7 @@ const refreshAccessToken = (z, bundle) => {
 // the token and not because the user didn't happen to have a recently created record.
 const testAuth = (z) => {
   const promise = z.request({
-    url: 'https://platformdev.cloud.coveo.com/rest/templates/apikeys',
+    url: `https://platformdev.cloud.coveo.com/rest/templates/apikeys`,
   });
 
   return promise.then((response) => {
