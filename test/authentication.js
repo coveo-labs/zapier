@@ -32,6 +32,7 @@ describe('Authentication', () => {
       // passed to your app in the bundle. For the purpose of this test, we
       // create a bundle with dummy values to ensure our function works.
       inputData: {
+	scope: 'full',
 	redirect_uri: 'https://zapier.com/dashboard/auth/oauth/return/App4771CLIAPI/',
 	state: 'oauth2',
 	},
@@ -43,7 +44,7 @@ describe('Authentication', () => {
 
     appTester(App.authentication.oauth2Config.authorizeUrl, bundle)
       .then((authorizeUrl) => {
-        authorizeUrl.should.eql('https://platformdev.cloud.coveo.com/oauth/authorize?response_type=code&redirect_uri=https%3A%2F%2Fzapier.com%2Fdashboard%2Fauth%2Foauth%2Freturn%2FApp4771CLIAPI%2F&realm=Platform&client_id=test_id&scope=full&state=oauth2');
+        authorizeUrl.should.eql('https://platformdev.cloud.coveo.com/oauth/authorize?response_type=code&redirect_uri=https%3A%2F%2Fzapier.com%2Fdashboard%2Fauth%2Foauth%2Freturn%2FApp4771CLIAPI%2F&realm=Platform&client_id=user&scope=full&state=oauth2');
 	done();
       })
       .catch(done);

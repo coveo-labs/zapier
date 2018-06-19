@@ -11,12 +11,11 @@ const getAuthorizeURL = (z, bundle) => {
   let url = `${baseOauthUrl}/authorize`;
 
   const urlParts = [
-    'response_type=code',
-    `redirect_uri=${encodeURIComponent(bundle.inputData.redirect_uri)}`,
-    'realm=Platform',
     `client_id=${process.env.CLIENT_ID}`,
+    `redirect_uri=${encodeURIComponent(bundle.inputData.redirect_uri)}`,
+    'response_type=code',
     'scope=full',
-    `state=${bundle.inputData.state}`
+    `state=${bundle.inputData.state}`,
   ];
 
   const finalUrl = `${url}?${urlParts.join('&')}`;
@@ -59,39 +58,6 @@ const getAccessToken = (z, bundle) => {
     };
 
 	z.console.log('Access Token: ' + result.access_token);
-  });
-};
-
-const refreshAccessToken = (z, bundle) => {
-  let url = `${baseOauthUrl}/token`;
-
-  const body = {
-    refresh_token: bundle.authData.refresh_token,
-    client_id: process.env.CLIENT_ID,
-    client_secret: process.env.CLIENT_SECRET,
-    grant_type: 'refresh_token',
-  };
-
-  const promise = z.request(url, {
-    method: 'POST',
-    body,
-    headers: {
-      	'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET)}`,
-	'content-type': 'application/x-www-form-urlencoded'
-    }
-  });
-
-  return promise.then((response) => {
-    if (response.status !== 200) {
-      throw new Error('Unable to fetch access token: ' + response.content);
-    }
-
-    const result = z.JSON.parse(response.content);
-    return {
-      access_token: result.access_token,
-      refresh_token: result.refresh_token,
-      id_token: result.id_token,
-    };
   });
 };
 
