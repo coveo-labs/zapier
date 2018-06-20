@@ -110,7 +110,7 @@ const testAuth = (z) => {
 
 module.exports = {
   type: 'oauth2',
-  connectionLabel: '{{username}}',
+  connectionLabel: 'Coveo Cloud V2',
   oauth2Config: {
     authorizeUrl: getAuthorizeURL,
     getAccessToken,

@@ -1,4 +1,5 @@
 const push = require('./creates/push');
+const deletes = require('./creates/delete');
 const authentication = require('./authentication');
 const {includeBearerToken} = require('./before-handlers');
 
@@ -31,7 +32,8 @@ const App = {
 
   // If you want your creates to show up, you better include it here!
   creates: {
-    [push.key]: push
+    [push.key]: push,
+    [deletes.key]: deletes,
   }
 };
 
