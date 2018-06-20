@@ -71,18 +71,11 @@ module.exports = {
 	helpText: 'Download links of the file if they exist.'
       },
       {
-	key: 'additional',
-	required: false,
-	type: 'string',
-	label: 'Additional Links',
-	helpText: 'Any other links you wish to provide to view your document or supplement it (i.e. preview pages or pairing attachments to the primary file submitted.'
-      },
-      {
 	key: 'content',
 	required: false,
 	type: 'string',
 	label: 'Additional Content',
-	helpText: 'Any content you wish to include about the pushed file. Format this in any way you wish, but keep it consistent. Can be longer description of the file, other comments or notes, additional urls or links to the file, etc...' 
+	helpText: 'The content of the file in plain text.' 
       }
     ],
     //Action function
@@ -101,8 +94,7 @@ module.exports = {
 	 Data: bundle.inputData.data,
 	 thumbnail: bundle.inputData.thumbnail,
 	 description: bundle.inputData.description,
-	 documentdownload: bundle.inputData.download,
-	 additionallinks: bundle.inputData.additional,	  	 	  
+	 documentdownload: bundle.inputData.download,	  	 	  
 	}),
 	params:{
 	 documentId: encodeURI(bundle.inputData.docId),
@@ -112,7 +104,6 @@ module.exports = {
 	 thumbnail: bundle.inputData.thumbnail,
 	 description: bundle.inputData.description,
 	 documentdownload: bundle.inputData.download,
-	 additionallinks: bundle.inputData.additional
 	},
         headers: {
           'Content-Type': 'application/json',
@@ -128,8 +119,10 @@ module.exports = {
 
 	}
 
-	return {Code: '202',
-		Message: 'Success!'};
+	return {Document: `${bundle.inputData.docId}`,
+		Title: `${bundle.inputData.title}`,
+		Content: `${bundle.inputData.content}`,
+		Purpose: `${bundle.inputData.data}`};
 
      });
          
