@@ -1,3 +1,9 @@
+const base64 = require('base-64');
+const pako = require('pako');
+const utils = require('../utils');
+const getStringByteSize = utils.getStringByteSize;
+const deleteResource = require('../resources/delete');
+
 module.exports = {
   key: 'deletes',
 
@@ -6,7 +12,7 @@ module.exports = {
   noun: 'Delete',
   display: {
     label: 'Delete Item From Source',
-    description: 'Delete content from a specified push source.'
+    description: 'Delete content from a specified push source.',
   },
 
   // `operation` is where the business logic goes.
@@ -40,13 +46,6 @@ module.exports = {
 	label: 'Platform',
         choices: {'pushdev.cloud.coveo.com': 'Dev', 'pushqa.cloud.coveo.com': 'QA', 'push.cloud.coveo.com': 'Prod' },
         helpText: 'The platform in which your organization lives.'
-      },
-      {
-	key: 'children',
-	required: false,
-	type: 'boolean',
-	label: 'Delete the children of the file.',
-	helpText: 'If you do not understand what this means, see the following: `https://docs.coveo.com/en/57/cloud-v2-developers/understanding-the-parentid-property`'
       }
     ],
     //Action function
@@ -87,19 +86,12 @@ module.exports = {
     // In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
     // from the API, Zapier will fallback to this hard-coded sample. It should reflect the data structure of
     // returned records, and have obviously dummy values that we can show to any user.
-    sample: {
-	docId: 'file://folder/my-file.html',
-	sourceId: 'rp5rxzbdz753uhndklv2ztkfgy-mycoveocloudv2organizationg8tp8wu3',
-	orgId: 'mycoveocloudv2organizationg8tp8wu3',
-	platform: 'push.cloud.coveo.com',
-    },
+    sample: deleteResource.sample,
 
     // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
     // field definitions. The result will be used to augment the sample.
     // outputFields: () => { return []; }
     // Alternatively, a static field definition should be provided, to specify labels for the fields
-    outputFields: [
-	{key: 'docId', label: 'Document ID'}
-   ]
-  }
+    outputFields: deleteResource.outputFields,
+  },
 };

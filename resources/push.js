@@ -61,7 +61,8 @@ module.exports = {
   create: {
     display: {
       label: 'Push or Update',
-      description: 'Push/Update an Item to a Specified Push Source.'
+      description: 'Push/Update an Item to a Specified Push Source.',
+      important: true,
     },
     operation: {
       inputFields: [

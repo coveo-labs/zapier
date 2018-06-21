@@ -14,7 +14,8 @@ module.exports = {
   noun: 'Push',
   display: {
     label: 'Push or Update Content Item',
-    description: 'Push/Update an Item to a Specified Push Source.'
+    description: 'Push/Update an Item to a Specified Push Source.',
+    important: true,
   },
 
   // `operation` is where the business logic goes.
