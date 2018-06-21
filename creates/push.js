@@ -1,5 +1,8 @@
 const base64 = require('base-64');
 const pako = require('pako');
+const utils = require('../utils');
+const getStringByteSize = utils.getStringByteSize;
+const pushResource = require('../resources/push');
 
 // We recommend writing your creates separate like this and rolling them
 // into the App definition at the end.
@@ -10,8 +13,8 @@ module.exports = {
   // for users. Zapier will put them into the UX.
   noun: 'Push',
   display: {
-    label: 'Push/Update Content in a Push Source',
-    description: 'Push/Update content to a specified push source with a document url.'
+    label: 'Push or Update Content Item',
+    description: 'Push/Update an Item to a Specified Push Source.'
   },
 
   // `operation` is where the business logic goes.
@@ -56,8 +59,8 @@ module.exports = {
         key: 'data',
         required: false,
         type: 'string',
-        label: 'Submission Description',
-        helpText: 'Description of the purpose of the submission (i.e. subject of an email would go here).'
+        label: 'Content',
+        helpText: 'Content of the submission in plain text.'
       },
       {
 	key: 'thumbnail',
@@ -77,8 +80,8 @@ module.exports = {
 	key: 'content',
 	required: false,
 	type: 'string',
-	label: 'Content',
-	helpText: 'The content of the file in plain text.' 
+	label: 'Files',
+	helpText: 'Any files or attachments you wish to push the contents of the file to.' 
       }
     ],
     //Action function
@@ -133,23 +136,13 @@ module.exports = {
     // In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
     // from the API, Zapier will fallback to this hard-coded sample. It should reflect the data structure of
     // returned records, and have obviously dummy values that we can show to any user.
-    sample: {
-   	docId: 'file://folder/my-file.html',
-	sourceId: 'rp5rxzbdz753uhndklv2ztkfgy-mycoveocloudv2organizationg8tp8wu3',
-	orgId: 'mycoveocloudv2organizationg8tp8wu3',
-	platform: 'push.cloud.coveo.com',
-	title: 'my-file.html',
-    },
+    sample: pushResource.sample,
 
     // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
     // field definitions. The result will be used to augment the sample.
     // outputFields: () => { return []; }
     // Alternatively, a static field definition should be provided, to specify labels for the fields
-    outputFields: [
-	{key: 'docId', label: 'Document Url'},
-	{key: 'title', label: 'File Title'},
-	{key: 'content', label: 'Additional content about the file pushed'},
-	{key: 'data', label: 'Description of purpose of the pushed file'}
-    ]
-  }
+    outputFields: pushResource.outputFields,
+
+  },
 };

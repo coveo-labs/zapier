@@ -17,7 +17,7 @@
   "dependencies": {
     "base-64": "~0.1.0",
     "pako": "1.0.5",
-    "zapier-platform-core": "6.1.0"
+    "zapier-platform-core": "7.0.0"
   },
   "devDependencies": {
     "mocha": "5.2.0",

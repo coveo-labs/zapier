@@ -1,3 +1,4 @@
+const PushResource = require('./resources/push');
 const push = require('./creates/push');
 const deletes = require('./creates/delete');
 const authentication = require('./authentication');
@@ -20,6 +21,7 @@ const App = {
   ],
 
   resources: {
+    [PushResource.key]: PushResource,
   },
 
   // If you want your trigger to show up, you better include it here!

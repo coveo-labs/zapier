@@ -50,12 +50,12 @@ const getAccessToken = (z, bundle) => {
     }
 
     const result = z.JSON.parse(response.content);
+    z.console.log(result);
     return {
       access_token: result.access_token,
       refresh_token: result.refresh_token
     };
 
-	z.console.log('Access Token: ' + result.access_token);
   });
 };
 
@@ -110,7 +110,7 @@ const testAuth = (z) => {
 
 module.exports = {
   type: 'oauth2',
-  connectionLabel: 'Coveo Cloud V2',
+  connectionLabel: '(your email here)',
   oauth2Config: {
     authorizeUrl: getAuthorizeURL,
     getAccessToken,
