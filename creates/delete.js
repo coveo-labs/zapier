@@ -2,6 +2,8 @@ const base64 = require('base-64');
 const pako = require('pako');
 const utils = require('../utils');
 const getStringByteSize = utils.getStringByteSize;
+const completeBody = utils.completeBody;
+const completeParams = utils.completeParams;
 const deleteResource = require('../resources/delete');
 
 module.exports = {
@@ -53,12 +55,8 @@ module.exports = {
       const promise = z.request({
         url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
         method: 'DELETE',
-        body: JSON.stringify({
-	 documentId: bundle.inputData.docId	  	 	  
-	}),
-	params:{
-	 documentId: encodeURI(bundle.inputData.docId)
-	},
+        body: JSON.stringify(completeBody(bundle)),
+	params:completeParams(bundle),
         headers: {
           'Content-Type': 'application/json',
 	  'Accept': 'application/json',

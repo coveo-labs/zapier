@@ -41,58 +41,10 @@ const createDelete = (z, bundle) => {
 };
 
 module.exports = {
-  key: 'deletes',
 
-  // You'll want to provide some helpful display labels and descriptions
-  // for users. Zapier will put them into the UX.
-  noun: 'Delete',
+    key: 'delete',
 
-  create: {
-
-  display: {
-    label: 'Delete Item From Source',
-    description: 'Delete content from a specified push source.',
-    important: true,
-  },
-
-  // `operation` is where the business logic goes.
-  operation: {
-    //App template input
-    inputFields: [
-      {
-        key: 'docId',
-        required: true,
-        type: 'string',
-        label: 'Document ID',
-        helpText: 'The ID of the document you wish to delete, the url provided when indexing.'
-      },
-      {
-        key: 'sourceId',
-        required: true,
-        type: 'string',
-        label: 'Source ID',
-	helpText: 'The ID of the source inside of your organization.'
-      },
-      {
-        key: 'orgId',
-        required: true,
-        type: 'string',
-        label: 'Organization ID',
-	helpText: 'The ID of the organization within your platform.'
-      },
-      {
-        key: 'platform',
-        required: true,
-	label: 'Platform',
-        choices: {'pushdev.cloud.coveo.com': 'Dev', 'pushqa.cloud.coveo.com': 'QA', 'push.cloud.coveo.com': 'Prod' },
-        helpText: 'The platform in which your organization lives.'
-      }
-    ],
-   
-     perform: createDelete,
-
-    },
-   },
+    noun: 'Delete',
 
     sample: {
 	docId: 'file://folder/my-file.html',

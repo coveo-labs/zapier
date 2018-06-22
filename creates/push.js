@@ -2,6 +2,8 @@ const base64 = require('base-64');
 const pako = require('pako');
 const utils = require('../utils');
 const getStringByteSize = utils.getStringByteSize;
+const completeBody = utils.completeBody;
+const completeParams = utils.completeParams;
 const pushResource = require('../resources/push');
 
 // We recommend writing your creates separate like this and rolling them
@@ -90,22 +92,8 @@ module.exports = {
       const promise = z.request({
         url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
         method: 'PUT',
-        body: JSON.stringify({
-	 documentId: bundle.inputData.docId,
-	 title: bundle.inputData.title,
-	 content: bundle.inputData.content,
-	 Data: bundle.inputData.data,
-	 thumbnail: bundle.inputData.thumbnail,
-	 documentdownload: bundle.inputData.download,	  	 	  
-	}),
-	params:{
-	 documentId: encodeURI(bundle.inputData.docId),
-	 title: bundle.inputData.title,
-	 content: bundle.inputData.content,
-	 Data: bundle.inputData.data,
-	 thumbnail: bundle.inputData.thumbnail,
-	 documentdownload: bundle.inputData.download,
-	},
+        body: JSON.stringify(completeBody(bundle)),
+	params: completeParams(bundle),
         headers: {
           'Content-Type': 'application/json',
 	  'Accept': 'application/json',
