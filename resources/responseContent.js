@@ -9,10 +9,12 @@ const getStringByteSize = utils.getStringByteSize;
 
 const createContainer = (z, bundle) => {
 
-	const promise = z.request({
+	let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
 
-		url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`,
+	const promise = z.request(url, {
+
 		method: 'POST',
+		body: {},
 		headers: {
 
 			'Content-Type': 'application/json',
@@ -26,11 +28,42 @@ const createContainer = (z, bundle) => {
 
 		if(response.status !== 201){
 
-			throw new Error('Error creating new file container.');
+			throw new Error('Error creating new file container: ' + response.content);
 
 		}
 
-		return response.content;
+		const result = z.JSON.parse(response.content);
+
+		return result;
+
+	})
+	 .catch(handleError);
+
+};
+
+const uploadFileToContainer = (z, bundle, content) => {
+
+	let url = `${bundle.inputData.uploadUri}`;
+
+	const promise = z.request(url, {
+
+		method: 'PUT',
+		body: content,
+		headers: bundle.inputData.requiredHeaders,
+
+	});
+
+	return promise.then((response) => {
+
+		if(response.status !== 200) {
+
+			throw new Error('Error uploading file contents to container: ' + response.content);
+
+		}
+
+		const result = z.JSON.parse(response.status);
+
+		return result;
 
 	})
 	 .catch(handleError);
@@ -74,6 +107,7 @@ const completeParams = (bundle) => {
 module.exports = {
 
 	createContainer,
+	uploadFileToContainer,
 	completeBody,
 	completeParams,
 
