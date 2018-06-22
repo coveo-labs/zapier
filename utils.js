@@ -10,39 +10,6 @@ const handleError = (error) => {
   }
 
   throw error;
-};
-
-const completeBody = (bundle) => {
-
-	const body = {
-
-	  documentId: bundle.inputData.docId,
-	  title: bundle.inputData.title,
-	  content: bundle.inputData.content,
-	  Data: bundle.inputData.data,
-	  thumbnail: bundle.inputData.thumbnail,
-	  documentdownload: bundle.inputData.download,
-
-	};
-
-	return body;
-
-};
-
-const completeParams = (bundle) => {
-
-	const params = {
-
-	 documentId: encodeURI(bundle.inputData.docId),
-	 title: bundle.inputData.title,
-	 content: bundle.inputData.content,
-	 Data: bundle.inputData.data,
-	 thumbnail: bundle.inputData.thumbnail,
-	 documentdownload: bundle.inputData.download,
-
-	};
-
-	return params;
 
 };
 
@@ -90,8 +57,6 @@ const fileDetails = (url) => new Promise((resolve, reject) => {
 const getStringByteSize = (string) => Buffer.byteLength(string, 'utf8');
 
 module.exports = {
-  completeBody,
-  completeParams,
   fileDetails,
   handleError,
   getStringByteSize,

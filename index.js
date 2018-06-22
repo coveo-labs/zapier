@@ -1,5 +1,6 @@
 const DeleteResource = require('./resources/delete');
 const PushResource = require('./resources/push');
+const ResponseContentResource = require('./resources/responseContent');
 const push = require('./creates/push');
 const deletes = require('./creates/delete');
 const authentication = require('./authentication');

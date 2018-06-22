@@ -2,9 +2,10 @@ const base64 = require('base-64');
 const pako = require('pako');
 const utils = require('../utils');
 const getStringByteSize = utils.getStringByteSize;
-const completeBody = utils.completeBody;
-const completeParams = utils.completeParams;
 const deleteResource = require('../resources/delete');
+const generateResponse = require('../resources/responseContent');
+const completeBody = generateResponse.completeBody;
+const completeParams = generateResponse.completeParams;
 
 module.exports = {
   key: 'deletes',
