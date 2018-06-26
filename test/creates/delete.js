@@ -26,7 +26,7 @@ describe('deletes', () => {
           orgId: 'bryanarnoldzapier9xh3mbas',
           platform: 'pushdev.cloud.coveo.com',
 	  children: false,
-        }
+        },
       };
 
       appTester(App.creates.deletes.operation.perform, bundle)

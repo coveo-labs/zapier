@@ -6,68 +6,68 @@ const fetch = require('node-fetch');
 const utils = require('../utils');
 const handleError = utils.handleError;
 const getStringByteSize = utils.getStringByteSize;
+const fileDetails = utils.fetchFile;
 
-const createContainer = (z, bundle) => {
+const createContainerAndUpload = (z, bundle) => {
 
-	let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
+        let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
 
-	const promise = z.request(url, {
+        const promise = z.request(url, {
 
-		method: 'POST',
-		body: {},
-		headers: {
+                method: 'POST',
+                body: {},
+                headers: {
+                        
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${bundle.authData.access_token}`,
+                },
 
-			'Content-Type': 'application/json',
-			'Accept': 'application/json',
+        });
 
-		},
+        return promise.then(response => {
+                
+                if(response.status !== 201){
+                        
+                        throw new Error('Error creating fiel container: ' + response.content);
+                
+                }
+                
+                const result = z.JSON.parse(response.content);
+                const dataToReturn = result;
+return result;
+        
+        })
+         .then((result) => {
 
-	});
+                let url = result.uploadUri;
+                let details = bundle.inputData.content;
 
-	return promise.then(response => {
+                const body = fileDetails(details);
 
-		if(response.status !== 201){
+        const promise = z.request(url, {
 
-			throw new Error('Error creating new file container: ' + response.content);
+                method: 'PUT',
+                body,
+                headers: result.requiredHeaders,
 
-		}
+        });
 
-		const result = z.JSON.parse(response.content);
+        return promise.then((response) => {
 
-		return result;
+                if(response.status != 200) {
 
-	})
-	 .catch(handleError);
+                        throw new Error('Error uploading file contents to container: ' + response.content);
 
-};
+                }
 
-const uploadFileToContainer = (z, bundle, content) => {
+                return result;
 
-	let url = `${bundle.inputData.uploadUri}`;
+        })
+         .catch(handleError);
 
-	const promise = z.request(url, {
-
-		method: 'PUT',
-		body: content,
-		headers: bundle.inputData.requiredHeaders,
-
-	});
-
-	return promise.then((response) => {
-
-		if(response.status !== 200) {
-
-			throw new Error('Error uploading file contents to container: ' + response.content);
-
-		}
-
-		const result = z.JSON.parse(response.status);
-
-		return result;
-
-	})
-	 .catch(handleError);
-
+        })
+         .catch(handleError);
 };
 
 const completeBody = (bundle) => {
@@ -80,7 +80,7 @@ const completeBody = (bundle) => {
 	  Data: bundle.inputData.data,
 	  thumbnail: bundle.inputData.thumbnail,
 	  documentdownload: bundle.inputData.download,
-
+	  
 	};
 
 	return body;
@@ -97,7 +97,7 @@ const completeParams = (bundle) => {
 	 Data: bundle.inputData.data,
 	 thumbnail: bundle.inputData.thumbnail,
 	 documentdownload: bundle.inputData.download,
-
+	 
 	};
 
 	return params;
@@ -106,8 +106,7 @@ const completeParams = (bundle) => {
 
 module.exports = {
 
-	createContainer,
-	uploadFileToContainer,
+	createContainerAndUpload,
 	completeBody,
 	completeParams,
 

@@ -29,8 +29,7 @@ describe('pushes', () => {
 	  data: 'Old presentation I did for LING 3610W.',
 	  thumbnail: 'https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.presentation',
 	  download: 'https://docs.google.com/feeds/download/presentations/Export?id=163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE&exportFormat=pdf',
-	  content: 'I think I got an A on this...',
-        }
+	},
       };
 
       appTester(App.creates.push.operation.perform, bundle)

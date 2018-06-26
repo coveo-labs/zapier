@@ -32,12 +32,6 @@ const fileDetails = (url) => new Promise((resolve, reject) => {
 		details.size = response.headers.get('content-length');
 		const disposition = response.headers.get('content-disposition');
 
-		if(disposition){
-
-			details.filename = contentDisposition.parse(disposition).parameters.filename;
-
-		}
-
 		return response.buffer();
 
 	})

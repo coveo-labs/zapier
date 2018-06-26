@@ -1,7 +1,9 @@
 'use strict';
 
 const base64 = require('base-64');
-
+const utils = require('./utils');
+const fileDetails = utils.fileDetails;
+const handleError = utils.handleError;
 const baseOauthUrl = 'https://platformdev.cloud.coveo.com/oauth';
 // To get your OAuth2 redirect URI, run `zapier describe` and update this variable.
 // Will looke like 'https://zapier.com/dashboard/auth/oauth/return/App123CLIAPI/'
@@ -108,6 +110,68 @@ const testAuth = (z) => {
   });
 };
 
+const createContainerAndUpload = (z, bundle) => {
+
+        let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
+
+        const promise = z.request(url, {
+
+                method: 'POST',
+                body: {},
+                headers: {
+
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+			'Authorization': `Bearer ${bundle.authData.access_token}`,
+                },
+
+        });
+
+        return promise.then(response => {
+
+		if(response.status !== 201){
+
+			throw new Error('Error creating fiel container: ' + response.content);
+
+		}
+
+		const result = z.JSON.parse(response.content);
+
+		return result;
+
+	})
+	 .then((result) => {
+
+		let url = result.uploadUri;
+		let details = bundle.inputData.content;
+
+		const body = fileDetails(details);
+
+        const promise = z.request(url, {
+
+                method: 'PUT',
+                body,
+                headers: result.requiredHeaders,
+
+        });
+
+        return promise.then((response) => {
+
+                if(response.status != 200) {
+
+                        throw new Error('Error uploading file contents to container: ' + response.content);
+
+                }
+
+                return result;
+
+        })
+         .catch(handleError);
+
+	})
+	 .catch(handleError);
+};
+
 module.exports = {
   type: 'oauth2',
   connectionLabel: '(your email here)',
@@ -115,6 +179,7 @@ module.exports = {
     authorizeUrl: getAuthorizeURL,
     getAccessToken,
     refreshAccessToken,
+    createContainerAndUpload,
     // Set so Zapier automatically checks for 401s and calls refreshAccessToken
     autoRefresh: true,
     // offline_access is necessary for the refresh_token
