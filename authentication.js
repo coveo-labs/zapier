@@ -108,13 +108,80 @@ const testAuth = (z) => {
   });
 };
 
+const createContainerAndUpload = (z, bundle) => {
+
+        let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
+
+        const promise = z.request(url, {
+
+                method: 'POST',
+                body: {},
+                headers: {
+                        
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${bundle.authData.access_token}`,
+                },
+
+        });
+
+        return promise.then(response => {
+                
+                if(response.status !== 201){
+                        
+                        throw new Error('Error creating file container: ' + response.content);
+                
+                }
+                
+                const result = z.JSON.parse(response.content);
+        
+		console.log('Creation promise resolved!');
+        
+		return result;
+        
+        })
+         .then((result) => {
+
+                let url = result.uploadUri;
+                let details = bundle.inputData.content;
+
+                const body = fileDetails(details);
+
+        const promise = z.request(url, {
+
+                method: 'PUT',
+                body: body.content,
+                headers: result.requiredHeaders,
+
+        });
+
+        return promise.then((response) => {
+
+                if(response.status != 200) {
+
+                        throw new Error('Error uploading file contents to container: ' + response.content);
+
+                }
+
+		console.log('Upload to container promise resolved!');
+
+                return result;
+
+        })
+         .catch(handleError);
+
+        })
+         .catch(handleError);
+};
+
 module.exports = {
   type: 'oauth2',
-  connectionLabel: '(your email here)',
+  connectionLabel: 'Coveo Cloud V2',
   oauth2Config: {
     authorizeUrl: getAuthorizeURL,
     getAccessToken,
     refreshAccessToken,
+    createContainerAndUpload,
     // Set so Zapier automatically checks for 401s and calls refreshAccessToken
     autoRefresh: true,
     // offline_access is necessary for the refresh_token

@@ -91,6 +91,6 @@ module.exports = {
     // field definitions. The result will be used to augment the sample.
     // outputFields: () => { return []; }
     // Alternatively, a static field definition should be provided, to specify labels for the fields
-    outputFields: deleteResource.outputFields,
+//    outputFields: deleteResource.outputFields,
   },
 };

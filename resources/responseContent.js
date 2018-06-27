@@ -20,7 +20,6 @@ const createContainerAndUpload = (z, bundle) => {
                         
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'Authorization': `Bearer ${bundle.authData.access_token}`,
                 },
 
         });
@@ -34,8 +33,8 @@ const createContainerAndUpload = (z, bundle) => {
                 }
                 
                 const result = z.JSON.parse(response.content);
-                const dataToReturn = result;
-return result;
+                
+		return result;
         
         })
          .then((result) => {

@@ -26,6 +26,7 @@ describe('pushes', () => {
           sourceId: 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas',
           orgId: 'bryanarnoldzapier9xh3mbas',
           platform: 'pushdev.cloud.coveo.com',
+	  content: 'Put file contents here?',
 	  data: 'Old presentation I did for LING 3610W.',
 	  thumbnail: 'https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.presentation',
 	  download: 'https://docs.google.com/feeds/download/presentations/Export?id=163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE&exportFormat=pdf',
