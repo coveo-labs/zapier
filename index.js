@@ -16,7 +16,7 @@ const App = {
   authentication: authentication,
 
   beforeRequest: [
-	//includeBearerToken
+	includeBearerToken
   ],
 
   afterResponse: [

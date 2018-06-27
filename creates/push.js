@@ -115,7 +115,7 @@ module.exports = {
 		Platform: `${bundle.inputData.platform}`,
 		Title: `${bundle.inputData.title}`,
 		Content: `${bundle.inputData.content}`,
-		Purpose: `${bundle.inputData.data}`,
+		Description: `${bundle.inputData.data}`,
 		Downloads: `${bundle.inputData.download}`,
 		};
 
