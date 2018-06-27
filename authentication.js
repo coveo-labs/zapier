@@ -2,7 +2,7 @@
 
 const base64 = require('base-64');
 const utils = require('./utils');
-const fileDetails = utils.fileDetails;
+const fileContent = utils.fileDetails;
 const handleError = utils.handleError;
 const baseOauthUrl = 'https://platformdev.cloud.coveo.com/oauth';
 // To get your OAuth2 redirect URI, run `zapier describe` and update this variable.
@@ -120,7 +120,6 @@ const createContainerAndUpload = (z, bundle) => {
                         
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'Authorization': `Bearer ${bundle.authData.access_token}`,
                 },
 
         });
@@ -134,9 +133,7 @@ const createContainerAndUpload = (z, bundle) => {
                 }
                 
                 const result = z.JSON.parse(response.content);
-        
-		console.log('Creation promise resolved!');
-        
+                
 		return result;
         
         })
@@ -145,12 +142,14 @@ const createContainerAndUpload = (z, bundle) => {
                 let url = result.uploadUri;
                 let details = bundle.inputData.content;
 
-                const body = fileDetails(details);
+                const body = fileContent(details);
+
+		console.log('Body for amazon: ' + body);
 
         const promise = z.request(url, {
 
                 method: 'PUT',
-                body: body.content,
+                body,
                 headers: result.requiredHeaders,
 
         });
@@ -162,8 +161,6 @@ const createContainerAndUpload = (z, bundle) => {
                         throw new Error('Error uploading file contents to container: ' + response.content);
 
                 }
-
-		console.log('Upload to container promise resolved!');
 
                 return result;
 

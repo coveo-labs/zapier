@@ -13,7 +13,7 @@ const handleError = (error) => {
 
 };
 
-const fileDetails = (url) => new Promise((resolve, reject) => {
+const fileDetails = (url) => {
 
 	const details = {
 
@@ -39,14 +39,12 @@ const fileDetails = (url) => new Promise((resolve, reject) => {
 	 .then((content) => {
 
 		details.content = content;
+		
+		return details;
 
-		return resolve(details);
+	 });
 
-	 })
-	  
-	 .catch(reject);
-
-});
+};
 
 const getStringByteSize = (string) => Buffer.byteLength(string, 'utf8');
 
