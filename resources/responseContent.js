@@ -1,8 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
-const fetch = require('node-fetch');
-
 const utils = require('../utils');
 const handleError = utils.handleError;
 const getStringByteSize = utils.getStringByteSize;
@@ -10,103 +7,88 @@ const fileDetails = utils.fetchFile;
 
 const createContainerAndUpload = (z, bundle) => {
 
-        let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
+  let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
 
-        const promise = z.request(url, {
+  const promise = z.request(url, {
+    method: 'POST',
+    body: {},
+    headers: {              
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  });
 
-                method: 'POST',
-                body: {},
-                headers: {
-                        
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                },
-
-        });
-
-        return promise.then(response => {
+  return promise.then(response => {
                 
-                if(response.status !== 201){
-                        
-                        throw new Error('Error creating fiel container: ' + response.content);
+    if(response.status !== 201){              
+      throw new Error('Error creating fiel container: ' + response.content);      
+    }
                 
-                }
-                
-                const result = z.JSON.parse(response.content);
-                
-		return result;
+    const result = z.JSON.parse(response.content);        
+    return result;
         
-        })
-         .then((result) => {
+  })
+    .then((result) => {
 
-                let url = result.uploadUri;
-                let details = bundle.inputData.content;
+      let url = result.uploadUri;
+      let details = bundle.inputData.content;
+      const body = fileDetails(details);
 
-                const body = fileDetails(details);
+      const promise = z.request(url, {
+        method: 'PUT',
+        body,
+        headers: result.requiredHeaders,
+      });
 
-        const promise = z.request(url, {
+      return promise.then((response) => {
 
-                method: 'PUT',
-                body,
-                headers: result.requiredHeaders,
+        if(response.status != 200) {
+          throw new Error('Error uploading file contents to container: ' + response.content);
+        }
 
-        });
+        return result;
 
-        return promise.then((response) => {
+      })
+        .catch(handleError);
 
-                if(response.status != 200) {
-
-                        throw new Error('Error uploading file contents to container: ' + response.content);
-
-                }
-
-                return result;
-
-        })
-         .catch(handleError);
-
-        })
-         .catch(handleError);
+    })
+    .catch(handleError);
 };
 
 const completeBody = (bundle) => {
 
-	const body = {
+  const body = {
+    documentId: bundle.inputData.docId,
+    title: bundle.inputData.title,
+    content: bundle.inputData.content,
+    Data: bundle.inputData.data,
+    thumbnail: bundle.inputData.thumbnail,
+    documentdownload: bundle.inputData.download,
+  };
 
-	  documentId: bundle.inputData.docId,
-	  title: bundle.inputData.title,
-	  content: bundle.inputData.content,
-	  Data: bundle.inputData.data,
-	  thumbnail: bundle.inputData.thumbnail,
-	  documentdownload: bundle.inputData.download,
-	  
-	};
-
-	return body;
+  return body;
 
 };
 
 const completeParams = (bundle) => {
 
-	const params = {
+  const params = {
+    documentId: encodeURI(bundle.inputData.docId),
+    title: bundle.inputData.title,
+    content: bundle.inputData.content,
+    Data: bundle.inputData.data,
+    thumbnail: bundle.inputData.thumbnail,
+    documentdownload: bundle.inputData.download,
+  };
 
-	 documentId: encodeURI(bundle.inputData.docId),
-	 title: bundle.inputData.title,
-	 content: bundle.inputData.content,
-	 Data: bundle.inputData.data,
-	 thumbnail: bundle.inputData.thumbnail,
-	 documentdownload: bundle.inputData.download,
-	 
-	};
-
-	return params;
+  return params;
 
 };
 
 module.exports = {
 
-	createContainerAndUpload,
-	completeBody,
-	completeParams,
+  createContainerAndUpload,
+  completeBody,
+  completeParams,
 
 };

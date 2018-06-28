@@ -2,19 +2,19 @@
 
 const includeBearerToken = (request, z, bundle) => {
 
-        if(bundle.authData.access_token && z.JSON.stringify(request.url).includes('amazon') === false ){
+  if(bundle.authData.access_token && z.JSON.stringify(request.url).includes('amazon') === false ){
 
-                request.headers.Authorization = `Bearer ${bundle.authData.access_token}`;
+    request.headers.Authorization = `Bearer ${bundle.authData.access_token}`;
 
-        }
+  }
 
-        return request;
+  return request;
 
 };
 
 
 module.exports = {
 
-	includeBearerToken
+  includeBearerToken,
 
 };

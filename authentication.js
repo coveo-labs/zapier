@@ -32,7 +32,7 @@ const getAccessToken = (z, bundle) => {
   const body = {
     code: bundle.inputData.code,
     redirect_uri: redirectUri,
-    grant_type: 'authorization_code'
+    grant_type: 'authorization_code',
   };
 
   const promise = z.request(url, {
@@ -40,8 +40,8 @@ const getAccessToken = (z, bundle) => {
     body,
     headers: {
       'content-type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET)}`
-    }
+      'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET)}`,
+    },
   });
 
   return promise.then((response) => {
@@ -53,7 +53,7 @@ const getAccessToken = (z, bundle) => {
     z.console.log(result);
     return {
       access_token: result.access_token,
-      refresh_token: result.refresh_token
+      refresh_token: result.refresh_token,
     };
 
   });
@@ -74,8 +74,8 @@ const refreshAccessToken = (z, bundle) => {
     body,
     headers: {
       'content-type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET)}`
-    }
+      'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET)}`,
+    },
   });
 
   return promise.then((response) => {
@@ -110,65 +110,65 @@ const testAuth = (z) => {
 
 const createContainerAndUpload = (z, bundle) => {
 
-        let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
+  let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
 
-        const promise = z.request(url, {
+  const promise = z.request(url, {
 
-                method: 'POST',
-                body: {},
-                headers: {
+    method: 'POST',
+    body: {},
+    headers: {
                         
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                },
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
 
-        });
+  });
 
-        return promise.then(response => {
+  return promise.then(response => {
                 
-                if(response.status !== 201){
+    if(response.status !== 201){
                         
-                        throw new Error('Error creating file container: ' + response.content);
+      throw new Error('Error creating file container: ' + response.content);
                 
-                }
+    }
                 
-                const result = z.JSON.parse(response.content);
+    const result = z.JSON.parse(response.content);
                 
-		return result;
+    return result;
         
-        })
-         .then((result) => {
+  })
+    .then((result) => {
 
-                let url = result.uploadUri;
-                let details = bundle.inputData.content;
+      let url = result.uploadUri;
+      let details = bundle.inputData.content;
 
-                const body = fileContent(details);
+      const body = fileContent(details);
 
-		console.log('Body for amazon: ' + body);
+      console.log('Body for amazon: ' + body);
 
-        const promise = z.request(url, {
+      const promise = z.request(url, {
 
-                method: 'PUT',
-                body,
-                headers: result.requiredHeaders,
+        method: 'PUT',
+        body,
+        headers: result.requiredHeaders,
 
-        });
+      });
 
-        return promise.then((response) => {
+      return promise.then((response) => {
 
-                if(response.status != 200) {
+        if(response.status != 200) {
 
-                        throw new Error('Error uploading file contents to container: ' + response.content);
+          throw new Error('Error uploading file contents to container: ' + response.content);
 
-                }
+        }
 
-                return result;
+        return result;
 
-        })
-         .catch(handleError);
+      })
+        .catch(handleError);
 
-        })
-         .catch(handleError);
+    })
+    .catch(handleError);
 };
 
 module.exports = {

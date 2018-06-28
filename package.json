@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "base-64": "~0.1.0",
+    "enlist": "^0.1.0",
+    "eslint": "^5.0.1",
     "pako": "1.0.5",
     "zapier-platform-core": "7.0.0"
   },

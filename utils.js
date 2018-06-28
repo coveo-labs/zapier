@@ -1,8 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
 const fetch = require('node-fetch');
-const contentDisposition = require('content-disposition');
 
 const handleError = (error) => {
   if (typeof error === 'string') {
@@ -15,32 +13,29 @@ const handleError = (error) => {
 
 const fileDetails = (url) => {
 
-	const details = {
+  const details = {
 
-		filename: '',
-		size: 0,
-		content: '',
-		contentType: '',
+    filename: '',
+    size: 0,
+    content: '',
+    contentType: '',
 
-	};
+  };
 
 	fetch(url)
+		.then((response) => {
 
-	 .then((response) => {
+      details.contentType = response.headers.get('content-type');
+      details.size = response.headers.get('content-length');
 
-		details.contentType = response.headers.get('content-type');
-		details.size = response.headers.get('content-length');
-		const disposition = response.headers.get('content-disposition');
+      return response.buffer();
 
-		return response.buffer();
+		})
+		.then((content) => {
 
-	})
-	 
-	 .then((content) => {
-
-		details.content = content;
+      details.content = content;
 		
-		return details;
+      return details;
 
 	 });
 

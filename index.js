@@ -1,6 +1,5 @@
 const DeleteResource = require('./resources/delete');
 const PushResource = require('./resources/push');
-const ResponseContentResource = require('./resources/responseContent');
 const push = require('./creates/push');
 const deletes = require('./creates/delete');
 const authentication = require('./authentication');
@@ -16,7 +15,7 @@ const App = {
   authentication: authentication,
 
   beforeRequest: [
-	includeBearerToken
+    includeBearerToken,
   ],
 
   afterResponse: [
@@ -39,7 +38,7 @@ const App = {
   creates: {
     [push.key]: push,
     [deletes.key]: deletes,
-  }
+  },
 };
 
 // Finally, export the app.
