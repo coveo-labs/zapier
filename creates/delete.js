@@ -1,7 +1,14 @@
 const deleteResource = require('../resources/delete');
 const generateResponse = require('../resources/responseContent');
+const createNewDelete = deleteResource.createNewDelete;
 const completeBody = generateResponse.completeBody;
 const completeParams = generateResponse.completeParams;
+
+const createDelete = (z, bundle) => {
+
+  return createNewDelete(z, bundle);
+
+};
 
 module.exports = {
   key: 'deletes',

@@ -3,18 +3,19 @@
 const _ = require('lodash');
 const utils = require('../utils');
 const handleError = utils.handleError;
-const getFileDetailsFromRequest = utils.getFileDetailsFromRequest;
 
-const createDelete = (z, bundle) => {
+const createNewDelete = (z, bundle) => {
 
   const promise = z.request({
     url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'DELETE',
     body: JSON.stringify({
-      documentId: bundle.inputData.docId,	  	 	  
+      documentId: bundle.inputData.docId,
+      deleteChildren: true,	  	 	  
     }),
     params:{
       documentId: encodeURI(bundle.inputData.docId),
+      deleteChildren: true,
     },
     headers: {
       'Content-Type': 'application/json',

@@ -2,7 +2,9 @@
 
 const base64 = require('base-64');
 const utils = require('./utils');
-const fileContent = utils.fileDetails;
+const messages = require('./constants');
+const fileTooBig = messages.BIG_FILE;
+const fileDetails = utils.fileDetails;
 const handleError = utils.handleError;
 const baseOauthUrl = 'https://platformdev.cloud.coveo.com/oauth';
 // To get your OAuth2 redirect URI, run `zapier describe` and update this variable.
@@ -50,7 +52,7 @@ const getAccessToken = (z, bundle) => {
     }
 
     const result = z.JSON.parse(response.content);
-    z.console.log(result);
+    
     return {
       access_token: result.access_token,
       refresh_token: result.refresh_token,
@@ -108,32 +110,28 @@ const testAuth = (z) => {
   });
 };
 
+//Ignore the fact this function is here, strictly for making testing easier
+//Will also split this into two eventually, messy to look at
 const createContainerAndUpload = (z, bundle) => {
 
   let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
 
   const promise = z.request(url, {
-
     method: 'POST',
     body: {},
-    headers: {
-                        
+    headers: {              
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-
   });
 
-  return promise.then(response => {
+  return promise.then((response) => {
                 
-    if(response.status !== 201){
-                        
-      throw new Error('Error creating file container: ' + response.content);
-                
+    if(response.status !== 201){              
+      throw new Error('Error creating file container: ' + response.content);      
     }
                 
-    const result = z.JSON.parse(response.content);
-                
+    const result = z.JSON.parse(response.content);        
     return result;
         
   })
@@ -141,32 +139,37 @@ const createContainerAndUpload = (z, bundle) => {
 
       let url = result.uploadUri;
       let details = bundle.inputData.content;
+      
+      const fetchPromise = fileDetails(details);
 
-      const body = fileContent(details);
+      fetchPromise.then((body)=>{
 
-      console.log('Body for amazon: ' + body);
-
-      const promise = z.request(url, {
-
-        method: 'PUT',
-        body,
-        headers: result.requiredHeaders,
-
-      });
-
-      return promise.then((response) => {
-
-        if(response.status != 200) {
-
-          throw new Error('Error uploading file contents to container: ' + response.content);
-
+        if(body.size > (1000000 * 1024)){
+          throw new Error(fileTooBig);
         }
+  
+        const promise = z.request(url, {
+          method: 'PUT',
+          body: body.content,
+          headers: result.requiredHeaders,
+        });
 
-        return result;
+        return promise.then((response) => {
+  
+          //console.log('Response of uploading to container: ' , response);
+
+          if(response.status != 200) {
+            throw new Error('Error uploading file contents to container: ' + response.content);
+          }
+  
+          return result;
+  
+        })
+          .catch(handleError);
 
       })
         .catch(handleError);
-
+      
     })
     .catch(handleError);
 };

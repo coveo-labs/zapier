@@ -1,12 +1,16 @@
 'use strict';
 
-const _ = require('lodash');
 const utils = require('../utils');
+const responseContent = require('./responseContent');
+const containerResponse = responseContent.createContainerAndUpload;
 const handleError = utils.handleError;
-const getFileDetailsFromRequest = utils.getFileDetailsFromRequest;
 
 // create a push
-const createPush = (z, bundle) => {
+const createNewPush = (z, bundle) => {
+
+  if(typeof bundle.inputData.content !== 'undefined'){
+    const containerNeeded = containerResponse(z, bundle);
+  }
 
   const promise = z.request({
 
@@ -34,16 +38,15 @@ const createPush = (z, bundle) => {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-
   });
 
   return promise.then(response => { 
  
     if(response.status >= 400){
-
       throw new z.errors.HaltedError('Error occured. Multiple possible reasons (note: more than one can occur at a time): incorrect token/API key, incorrect sourceId/orgID/Platform, or a timeout.\nPlease check the following and try again. Specific error message: ' + z.JSON.parse(response.content).message);
     }
-    return {Document: `${bundle.inputData.docId}`,
+
+    return { Document: `${bundle.inputData.docId}`,
       Organization: `${bundle.inputData.orgId}`,
       Source: `${bundle.inputData.sourceId}`,
       Platform: `${bundle.inputData.platform}`,
@@ -52,7 +55,8 @@ const createPush = (z, bundle) => {
       Content: `${bundle.inputData.data}`,
       Downloads: `${bundle.inputData.download}`,
     };
-  });
+  })
+    .catch(handleError);
 };
 
 module.exports = {  

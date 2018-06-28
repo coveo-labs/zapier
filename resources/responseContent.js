@@ -2,8 +2,9 @@
 
 const utils = require('../utils');
 const handleError = utils.handleError;
-const getStringByteSize = utils.getStringByteSize;
 const fileDetails = utils.fetchFile;
+const messages = require('../constants');
+const fileTooBig = messages.BIG_FILE;
 
 const createContainerAndUpload = (z, bundle) => {
 
@@ -21,7 +22,7 @@ const createContainerAndUpload = (z, bundle) => {
   return promise.then(response => {
                 
     if(response.status !== 201){              
-      throw new Error('Error creating fiel container: ' + response.content);      
+      throw new Error('Error creating file container: ' + response.content);      
     }
                 
     const result = z.JSON.parse(response.content);        
@@ -32,25 +33,34 @@ const createContainerAndUpload = (z, bundle) => {
 
       let url = result.uploadUri;
       let details = bundle.inputData.content;
-      const body = fileDetails(details);
+      
+      const fetchPromise = fileDetails(details);
+      fetchPromise.then((body)=>{
 
-      const promise = z.request(url, {
-        method: 'PUT',
-        body,
-        headers: result.requiredHeaders,
-      });
-
-      return promise.then((response) => {
-
-        if(response.status != 200) {
-          throw new Error('Error uploading file contents to container: ' + response.content);
+        if(body.size > (1000000 * 1024)){
+          throw new Error(fileTooBig);
         }
-
-        return result;
+  
+        const promise = z.request(url, {
+          method: 'PUT',
+          body: body.content,
+          headers: result.requiredHeaders,
+        });
+  
+        return promise.then((response) => {
+  
+          if(response.status != 200) {
+            throw new Error('Error uploading file contents to container: ' + response.content);
+          }
+  
+          return result;
+  
+        })
+          .catch(handleError);
 
       })
         .catch(handleError);
-
+      
     })
     .catch(handleError);
 };

@@ -1,7 +1,14 @@
 const pushResource = require('../resources/push');
+const createNewPush = pushResource.createNewPush;
 const generateResponse = require('../resources/responseContent');
 const completeBody = generateResponse.completeBody;
 const completeParams = generateResponse.completeParams;
+
+const createPush = (z, bundle) => {
+
+  return createNewPush(z, bundle);
+
+};
 
 // We recommend writing your creates separate like this and rolling them
 // into the App definition at the end.
@@ -100,9 +107,7 @@ module.exports = {
       return promise.then(response => { 
  
         if(response.status >= 400){
-
           throw new z.errors.HaltedError('Error occured. Multiple possible reasons (note: more than one can occur at a time): incorrect token/API key, incorrect sourceId/orgID/Platform, or a timeout.\nPlease check the following and try again. Specific error message: ' + z.JSON.parse(response.content).message);
-
         }
 
         return {Document: `${bundle.inputData.docId}`,
