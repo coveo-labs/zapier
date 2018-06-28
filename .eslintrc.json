@@ -1,0 +1,32 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 7,
+    "sourceType": "module"
+  },
+  "extends": "eslint:recommended",
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "rules": {
+    "comma-dangle": ["error", "always-multiline"],
+    "no-console": ["error", { "allow": ["log", "warn", "error"] }],
+    "indent": [
+      "error",
+      2
+    ],
+    "linebreak-style": [
+       "error",
+       "unix"
+    ],
+    "quotes": [
+      "error",
+      "single",
+      { "allowTemplateLiterals": true }
+    ],
+    "semi": [
+      "error",
+      "always"
+    ]
+  }
+}
