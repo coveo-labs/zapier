@@ -12,7 +12,7 @@ const handleError = (error) => {
 
 };
 
-const fileDetails = (url) => {
+const fetchFile = (url) => {
 
   const details = {
     filename: '',
@@ -47,7 +47,7 @@ const fileDetails = (url) => {
 const getStringByteSize = (string) => Buffer.byteLength(string, 'utf8');
 
 module.exports = {
-  fileDetails,
+  fetchFile,
   handleError,
   getStringByteSize,
 };

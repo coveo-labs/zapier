@@ -1,0 +1,177 @@
+'use strict';
+
+const utils = require('../utils');
+const messages = require('../constants');
+const handleError = utils.handleError;
+const fetchFileDetails = utils.fetchFile;
+const fileTooBig = messages.BIG_FILE;
+
+
+const handlePushCreation = (z, bundle) => {
+
+  const promise = z.request({
+
+    url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
+    method: 'PUT',
+    body: JSON.stringify({
+      documentId: bundle.inputData.docId,
+      title: bundle.inputData.title,
+      content: bundle.inputData.content,
+      thumbnail: bundle.inputData.thumbnail,
+      documentdownload: bundle.inputData.download,
+    }),
+
+    params: {
+      documentId: encodeURI(bundle.inputData.docId),
+      title: bundle.inputData.title,
+      content: bundle.inputData.content,
+      thumbnail: bundle.inputData.thumbnail,
+      documentdownload: bundle.inputData.download,
+    },
+
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+
+  });
+
+  return promise.then((response) => { 
+
+    if(response.status !== 202){
+      throw new Error('Error occured sending push request to Coveo: ' + z.JSON.parse(response.content).message);
+    }
+
+    const responseOutput = z.JSON.parse(response.request.body);
+    responseOutput.orgId = `${bundle.inputData.orgId}`;
+    responseOutput.sourceId = `${bundle.inputData.sourceId}`;
+    responseOutput.platform = `${bundle.inputData.platform}`;
+
+    return responseOutput;
+
+  })
+  .then((result) => {
+    return result;
+  })
+  .catch(handleError);
+
+};
+
+const createContainer = (z, bundle) => {
+
+  let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
+
+  const promise = z.request(url, {
+    method: 'POST',
+    headers: {              
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  });
+
+  return promise.then((response) => {
+                
+    if(response.status !== 201){              
+      throw new Error('Error creating file container: ' + response.content);      
+    }
+                
+    const result = z.JSON.parse(response.content);      
+    return uploadToContainer(z, bundle, result);
+        
+  })
+    .catch(handleError);
+};
+
+const uploadToContainer = (z, bundle, result) => {
+
+  const containerInfo = {
+    fileId: result.fileId,
+    contentType: '',
+  };
+
+  let url = result.uploadUri;
+  let file = bundle.inputData.content;
+
+  const fileDetails = fetchFileDetails(file);
+
+    return fileDetails.then((body)=>{
+
+      containerInfo.contentType = body.contentType;
+
+        if(body.size > (1000000 * 1024)){
+          throw new Error(fileTooBig);
+        }
+
+        const promise = z.request(url, {
+          method: 'PUT',
+          body: z.JSON.stringify(body.content),
+          headers: result.requiredHeaders,
+        });
+
+        return promise.then((response) => {
+
+          if(response.status != 200) {
+            throw new Error('Error uploading file contents to container: ' + response.content);
+          }
+  
+          const result = z.JSON.stringify(response.content);
+          return result;
+
+        })
+        .catch(handleError);
+      })
+      .then(() => {
+        
+        return containerInfo;
+
+      });
+};
+
+const handleDeleteCreation = (z, bundle) => {
+
+  const promise = z.request({
+    url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
+    method: 'DELETE',
+    body: JSON.stringify({
+      documentId: encodeURI(bundle.inputData.docId),
+      deleteChildren: true,	  	 	  
+    }),
+    params:{
+      documentId: encodeURI(bundle.inputData.docId),
+      deleteChildren: true,
+    },
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  });
+
+  return promise.then((response) => { 
+ 
+    if(response.status !== 202){
+      throw new Error('Error occured sending delete request to Coveo: ' + z.JSON.parse(response.content).message);
+    }
+
+    const responseOutput = z.JSON.parse(response.request.body);
+    responseOutput.orgId = `${bundle.inputData.orgId}`;
+    responseOutput.sourceId = `${bundle.inputData.sourceId}`;
+    responseOutput.platform = `${bundle.inputData.platform}`;
+
+    return responseOutput;
+
+  })
+  .then((result) => {
+    return result;
+  })
+  .catch(handleError);
+
+};
+
+module.exports = {
+
+  createContainer,
+  uploadToContainer,
+  handlePushCreation,
+  handleDeleteCreation,
+
+};

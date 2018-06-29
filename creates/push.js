@@ -1,12 +1,11 @@
+'use strict';
+
 const pushResource = require('../resources/push');
-const createNewPush = pushResource.createNewPush;
-const generateResponse = require('../resources/responseContent');
-const completeBody = generateResponse.completeBody;
-const completeParams = generateResponse.completeParams;
+const pushHandler = require('../resources/pushAndDeleteHandler');
 
-const createPush = (z, bundle) => {
+const createNewPush = (z, bundle) => {
 
-  return createNewPush(z, bundle);
+  return pushHandler.handlePushCreation(z, bundle);
 
 };
 
@@ -63,13 +62,6 @@ module.exports = {
         helpText: 'The title to be displayed within the content browser.',
       },
       {
-        key: 'data',
-        required: false,
-        type: 'string',
-        label: 'Content',
-        helpText: 'Content of the submission in plain text.',
-      },
-      {
         key: 'thumbnail',
         required: false,
         type: 'string',
@@ -92,37 +84,7 @@ module.exports = {
       },
     ],
     //Action function
-    perform: (z, bundle) => {	
-      const promise = z.request({
-        url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
-        method: 'PUT',
-        body: JSON.stringify(completeBody(bundle)),
-        params: completeParams(bundle),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-
-      return promise.then(response => { 
- 
-        if(response.status >= 400){
-          throw new z.errors.HaltedError('Error occured. Multiple possible reasons (note: more than one can occur at a time): incorrect token/API key, incorrect sourceId/orgID/Platform, or a timeout.\nPlease check the following and try again. Specific error message: ' + z.JSON.parse(response.content).message);
-        }
-
-        return {Document: `${bundle.inputData.docId}`,
-          Organization: `${bundle.inputData.orgId}`,
-          Source: `${bundle.inputData.sourceId}`,
-          Platform: `${bundle.inputData.platform}`,
-          Title: `${bundle.inputData.title}`,
-          Content: `${bundle.inputData.content}`,
-          Description: `${bundle.inputData.data}`,
-          Downloads: `${bundle.inputData.download}`,
-        };
-
-      });
-         
-    },
+    perform: createNewPush,
 
     // In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
     // from the API, Zapier will fallback to this hard-coded sample. It should reflect the data structure of
@@ -133,7 +95,7 @@ module.exports = {
     // field definitions. The result will be used to augment the sample.
     // outputFields: () => { return []; }
     // Alternatively, a static field definition should be provided, to specify labels for the fields
-    //    outputFields: pushResource.outputFields,
+    outputFields: pushResource.outputFields,
 
   },
 };

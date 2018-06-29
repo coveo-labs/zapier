@@ -1,12 +1,11 @@
+'use strict';
+
 const deleteResource = require('../resources/delete');
-const generateResponse = require('../resources/responseContent');
-const createNewDelete = deleteResource.createNewDelete;
-const completeBody = generateResponse.completeBody;
-const completeParams = generateResponse.completeParams;
+const deleteHandler = require('../resources/pushAndDeleteHandler');
 
 const createDelete = (z, bundle) => {
 
-  return createNewDelete(z, bundle);
+  return deleteHandler.handleDeleteCreation(z, bundle);
 
 };
 
@@ -55,43 +54,17 @@ module.exports = {
       },
     ],
     //Action function
-    perform: (z, bundle) => {	
-      const promise = z.request({
-        url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
-        method: 'DELETE',
-        body: JSON.stringify(completeBody(bundle)),
-        params:completeParams(bundle),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-
-      return promise.then(response => { 
- 
-        if(response.status >= 400){
-          throw new z.errors.HaltedError('Error occured. Multiple possible reasons (note: more than one can occur at a time): incorrect token/API key, incorrect sourceId/orgID/Platform, or a timeout.\nPlease check the following and try again. Specific error message: ' + z.JSON.parse(response.content).message);
-        }
-
-        return {Document: `${bundle.inputData.docId}`,
-          Source: `${bundle.inputData.sourceId}`,
-          Organization: `${bundle.inputData.orgId}`,
-          Platform: `${bundle.inputData.platform}`,
-        };
-
-      });
-         
-    },
+  perform: createDelete,
 
     // In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
     // from the API, Zapier will fallback to this hard-coded sample. It should reflect the data structure of
     // returned records, and have obviously dummy values that we can show to any user.
-    sample: deleteResource.sample,
+  sample: deleteResource.sample,
 
     // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
     // field definitions. The result will be used to augment the sample.
     // outputFields: () => { return []; }
     // Alternatively, a static field definition should be provided, to specify labels for the fields
-    //    outputFields: deleteResource.outputFields,
+    outputFields: deleteResource.outputFields,
   },
 };
