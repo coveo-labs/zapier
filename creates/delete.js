@@ -1,7 +1,7 @@
 'use strict';
 
 const deleteResource = require('../resources/delete');
-const deleteHandler = require('../resources/pushAndDeleteHandler');
+const deleteHandler = require('../resources/deleteHandler');
 
 const createDelete = (z, bundle) => {
 

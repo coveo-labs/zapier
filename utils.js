@@ -46,8 +46,19 @@ const fetchFile = (url) => {
 
 const getStringByteSize = (string) => Buffer.byteLength(string, 'utf8');
 
+const getFileExtension = (z, containerInfo) => {
+
+    const stringExtension = JSON.stringify(containerInfo);
+
+    const fileExtension = '.' + stringExtension.substr(stringExtension.length - 3);
+
+    return fileExtension;
+
+};
+
 module.exports = {
   fetchFile,
   handleError,
   getStringByteSize,
+  getFileExtension,
 };
