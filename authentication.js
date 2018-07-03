@@ -1,17 +1,12 @@
 'use strict';
 
 const base64 = require('base-64');
-const utils = require('./utils');
-const messages = require('./constants');
-const fileTooBig = messages.BIG_FILE;
-const fetchFileDetails = utils.fetchFile;
-const handleError = utils.handleError;
 const baseOauthUrl = 'https://platformdev.cloud.coveo.com/oauth';
 // To get your OAuth2 redirect URI, run `zapier describe` and update this variable.
 // Will looke like 'https://zapier.com/dashboard/auth/oauth/return/App123CLIAPI/'
 const redirectUri = 'https://zapier.com/dashboard/auth/oauth/return/App4771CLIAPI/';
 
-const getAuthorizeURL = (z, bundle) => {
+const getAuthorizeURL = (bundle) => {
   let url = `${baseOauthUrl}/authorize`;
 
   const urlParts = [

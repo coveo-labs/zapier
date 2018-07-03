@@ -1,7 +1,7 @@
 'use strict';
 
 const pushResource = require('../resources/push');
-const pushHandler = require('../resources/pushAndDeleteHandler');
+const pushHandler = require('../resources/pushHandler');
 
 const createNewPush = (z, bundle) => {
 
@@ -61,27 +61,27 @@ module.exports = {
         label: 'Title of Submission',
         helpText: 'The title to be displayed within the content browser.',
       },
-      {
-        key: 'thumbnail',
-        required: false,
-        type: 'string',
-        label: 'Thumbnail',
-        helpText: 'Thumbnail to go with the main url supplied.',
-      },
-      {
-        key: 'download',
-        required: false,
-        type: 'string',
-        label: 'Download link',
-        helpText: 'Download links of the file if they exist.',
-      },
-      {
-        key: 'content',
-        required: false,
-        type: 'string',
-        label: 'Files',
-        helpText: 'Any files or attachments you wish to push the contents of the file to.', 
-      },
+      // {
+      //   key: 'thumbnail',
+      //   required: false,
+      //   type: 'string',
+      //   label: 'Thumbnail',
+      //   helpText: 'Thumbnail to go with the main url supplied.',
+      // },
+      // {
+      //   key: 'download',
+      //   required: false,
+      //   type: 'string',
+      //   label: 'Download link',
+      //   helpText: 'Download links of the file if they exist.',
+      // },
+      // {
+      //   key: 'content',
+      //   required: false,
+      //   type: 'string',
+      //   label: 'Files',
+      //   helpText: 'Any files or attachments you wish to push the contents of the file to.', 
+      // },
     ],
     //Action function
     perform: createNewPush,
