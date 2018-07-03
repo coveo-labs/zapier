@@ -64,9 +64,9 @@ const processPush = (z, bundle, container) => {
     responseOutput.orgId = `${bundle.inputData.orgId}`;
     responseOutput.sourceId = `${bundle.inputData.sourceId}`;
     responseOutput.platform = `${bundle.inputData.platform}`;
-    // delete responseOutput.compressedBinaryDataFileId;
-    // delete responseOutput.compressionType;
-    // delete responseOutput.fileExtension;
+    delete responseOutput.compressedBinaryDataFileId;
+    delete responseOutput.compressionType;
+    delete responseOutput.fileExtension;
 
     return responseOutput;
 
