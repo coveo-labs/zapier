@@ -18,7 +18,7 @@ module.exports = {
   // for users. Zapier will put them into the UX.
   noun: 'Push',
   display: {
-    label: 'Push or Update Content Item',
+    label: 'Push or Update a Single Item',
     description: 'Push/Update an Item to a Specified Push Source.',
     important: true,
   },
@@ -61,26 +61,26 @@ module.exports = {
         label: 'Title of Submission',
         helpText: 'The title to be displayed within the content browser.',
       },
-      // {
-      //   key: 'thumbnail',
-      //   required: false,
-      //   type: 'string',
-      //   label: 'Thumbnail',
-      //   helpText: 'Thumbnail to go with the main url supplied.',
-      // },
-      // {
-      //   key: 'download',
-      //   required: false,
-      //   type: 'string',
-      //   label: 'Download link',
-      //   helpText: 'Download links of the file if they exist.',
-      // },
+      {
+        key: 'thumbnail',
+        required: false,
+        type: 'string',
+        label: 'Thumbnail',
+        helpText: 'Thumbnail to go with the main url supplied.',
+      },
+      {
+        key: 'download',
+        required: false,
+        type: 'string',
+        label: 'Download link',
+        helpText: 'Download links of the file if they exist.',
+      },
       {
         key: 'content',
         required: true,
         type: 'string',
         label: 'Files',
-        helpText: 'Any files or attachments you wish to push the contents of the file to.', 
+        helpText: 'The file or attachments you wish to push. In Zapier, most apps display these as (exists but not shown)', 
       },
     ],
     //Action function

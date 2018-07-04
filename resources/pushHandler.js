@@ -30,7 +30,6 @@ const processPush = (z, bundle, container) => {
     body: z.JSON.stringify({
       documentId: bundle.inputData.docId,
       title: bundle.inputData.title,
-      content: bundle.inputData.content,
       thumbnail: bundle.inputData.thumbnail,
       documentdownload: bundle.inputData.download,
       compressedBinaryDataFileId: container.fileId,
@@ -41,7 +40,6 @@ const processPush = (z, bundle, container) => {
     params: {
       documentId: encodeURI(bundle.inputData.docId),
       title: bundle.inputData.title,
-      content: bundle.inputData.content,
       thumbnail: bundle.inputData.thumbnail,
       documentdownload: bundle.inputData.download,
       compressedBinaryDataFileId: container.fileId,
@@ -148,7 +146,6 @@ const uploadToContainer = (z, bundle, result) => {
       .catch(handleError);
   })
     .then(() => {
-      containerInfo.contentType = '.' + containerInfo.contentType.split('/')[1].split(';')[0];
       return containerInfo;
     })
     .catch(handleError);

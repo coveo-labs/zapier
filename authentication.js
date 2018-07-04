@@ -11,10 +11,9 @@ const getAuthorizeURL = (bundle) => {
 
   const urlParts = [
     `client_id=${process.env.CLIENT_ID}`,
-    `redirect_uri=${encodeURIComponent(bundle.inputData.redirect_uri)}`,
+    'redirect_uri = redirectUri',
     'response_type=code',
     'scope=full',
-    `state=${bundle.inputData.state}`,
   ];
 
   const finalUrl = `${url}?${urlParts.join('&')}`;
