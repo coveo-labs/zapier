@@ -1,6 +1,6 @@
 # Coveo Zapier Integration
 Source code for the Coveo integration.
-The only availible integration currently is pushing to a Push Source
+The only available integration currently is pushing to a Push Source
 
 ## Description
 This uses the Zapier CLI app template. This repo has 2 versions of the app.
