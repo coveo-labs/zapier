@@ -2,10 +2,12 @@
 
 const utils = require('../utils');
 const messages = require('../constants');
+const responseContent = require('./responseContent');
 const handleError = utils.handleError;
 const fetchFileDetails = utils.fetchFile;
 const getStringByteSize = utils.getStringByteSize;
 const fileTooBig = messages.BIG_FILE;
+const getOrgInfo = responseContent.getOrgInfo;
 
 const handlePushCreation = (z, bundle) => {
 
@@ -71,10 +73,10 @@ const processPush = (z, bundle, container) => {
     return responseOutput;
 
   })
-  .then((result) => {
-    return result;
-  })
-  .catch(handleError);
+    .then((result) => {
+      return result;
+    })
+    .catch(handleError);
 };
 
 
@@ -114,49 +116,45 @@ const uploadToContainer = (z, bundle, result) => {
   };
 
   let url = result.uploadUri;
-  let file = bundle.inputData.docId;
+  let file = bundle.inputData.content;
 
   const fileDetails = fetchFileDetails(file);
 
-    return fileDetails.then((body)=>{
+  return fileDetails.then((body)=>{
 
-      containerInfo.contentType = body.contentType;
+    containerInfo.contentType = body.contentType;
 
-        if(body.size > (1000000 * 1024) || getStringByteSize(body.content) > (1000000 * 1024)){
-          throw new Error(fileTooBig);
-        }
+    if(body.size > (1000000 * 1024) || getStringByteSize(body.content) > (1000000 * 1024)){
+      throw new Error(fileTooBig);
+    }
 
-// let fs = require('fs');
-// fs.writeFileSync('coveo.png', body.content);
+    let fs = require('fs');
+    fs.writeFileSync('coveozapier.pdf', body.content);
 
-  const promise = z.request(url, {
-          method: 'PUT',
-          body: body.content.toString('binary'),
-          headers: result.requiredHeaders,
-        });
+    const promise = z.request(url, {
+      method: 'PUT',
+      body: body.content.toString('binary'),
+      headers: result.requiredHeaders,
+    });
 
-        return promise.then((response) => {
+    return promise.then((response) => {
 
-          if(response.status != 200) {
-            throw new Error('Error uploading file contents to container: ' + response.content);
-          }
+      if(response.status != 200) {
+        throw new Error('Error uploading file contents to container: ' + response.content);
+      }
   
-          const result = z.JSON.stringify(response.content);
-          return result;
+      const result = z.JSON.stringify(response.content);
+      return result;
 
-        })
-        .catch(handleError);
-      })
-      .then(() => {
-      
-          
-        containerInfo.contentType = '.' + containerInfo.contentType.split('/')[1].split(';')[0];
-        
-
-        return containerInfo;
-
-      })
+    })
       .catch(handleError);
+  })
+    .then(() => {
+        
+      return containerInfo;
+
+    })
+    .catch(handleError);
 };
 
 module.exports = {

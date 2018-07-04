@@ -75,13 +75,13 @@ module.exports = {
       //   label: 'Download link',
       //   helpText: 'Download links of the file if they exist.',
       // },
-      // {
-      //   key: 'content',
-      //   required: false,
-      //   type: 'string',
-      //   label: 'Files',
-      //   helpText: 'Any files or attachments you wish to push the contents of the file to.', 
-      // },
+      {
+        key: 'content',
+        required: true,
+        type: 'string',
+        label: 'Files',
+        helpText: 'Any files or attachments you wish to push the contents of the file to.', 
+      },
     ],
     //Action function
     perform: createNewPush,

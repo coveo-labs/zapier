@@ -54,12 +54,12 @@ module.exports = {
       },
     ],
     //Action function
-  perform: createDelete,
+    perform: createDelete,
 
     // In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
     // from the API, Zapier will fallback to this hard-coded sample. It should reflect the data structure of
     // returned records, and have obviously dummy values that we can show to any user.
-  sample: deleteResource.sample,
+    sample: deleteResource.sample,
 
     // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
     // field definitions. The result will be used to augment the sample.

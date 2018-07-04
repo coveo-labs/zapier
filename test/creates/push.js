@@ -19,14 +19,14 @@ describe('pushes', () => {
         },
 	
         inputData: {
-          docId: 'https://106c4.wpc.azureedge.net/80106C4/Gallery-Prod/cdn/2015-02-24/prod20161101-microsoft-windowsazure-gallery/coveo.8caa5c90-ecad-4553-9810-cbd544455ba5.1.0.15/Icon/large.png',
-          title: 'Coveo PNG',
+          docId: 'https://docs.google.com/document/d/1KhjjJfYbDNv7qr1Oif97s8NObyn4pzd1Lvc6YN6YPMg/preview?ouid=114222587917589844043',
+          title: 'Coveo Zapier Integration',
           sourceId: 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas',
           orgId: 'bryanarnoldzapier9xh3mbas',
           platform: 'pushdev.cloud.coveo.com',
-          content: 'https://docs.google.com/presentation/d/163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE/preview?ouid=112521140643491791554',
-          thumbnail: 'https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.presentation',
-          download: 'https://docs.google.com/feeds/download/presentations/Export?id=163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE&exportFormat=pdf',
+          content: 'https://www.coveo.com/-/media/Files/CaseStudies/BRP-Customer-Story.ashx',
+          // thumbnail: 'https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.presentation',
+          // download: 'https://docs.google.com/feeds/download/presentations/Export?id=163C2QNVAz29_ld51Rjt2x6d2VrFdIhXCvWgLyLXLGvE&exportFormat=pdf',
         },
       };
 

@@ -2,6 +2,7 @@
 
 const fetch = require('node-fetch');
 const contentDisposition = require('content-disposition');
+const path = require('path');
 
 const handleError = (error) => {
   if (typeof error === 'string') {
@@ -24,12 +25,16 @@ const fetchFile = (url) => {
   return fetch(url)
     .then((response) => {
 
-      details.contentType = response.headers.get('content-type');
       details.size = response.headers.get('content-length');
       const disposition = response.headers.get('content-disposition');
 
       if(disposition){
         details.filename = contentDisposition.parse(disposition).parameters.filename;
+        details.contentType = path.extname(details.filename);
+      }
+
+      if(details.contentType === 'undefined' || details.contentType === 'null' || details.contentType === ''){
+        details.contentType = '.' + response.headers.get('content-type').split('/')[1].split(';')[0];
       }
 
       return response.buffer();
@@ -46,19 +51,8 @@ const fetchFile = (url) => {
 
 const getStringByteSize = (string) => Buffer.byteLength(string, 'utf8');
 
-const getFileExtension = (z, containerInfo) => {
-
-    const stringExtension = JSON.stringify(containerInfo);
-
-    const fileExtension = '.' + stringExtension.substr(stringExtension.length - 3);
-
-    return fileExtension;
-
-};
-
 module.exports = {
   fetchFile,
   handleError,
   getStringByteSize,
-  getFileExtension,
 };
