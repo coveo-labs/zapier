@@ -24,11 +24,11 @@ const fetchFile = (url) => {
 
   return fetch(url)
     .then((response) => {
-
+      details.contentType = response.headers.get('content-type');
       details.size = response.headers.get('content-length');
       const disposition = response.headers.get('content-disposition');
 
-      if(disposition){
+      if (disposition) {
         details.filename = contentDisposition.parse(disposition).parameters.filename;
         details.contentType = path.extname(details.filename);
       }
@@ -51,8 +51,17 @@ const fetchFile = (url) => {
 
 const getStringByteSize = (string) => Buffer.byteLength(string, 'utf8');
 
+const getFileExtension = (z, containerInfo) => {
+
+  const stringExtension = JSON.stringify(containerInfo);
+  const fileExtension = '.' + stringExtension.substr(stringExtension.length - 3);
+  return fileExtension;
+
+};
+
 module.exports = {
   fetchFile,
   handleError,
   getStringByteSize,
+  getFileExtension,
 };

@@ -56,9 +56,9 @@ const processPush = (z, bundle, container) => {
 
   });
 
-  return promise.then((response) => { 
+  return promise.then((response) => {
 
-    if(response.status !== 202){
+    if (response.status !== 202) {
       throw new Error('Error occured sending push request to Coveo: ' + z.JSON.parse(response.content).message);
     }
 
@@ -87,7 +87,7 @@ const createContainer = (z, bundle) => {
 
   const promise = z.request(url, {
     method: 'POST',
-    headers: {              
+    headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
@@ -95,13 +95,13 @@ const createContainer = (z, bundle) => {
 
   return promise.then((response) => {
 
-    if(response.status !== 201){              
-      throw new Error('Error creating file container: ' + response.content);      
+    if (response.status !== 201) {
+      throw new Error('Error creating file container: ' + response.content);
     }
 
-    const result = z.JSON.parse(response.content);   
+    const result = z.JSON.parse(response.content);
     return uploadToContainer(z, bundle, result);
-        
+
   })
     .catch(handleError);
 };
@@ -120,48 +120,43 @@ const uploadToContainer = (z, bundle, result) => {
 
   const fileDetails = fetchFileDetails(file);
 
-  return fileDetails.then((body)=>{
-
+  return fileDetails.then((body) => {
     containerInfo.contentType = body.contentType;
 
-    if(body.size > (1000000 * 1024) || getStringByteSize(body.content) > (1000000 * 1024)){
+    if (body.size > (1000000 * 1024) || getStringByteSize(body.content) > (1000000 * 1024)) {
       throw new Error(fileTooBig);
     }
 
-    let fs = require('fs');
-    fs.writeFileSync('coveozapier.pdf', body.content);
+    let headers = result.requiredHeaders;
+    headers['content-length'] = body.size;
 
     const promise = z.request(url, {
       method: 'PUT',
-      body: body.content.toString('binary'),
+      body: body.content,
       headers: result.requiredHeaders,
     });
 
     return promise.then((response) => {
 
-      if(response.status != 200) {
+      if (response.status !== 200) {
         throw new Error('Error uploading file contents to container: ' + response.content);
       }
-  
+
       const result = z.JSON.stringify(response.content);
       return result;
-
     })
       .catch(handleError);
   })
     .then(() => {
-        
+      containerInfo.contentType = '.' + containerInfo.contentType.split('/')[1].split(';')[0];
       return containerInfo;
-
     })
     .catch(handleError);
 };
 
 module.exports = {
-
   createContainer,
   uploadToContainer,
   processPush,
   handlePushCreation,
-
 };
