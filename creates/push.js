@@ -51,7 +51,7 @@ module.exports = {
         key: 'platform',
         required: true,
         label: 'Platform',
-        choices: { 'pushdev.cloud.coveo.com': 'Dev', 'pushqa.cloud.coveo.com': 'QA', 'push.cloud.coveo.com': 'Prod' },
+        choices: {'pushdev.cloud.coveo.com': 'Dev'},
         helpText: 'The platform in which your organization lives.',
       },
       {
@@ -62,6 +62,13 @@ module.exports = {
         helpText: 'The title to be displayed within the content browser.',
       },
       {
+        key: 'content',
+        required: true,
+        type: 'string',
+        label: 'Files',
+        helpText: 'The file or attachments you wish to push. In Zapier, most apps display these as (exists but not shown). This is currently the field to extract file data into the source.', 
+      },
+      {
         key: 'thumbnail',
         required: false,
         type: 'string',
@@ -69,18 +76,11 @@ module.exports = {
         helpText: 'Thumbnail to go with the main url supplied.',
       },
       {
-        key: 'download',
+        key: 'additional',
         required: false,
         type: 'string',
-        label: 'Download link',
-        helpText: 'Download links of the file if they exist.',
-      },
-      {
-        key: 'content',
-        required: true,
-        type: 'string',
-        label: 'Files',
-        helpText: 'The file or attachments you wish to push. In Zapier, most apps display these as (exists but not shown)', 
+        label: 'Additional Content',
+        helpText: 'Any additional links or content you wish to push.',
       },
     ],
     //Action function

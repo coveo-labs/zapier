@@ -11,17 +11,18 @@ const appTester = zapier.createAppTester(App);
 
 describe('pushes', () => {
 
-  it('DOCX', (done) => {
+  it('CMD', (done) => {
     zapier.tools.env.inject();
     const bundle = {
       authData: {
         access_token: process.env.ACCESS_TOKEN,
       },
       inputData: {
-        docId: 'https://docs.google.com/document/d/1KhjjJfYbDNv7qr1Oif97s8NObyn4pzd1Lvc6YN6YPMg/preview?ouid=114222587917589844043',
-        title: 'Coveo Zapier Integration',
-        content: 'https://zapier.com/engine/hydrate/1625243/.eJwtj81uwjAQhF8F-dATIgqQ0ERCPRQq9S_0Gi6RsTeJieNN7SWQIt69Du1p9c3OjmavTBlH3AgolGTpIomSMI6iKSsVaFkY3gJLPWhgUyZqEE3RwMDSMJ5H8-XCa2gIDBU0dKMz87bmzG3lWHplJ6u9VhN1Lg0CicLNKsRKw0xgG5QA0nn1bDRyOa5PrY9yAVw6tBRs7-NJyXX4Xh-Pb2V-2GT96tuGO1UmK_eY7Q6DWXY_MvzoRZxncf71WT38Xb-gbTmtfejFVyrv5Lv8MynSY91n7AEne94psJNX_0llOSk07Hb7BVuwYPg:1faoiN:VPOr9p9Gn7Fy2-8wAGM8mzFMedU/',
+        docId: 'https://drive.google.com/a/uconn.edu/file/d/1a99nRwp6qsmciQB88ZwSp84kmiGVuzCE/preview?usp=drivesdk',
+        title: 'sample.dmg',
+        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kEtPwzAQhP-LDz3Rxo4fsSNVSCDEDQmQOHCp0niTOC-7sU1oq_53EsSVPe18O1pp5orM6EMxlnAwGuVUcUUE53eoMtDrw1gMgPJF9IDuUNlA2R06OKOciJSnjC7MjgHGcAhntzpfFls3F1PtUX5FceoX1oTgfJ4k2pZbjLcCb5fN72pr6x6ih-nvx660w2ryiYcyTuDLxHQe0ja2DIOoHTjlsmNPle4qONlp_Ep4q5s0EtmamPG2IoNTnXQ6QuOHhh6bhHCKZYolXichVFDGZEoZV1JhomQm_oGFUuPb7MTJD6V5fZDyc353knWDef6Il8en-2ZPGBEkE6kSUqSYMsEY38Be23nsbaE3td6HKa7NVXYairB0scT7XnQwoV_rOtvYmw7a4nLZ_Z5utx_1rX7T:1fbARd:26UZ5vHXFoTsa2TAQf88wMM3ZuM/',
         sourceId,
+        additional: 'testing additional content',
         orgId,
         platform,
       },

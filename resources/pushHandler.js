@@ -7,7 +7,8 @@ const handleError = utils.handleError;
 const fetchFileDetails = utils.fetchFile;
 const getStringByteSize = utils.getStringByteSize;
 const fileTooBig = messages.BIG_FILE;
-const getOrgInfo = responseContent.getOrgInfo;
+const getOutputInfo = responseContent.getOrgInfoForOutput;
+const getInputInfo = responseContent.getOrgInfoForInput;
 
 const handlePushCreation = (z, bundle) => {
 
@@ -30,8 +31,9 @@ const processPush = (z, bundle, container) => {
     body: z.JSON.stringify({
       documentId: bundle.inputData.docId,
       title: bundle.inputData.title,
+      content: bundle.inputData.content,
       thumbnail: bundle.inputData.thumbnail,
-      documentdownload: bundle.inputData.download,
+      additionalcontent: bundle.inputData.additional,
       compressedBinaryDataFileId: container.fileId,
       compressionType: 'UNCOMPRESSED',
       fileExtension: container.contentType,
@@ -40,8 +42,9 @@ const processPush = (z, bundle, container) => {
     params: {
       documentId: encodeURI(bundle.inputData.docId),
       title: bundle.inputData.title,
+      content: bundle.inputData.content,
       thumbnail: bundle.inputData.thumbnail,
-      documentdownload: bundle.inputData.download,
+      additionalcontent: bundle.inputData.additional,
       compressedBinaryDataFileId: container.fileId,
       compressionType: 'UNCOMPRESSED',
       fileExtension: container.contentType,
@@ -61,14 +64,11 @@ const processPush = (z, bundle, container) => {
     }
 
     const responseOutput = z.JSON.parse(response.request.body);
-    responseOutput.orgId = `${bundle.inputData.orgId}`;
-    responseOutput.sourceId = `${bundle.inputData.sourceId}`;
-    responseOutput.platform = `${bundle.inputData.platform}`;
     delete responseOutput.compressedBinaryDataFileId;
     delete responseOutput.compressionType;
     delete responseOutput.fileExtension;
 
-    return responseOutput;
+    return getOutputInfo(z, bundle, responseOutput);
 
   })
     .then((result) => {
@@ -121,17 +121,21 @@ const uploadToContainer = (z, bundle, result) => {
   return fileDetails.then((body) => {
     containerInfo.contentType = body.contentType;
 
-    if (body.size > (1000000 * 1024) || getStringByteSize(body.content) > (1000000 * 1024)) {
+    if (body.size > (1000000 * 1000) || getStringByteSize(body.content) > (1000000 * 1000)) {
       throw new Error(fileTooBig);
     }
 
     let headers = result.requiredHeaders;
     headers['content-length'] = body.size;
 
+    if(headers['content-length'] == null){
+      headers['content-length'] = getStringByteSize(body.content);
+    }
+
     const promise = z.request(url, {
       method: 'PUT',
       body: body.content,
-      headers: result.requiredHeaders,
+      headers: headers,
     });
 
     return promise.then((response) => {
