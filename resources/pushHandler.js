@@ -8,7 +8,6 @@ const fetchFileDetails = utils.fetchFile;
 const getStringByteSize = utils.getStringByteSize;
 const fileTooBig = messages.BIG_FILE;
 const getOutputInfo = responseContent.getOrgInfoForOutput;
-const getInputInfo = responseContent.getOrgInfoForInput;
 
 const handlePushCreation = (z, bundle) => {
 

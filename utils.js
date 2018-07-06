@@ -24,6 +24,7 @@ const fetchFile = (url) => {
 
   return fetch(url)
     .then((response) => {
+      
       details.size = response.headers.get('content-length');
       const disposition = response.headers.get('content-disposition');
 

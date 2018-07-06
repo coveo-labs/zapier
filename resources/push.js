@@ -1,5 +1,36 @@
 'use strict';
 
+const responseContent = require('./responseContent');
+const numFields = responseContent.numFields;
+
+const outputFields = () => {
+
+  const output = [
+    {key: 'documentId', label: 'Document ID'},
+    {key: 'orgName', label: 'Organization Name'},
+    {key: 'orgId', label: 'Organization ID'},
+    {key: 'orgOwner', label: 'Organization Owner'},
+    {key: 'sourceName', label: 'Source Name'},
+    {key: 'sourceId', label: 'Source ID'},
+    {key: 'sourceOwner', label: 'Source Owner'},
+    {key: 'sourceType', label: 'Source Type'},
+    {key: 'numDocs', label: 'Number of Documents in Source'},
+    {key: 'platform', label: 'Platform'},
+    {key: 'title', label: 'Pushed Document Title'},
+    {key: 'content', label: 'File(s) Pushed'},
+    {key: 'thumbnail', label: 'Thumbnail'},
+    {key: 'additionalcontent', label: 'Additional Content'},
+  ];
+
+  for(var i = 0; i < numFields; i++){
+    var tempKey = 'Field #' + (i + 1).toString();
+    output.push({key: tempKey, label: tempKey});
+  }
+
+  return output;
+
+};
+
 module.exports = {  
   key: 'push',
   noun: 'Push',
@@ -15,20 +46,6 @@ module.exports = {
     download: '<download links here>',	
   },
 
-  outputFields: [
-    {key: 'documentId', label: 'Document ID'},
-    {key: 'orgName', label: 'Organization Name'},
-    {key: 'orgId', label: 'Organization ID'},
-    {key: 'orgOwner', label: 'Organization Owner'},
-    {key: 'sourceName', label: 'Source Name'},
-    {key: 'sourceId', label: 'Source ID'},
-    {key: 'sourceOwner', label: 'Source Owner'},
-    {key: 'sourceType', label: 'Source Type'},
-    {key: 'numDocs', label: 'Number of Documents in Source'},
-    {key: 'platform', label: 'Platform'},
-    {key: 'title', label: 'Pushed Document Title'},
-    {key: 'content', label: 'File(s) Pushed'},
-    {key: 'thumbnail', label: 'Thumbnail'},
-    {key: 'documentdownload', label: 'Additional Content'},
-  ],
+  outputFields: outputFields(),
+
 };

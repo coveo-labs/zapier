@@ -6,13 +6,13 @@ const baseOauthUrl = 'https://platformdev.cloud.coveo.com/oauth';
 // Will looke like 'https://zapier.com/dashboard/auth/oauth/return/App123CLIAPI/'
 const redirectUri = 'https://zapier.com/dashboard/auth/oauth/return/App4771CLIAPI/';
 
-const getAuthorizeURL = (bundle) => {
+const getAuthorizeURL = () => {
   let url = `${baseOauthUrl}/authorize`;
 
   const urlParts = [
     `client_id=${process.env.CLIENT_ID}`,
     'redirect_uri = redirectUri',
-    'response_type=code',
+    'response_type=code id_token',
     'scope=full',
   ];
 
@@ -46,12 +46,13 @@ const getAccessToken = (z, bundle) => {
     }
 
     const result = z.JSON.parse(response.content);
+    z.console.log(result);
     
     return {
       access_token: result.access_token,
       refresh_token: result.refresh_token,
+      id_token: result.id_token,
     };
-
   });
 };
 
@@ -80,9 +81,11 @@ const refreshAccessToken = (z, bundle) => {
     }
 
     const result = z.JSON.parse(response.content);
+
     return {
       access_token: result.access_token,
       refresh_token: result.refresh_token,
+      id_token: result.id_token,
     };
   });
 };
@@ -113,7 +116,6 @@ module.exports = {
     refreshAccessToken,
     // Set so Zapier automatically checks for 401s and calls refreshAccessToken
     autoRefresh: true,
-    // offline_access is necessary for the refresh_token
   },
   test: testAuth,
 };

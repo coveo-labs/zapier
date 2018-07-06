@@ -32,6 +32,13 @@ module.exports = {
         helpText: 'The ID of the document you wish to delete, the url provided when indexing.',
       },
       {
+        key: 'title',
+        required: false,
+        type: 'string',
+        label: 'Title of Document',
+        helpText: 'The title of the document being deleted. Only needed if you want output to be more descriptive.'
+      },
+      {
         key: 'sourceId',
         required: true,
         type: 'string',

@@ -28,11 +28,10 @@ module.exports = {
     //App template input
     inputFields: [
       {
-        key: 'docId',
+        key: 'orgId',
         required: true,
         type: 'string',
-        label: 'Document ID',
-        helpText: 'The main URL to your document or page you wish to push.',
+        helpText: 'The ID of the organization where your source is located.',
       },
       {
         key: 'sourceId',
@@ -42,10 +41,11 @@ module.exports = {
         helpText: 'The ID of the source in the Coveo Cloud V2 Organization you wish to push to.',
       },
       {
-        key: 'orgId',
+        key: 'docId',
         required: true,
         type: 'string',
-        helpText: 'The ID of the organization where your source is located.',
+        label: 'Document ID',
+        helpText: 'The main URL to your document or page you wish to push.',
       },
       {
         key: 'platform',

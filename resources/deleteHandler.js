@@ -1,6 +1,8 @@
 'use strict';
 
 const utils = require('../utils');
+const responseContent = require('./responseContent');
+const getOutputInfo = responseContent.getOrgInfoForOutput;
 const handleError = utils.handleError;
 
 const handleDeleteCreation = (z, bundle) => {
@@ -10,10 +12,12 @@ const handleDeleteCreation = (z, bundle) => {
     method: 'DELETE',
     body: z.JSON.stringify({
       documentId: encodeURI(bundle.inputData.docId),
+      title: bundle.inputData.title,
       deleteChildren: true,	  	 	  
     }),
     params:{
       documentId: encodeURI(bundle.inputData.docId),
+      title: bundle.inputData.title,
       deleteChildren: true,
     },
     headers: {
@@ -32,8 +36,9 @@ const handleDeleteCreation = (z, bundle) => {
     responseOutput.orgId = `${bundle.inputData.orgId}`;
     responseOutput.sourceId = `${bundle.inputData.sourceId}`;
     responseOutput.platform = `${bundle.inputData.platform}`;
+    delete responseOutput.deleteChildren;
   
-    return responseOutput;
+    return getOutputInfo(z, bundle, responseOutput);
   
   })
     .then((result) => {

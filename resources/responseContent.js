@@ -3,22 +3,19 @@
 const utils = require('../utils');
 const handleError = utils.handleError;
 
-const getOrgInfoForInput = (z, bundle) => {
+var numFields = 0;
+
+const getOrgInfoForInput = (z) => {
 
   const inputInfo = {
-    orgSources: [],
+    orgChoices: [],
   };
 
   const promise = z.request({
 
-    url: `https://platformdev.cloud.coveo.com/rest/organizations/${bundle.inputData.orgId}/sources`,
+    url: 'https://platformdev.cloud.coveo.com/rest/organizations/',
     method: 'GET',
-    body: {
-      organizationId: bundle.inputData.orgId,
-    },
-    params: {
-      organizationId: bundle.inputData.orgId,
-    },
+    body: {},
 
   });
 
@@ -31,7 +28,7 @@ const getOrgInfoForInput = (z, bundle) => {
     const result = z.JSON.parse(response.content);
 
     for(var i = 0; i < result.length; i++){
-      inputInfo.orgSources[result[i].name] = result[i].id;
+      inputInfo.orgChoices[result[i].displayName] = result[i].id;
     }
 
     return inputInfo;
@@ -103,6 +100,12 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
         outputInfo.sourceType = newResult.sourceType;
         outputInfo.numDocs = newResult.information.numberOfDocuments;
 
+        for(var j = 0; j < newResult.mappings.length; j++){
+          var temp = 'Field #' + (j + 1).toString();
+          outputInfo[temp] = newResult.mappings[j].fieldName;
+          numFields++;
+        }
+
         return outputInfo;
 
       })
@@ -127,4 +130,5 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
 module.exports ={
   getOrgInfoForInput,
   getOrgInfoForOutput,
+  numFields,
 };
