@@ -4,7 +4,7 @@ const utils = require('../utils');
 const handleError = utils.handleError;
 
 //Used to make the output format Zapier uses more flexible and dynamic. See
-//resources/push.js
+//resources/push.js. Will remove for safer method.
 let numFields = 0;
 
 const getOrgInfoForOutput = (z, bundle, responseOutput) => {
