@@ -36,7 +36,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Title of Document',
-        helpText: 'The title of the document being deleted. Only needed if you want output to be more descriptive.'
+        helpText: 'The title of the document being deleted. Only needed if you want output to be more descriptive.',
       },
       {
         key: 'sourceId',
@@ -56,7 +56,7 @@ module.exports = {
         key: 'platform',
         required: true,
         label: 'Platform',
-        choices: {'pushdev.cloud.coveo.com': 'Dev', 'pushqa.cloud.coveo.com': 'QA', 'push.cloud.coveo.com': 'Prod' },
+        choices: {'pushdev.cloud.coveo.com': 'Dev'},
         helpText: 'The platform in which your organization lives.',
       },
     ],

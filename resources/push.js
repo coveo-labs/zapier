@@ -23,7 +23,7 @@ const outputFields = () => {
   ];
 
   for(var i = 0; i < numFields; i++){
-    var tempKey = 'Field #' + (i + 1).toString();
+    var tempKey = 'Field #' + (i + 1).toString() + ' used by source';
     output.push({key: tempKey, label: tempKey});
   }
 

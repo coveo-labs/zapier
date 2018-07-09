@@ -3,6 +3,9 @@ const PushResource = require('./resources/push');
 const push = require('./creates/push');
 const deletes = require('./creates/delete');
 const authentication = require('./authentication');
+const orgChoices = require('./triggers/orgChoices');
+const orgSources = require('./triggers/orgSources');
+const sourceFields = require('./triggers/fieldChoices');
 const {includeBearerToken} = require('./before-handlers');
 
 // Now we can roll up all our behaviors in an App.
@@ -28,6 +31,9 @@ const App = {
 
   // If you want your trigger to show up, you better include it here!
   triggers: {
+    [orgChoices.key]: orgChoices,
+    [orgSources.key]: orgSources,
+    [sourceFields.key]: sourceFields,
   },
 
   // If you want your searches to show up, you better include it here!

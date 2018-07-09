@@ -1,17 +1,16 @@
 'use strict';
 
-const base64 = require('base-64');
-const baseOauthUrl = 'https://platformdev.cloud.coveo.com/oauth';
+const OAUTH_URL = 'https://platformdev.cloud.coveo.com/oauth';
 // To get your OAuth2 redirect URI, run `zapier describe` and update this variable.
 // Will looke like 'https://zapier.com/dashboard/auth/oauth/return/App123CLIAPI/'
-const redirectUri = 'https://zapier.com/dashboard/auth/oauth/return/App4771CLIAPI/';
+const REDIRECT_URI = 'https://zapier.com/dashboard/auth/oauth/return/App4771CLIAPI/';
 
 const getAuthorizeURL = () => {
-  let url = `${baseOauthUrl}/authorize`;
+  let url = `${OAUTH_URL}/authorize`;
 
   const urlParts = [
     `client_id=${process.env.CLIENT_ID}`,
-    'redirect_uri = redirectUri',
+    'redirect_uri = REDIRECT_URI',
     'response_type=code id_token',
     'scope=full',
   ];
@@ -23,12 +22,14 @@ const getAuthorizeURL = () => {
 };
 
 const getAccessToken = (z, bundle) => {
-  let url = `${baseOauthUrl}/token`;
+  let url = `${OAUTH_URL}/token`;
 
   const body = {
     code: bundle.inputData.code,
-    redirect_uri: redirectUri,
-    grant_type: 'authorization_code',
+    refresh_token: bundle.authData.refresh_token,
+    redirect_uri: REDIRECT_URI,
+    grant_type: 'authorization_code refresh_token',
+    response_type: 'token id_token',
   };
 
   const promise = z.request(url, {
@@ -36,7 +37,7 @@ const getAccessToken = (z, bundle) => {
     body,
     headers: {
       'content-type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET)}`,
+      'Authorization': 'Basic ' + Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64'), 
     },
   });
 
@@ -46,7 +47,7 @@ const getAccessToken = (z, bundle) => {
     }
 
     const result = z.JSON.parse(response.content);
-    z.console.log(result);
+    z.console.log('Result of auth: ' , result);
     
     return {
       access_token: result.access_token,
@@ -57,13 +58,14 @@ const getAccessToken = (z, bundle) => {
 };
 
 const refreshAccessToken = (z, bundle) => {
-  let url = `${baseOauthUrl}/token`;
+  let url = `${OAUTH_URL}/token`;
 
   const body = {
     code: bundle.inputData.code,
     refresh_token: bundle.authData.refresh_token,
-    redirect_uri: redirectUri,
-    grant_type: 'refresh_token',
+    redirect_uri: REDIRECT_URI,
+    grant_type: 'authorization_code refresh_token',
+    response_type: 'token id_token',
   };
 
   const promise = z.request(url, {
@@ -71,7 +73,7 @@ const refreshAccessToken = (z, bundle) => {
     body,
     headers: {
       'content-type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${base64.encode(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET)}`,
+      'Authorization': 'Basic ' + Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64'), 
     },
   });
 
@@ -81,7 +83,8 @@ const refreshAccessToken = (z, bundle) => {
     }
 
     const result = z.JSON.parse(response.content);
-
+    z.console.log('Result of auth: ' , result);
+    
     return {
       access_token: result.access_token,
       refresh_token: result.refresh_token,
@@ -110,6 +113,9 @@ const testAuth = (z) => {
 module.exports = {
   type: 'oauth2',
   connectionLabel: 'Coveo Cloud V2',
+  //oauth2Config data structure is how Zapier determines what to call when managing the ouath. The authorization url construction is
+  //called when needed in authorizeUrl, whenever a access/refresh token is needed it calls getAccessToken, and whenever a 401 error occurs
+  //it knows to call autoRefresh (which calls refreshAccessToken).
   oauth2Config: {
     authorizeUrl: getAuthorizeURL,
     getAccessToken,

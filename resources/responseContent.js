@@ -3,39 +3,9 @@
 const utils = require('../utils');
 const handleError = utils.handleError;
 
-var numFields = 0;
-
-const getOrgInfoForInput = (z) => {
-
-  const inputInfo = {
-    orgChoices: [],
-  };
-
-  const promise = z.request({
-
-    url: 'https://platformdev.cloud.coveo.com/rest/organizations/',
-    method: 'GET',
-    body: {},
-
-  });
-
-  return promise.then((response) => {
-
-    if(response.status >= 400){
-      throw new Error('Error getting source details: ' + response.content);
-    }
-
-    const result = z.JSON.parse(response.content);
-
-    for(var i = 0; i < result.length; i++){
-      inputInfo.orgChoices[result[i].displayName] = result[i].id;
-    }
-
-    return inputInfo;
-
-  })
-    .catch(handleError);
-};
+//Used to make the output format Zapier uses more flexible and dynamic. See
+//resources/push.js
+let numFields = 0;
 
 const getOrgInfoForOutput = (z, bundle, responseOutput) => {
 
@@ -48,7 +18,7 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
     orgOwner: '',
   };
 
-  const promise = z.request({
+  const orgInfoPromise = z.request({
 
     url : `https://platformdev.cloud.coveo.com/rest/organizations/${bundle.inputData.orgId}`,
     method: 'GET',
@@ -61,7 +31,7 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
 
   });
 
-  return promise.then((response) => {
+  return orgInfoPromise.then((response) => {
 
     if(response.status >= 400){
       throw new Error('Error getting organization name: ' + response.content);
@@ -74,7 +44,7 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
   })
     .then(() => {
 
-      const newPromise = z.request({
+      const orgSourcesPromise = z.request({
 
         url: `https://platformdev.cloud.coveo.com/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
         method: 'GET',
@@ -88,23 +58,25 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
         },
       });
 
-      return newPromise.then((response) => {
+      return orgSourcesPromise.then((response) => {
 
         if(response.status >= 400){
           throw new Error('Error getting source name and fields: ' , response.content);
         }
 
-        const newResult = z.JSON.parse(response.content);
-        outputInfo.sourceName = newResult.name;
-        outputInfo.sourceOwner = newResult.owner.substr(0, newResult.owner.indexOf('-'));
-        outputInfo.sourceType = newResult.sourceType;
-        outputInfo.numDocs = newResult.information.numberOfDocuments;
+        const result = z.JSON.parse(response.content);
+        outputInfo.sourceName = result.name;
+        //Owner of source comes back at abc@coveo.com-google. '-google' isn't necessary for this and looks
+        //cleaner.
+        outputInfo.sourceOwner = (result.owner || '').split('-')[0];
+        outputInfo.sourceType = result.sourceType;
+        outputInfo.numDocs = result.information.numberOfDocuments;
 
-        for(var j = 0; j < newResult.mappings.length; j++){
-          var temp = 'Field #' + (j + 1).toString();
-          outputInfo[temp] = newResult.mappings[j].fieldName;
+        result.mappings.forEach((mapping, idx) => {
+          let filedNum = 'Field #' + (idx + 1);
+          outputInfo[filedNum] = mapping.fieldName;
           numFields++;
-        }
+        })
 
         return outputInfo;
 
@@ -128,7 +100,6 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
 };
 
 module.exports ={
-  getOrgInfoForInput,
   getOrgInfoForOutput,
   numFields,
 };

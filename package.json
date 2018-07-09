@@ -1,6 +1,6 @@
 {
   "name": "coveo-push",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Send data to a Coveo Cloud V2 Push source",
   "repository": "ibarnold19/zapier",
   "homepage": "https://coveo.com/",
@@ -15,10 +15,8 @@
     "npm": ">=3.10.10"
   },
   "dependencies": {
-    "base-64": "~0.1.0",
     "enlist": "^0.1.0",
     "eslint": "^5.0.1",
-    "pako": "1.0.5",
     "zapier-platform-core": "7.0.0"
   },
   "devDependencies": {

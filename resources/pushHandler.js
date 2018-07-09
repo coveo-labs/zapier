@@ -1,7 +1,7 @@
 'use strict';
 
 const utils = require('../utils');
-const messages = require('../constants');
+const messages = require('../messages');
 const responseContent = require('./responseContent');
 const handleError = utils.handleError;
 const fetchFileDetails = utils.fetchFile;
@@ -23,37 +23,29 @@ const handlePushCreation = (z, bundle) => {
 
 const processPush = (z, bundle, container) => {
 
+  //Temporary until I figure out a better way of handling input fields of varying sizes
+  bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
+  bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
+  bundle.inputData['documentId'] = bundle.inputData.docId;
+  delete bundle.inputData.docId;
+  delete bundle.inputData.field1;
+  delete bundle.inputData.field2;
+  delete bundle.inputData.field1Content;
+  delete bundle.inputData.field2Content;
+  bundle.inputData.compressedBinaryDataFileId = container.fileId;
+  bundle.inputData.compressionType = 'UNCOMPRESSED';
+  bundle.inputData.fileExtension = container.contentType;
+
   const promise = z.request({
 
     url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'PUT',
-    body: z.JSON.stringify({
-      documentId: bundle.inputData.docId,
-      title: bundle.inputData.title,
-      content: bundle.inputData.content,
-      thumbnail: bundle.inputData.thumbnail,
-      additionalcontent: bundle.inputData.additional,
-      compressedBinaryDataFileId: container.fileId,
-      compressionType: 'UNCOMPRESSED',
-      fileExtension: container.contentType,
-    }),
-
-    params: {
-      documentId: encodeURI(bundle.inputData.docId),
-      title: bundle.inputData.title,
-      content: bundle.inputData.content,
-      thumbnail: bundle.inputData.thumbnail,
-      additionalcontent: bundle.inputData.additional,
-      compressedBinaryDataFileId: container.fileId,
-      compressionType: 'UNCOMPRESSED',
-      fileExtension: container.contentType,
-    },
-
+    body: z.JSON.stringify(bundle.inputData),
+    params: bundle.inputData,
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-
   });
 
   return promise.then((response) => {
