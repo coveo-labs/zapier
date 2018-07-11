@@ -25,6 +25,22 @@ module.exports = {
     //App template input
     inputFields: [
       {
+        key: 'orgId',
+        required: true,
+        type: 'string',
+        label: 'Organization ID',
+        dynamic: 'orgChoices.id.displayName',
+        helpText: 'The ID of the organization within your platform.',
+      },
+      {
+        key: 'sourceId',
+        required: true,
+        type: 'string',
+        label: 'Source ID',
+        dynamic: 'orgSources.id.name',
+        helpText: 'The ID of the source inside of your organization.',
+      },
+      {
         key: 'docId',
         required: true,
         type: 'string',
@@ -36,28 +52,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Title of Document',
-        helpText: 'The title of the document being deleted. Only needed if you want output to be more descriptive.',
-      },
-      {
-        key: 'sourceId',
-        required: true,
-        type: 'string',
-        label: 'Source ID',
-        helpText: 'The ID of the source inside of your organization.',
-      },
-      {
-        key: 'orgId',
-        required: true,
-        type: 'string',
-        label: 'Organization ID',
-        helpText: 'The ID of the organization within your platform.',
-      },
-      {
-        key: 'platform',
-        required: true,
-        label: 'Platform',
-        choices: {'pushdev.cloud.coveo.com': 'Dev'},
-        helpText: 'The platform in which your organization lives.',
+        helpText: 'The title of the document being deleted. Only needed if you want possible inputs for additional actions to have more content.',
       },
     ],
     //Action function

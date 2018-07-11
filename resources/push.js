@@ -1,7 +1,7 @@
 'use strict';
 
 const responseContent = require('./responseContent');
-const numFields = responseContent.numFields;
+const numFields = responseContent.fieldsCount;
 
 const outputFields = () => {
 
@@ -15,15 +15,14 @@ const outputFields = () => {
     {key: 'sourceOwner', label: 'Source Owner'},
     {key: 'sourceType', label: 'Source Type'},
     {key: 'numDocs', label: 'Number of Documents in Source'},
-    {key: 'platform', label: 'Platform'},
     {key: 'title', label: 'Pushed Document Title'},
     {key: 'content', label: 'File(s) Pushed'},
-    {key: 'thumbnail', label: 'Thumbnail'},
-    {key: 'additionalcontent', label: 'Additional Content'},
+    {key: 'numFields', label: 'Number of Fields the Source Uses'},
+    {key: 'docSize', label: 'Size (in bytes) of all the Documents in the Source'},
   ];
 
   for(var i = 0; i < numFields; i++){
-    var tempKey = 'Field #' + (i + 1).toString() + ' used by source';
+    var tempKey = 'Field #' + (i + 1) + ' used by source';
     output.push({key: tempKey, label: tempKey});
   }
 
@@ -39,11 +38,12 @@ module.exports = {
     docId: 'file://folder/my-file.html',
     sourceId: 'rp5rxzbdz753uhndklv2ztkfgy-mycoveocloudv2organizationg8tp8wu3',
     orgId: 'mycoveocloudv2organizationg8tp8wu3',
-    platform: 'push.cloud.coveo.com',
     title: 'my-file.html',
     content: '<files here>',
-    thumbnail: '<thumnail url>',
-    download: '<download links here>',	
+    field1: 'thumbnail',
+    field1Content: '<thumbnail url here>',
+    field2: 'additionalcontent',
+    field2Content: '<any other content here>',	
   },
 
   outputFields: outputFields(),

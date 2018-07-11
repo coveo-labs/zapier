@@ -2,7 +2,6 @@ require('should');
 
 const orgId = 'bryanarnoldzapier9xh3mbas';
 const sourceId = 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas';
-const platform = 'pushdev.cloud.coveo.com';
 
 const zapier = require('zapier-platform-core');
 
@@ -18,16 +17,15 @@ describe('pushes', () => {
         access_token: process.env.ACCESS_TOKEN,
       },
       inputData: {
-        docId: 'https://drive.google.com/a/uconn.edu/file/d/1CVhqP7vOyW1rpqvbI2yEbzMVIwnp5M4-/preview?usp=drivesdk',
-        title: 'Zapier Single Item Test',
-        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kD1v2zAQhv-KwSFTbJHih0QBRoa2Q4CmzVAko0GLZ0oRRdIkJUMJ8t8rAVlz070P3rvh-UC9S1m5Fk69Rg2VXBLB-T269GD1yakRULMGC-getR20w2mABTVElLxkdGXeZXD5lJewNf-steGmokmo-UBTtCvrcg6pKQrt2z2u9wLv1y0djPfGwpQgfv04tH7cSqlI0E4RUlv0Q4LybXpjGIQJEGSozpZKPVzg6qObCxGdjr20ScV65DOu-gBDZXDiV0o5nQvCKZb4awpCBWWsLinjspaYyLoS38AfL931uZr_Lq8khut8fiyXX-f3p5fHmwv8ie0fuiNhRJBKlFLUosSUCcb4HRy1vznrlb4z-pjjtJm7-DiqvLoI-rLG3Ge72fqtnJmUgd1PmMH6MK4Wdsrp3T9oO-etN8thu_j8_A_SMYYE:1fbWig:_M7wgqzNYx77WV6CQaC5BkonLZk/',
+        docId: 'https://drive.google.com/a/uconn.edu/file/d/1Nk_Y7HLRJLXu7mQNJRzJNXa0nP3zyi0h/preview?usp=drivesdk',
+        title: 'Zapier Zip Test',
+        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kEFv4yAQhf9KxKGnJgaDsbEU7WUPqyiKdqseuieL4gl2wOAFnCqp-t-LV712TvOe3oyevnc0upikU9CNPWqpqAThVfWIziPYvnNyAtRmYQE9IjWAMp2BG2oJL6uS0ex5l8ClLt3mNXnKMfMmg46ofUdLsNkbUppjWxS9V1ustxxv8xZ32nttYYkQvn7slJ_WUCwiqCVAVMVoIpSX5cIwcD3DLOb61VLRmzP888FdC8_5hWBzzb1VsDio13gRpjFNUiZGTQpSUUJpif9PQSinjDUlZZVoBCaiqfk35sl0f-tfx6fD8WWppz-nw9P9cHqR2P2m99uIhx_DnjDCSc1LwRteYso4Y9UD7Hv_5qyX_YPu9yksK7mzD5NMmcV9nLNMY7IrraN0epEaNj_hCtbPU6awka7fPIManLde33brxcfHJ-Ayhhk:1fdK9j:Oyy4G4v10pNbNCSE1fkwZgR7CUA/',
         field1: 'thumbnail',
-        field1Content: 'testing thumbnail',
+        field1Content: 'testing thumbnail field',
         field2: 'additionalcontent',
-        field2Content: 'testing additional content',
+        field2Content: 'testing additional content field',
         sourceId,
         orgId,
-        platform,
       },
     };
 

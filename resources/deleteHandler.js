@@ -2,13 +2,15 @@
 
 const utils = require('../utils');
 const responseContent = require('./responseContent');
+const messages = require('../messages');
+const push = messages.PUSH;
 const getOutputInfo = responseContent.getOrgInfoForOutput;
 const handleError = utils.handleError;
 
 const handleDeleteCreation = (z, bundle) => {
 
   const promise = z.request({
-    url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
+    url: `https://` + push + `/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'DELETE',
     body: z.JSON.stringify({
       documentId: encodeURI(bundle.inputData.docId),
@@ -35,7 +37,6 @@ const handleDeleteCreation = (z, bundle) => {
     const responseOutput = z.JSON.parse(response.request.body);
     responseOutput.orgId = `${bundle.inputData.orgId}`;
     responseOutput.sourceId = `${bundle.inputData.sourceId}`;
-    responseOutput.platform = `${bundle.inputData.platform}`;
     delete responseOutput.deleteChildren;
   
     return getOutputInfo(z, bundle, responseOutput);

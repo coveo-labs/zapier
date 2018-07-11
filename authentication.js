@@ -1,6 +1,9 @@
 'use strict';
 
-const OAUTH_URL = 'https://platformdev.cloud.coveo.com/oauth';
+const messages = require('./messages');
+const platform = messages.PLATFORM;
+
+const OAUTH_URL = 'https://' + platform + '/oauth';
 // To get your OAuth2 redirect URI, run `zapier describe` and update this variable.
 // Will looke like 'https://zapier.com/dashboard/auth/oauth/return/App123CLIAPI/'
 const REDIRECT_URI = 'https://zapier.com/dashboard/auth/oauth/return/App4771CLIAPI/';
@@ -28,7 +31,7 @@ const getAccessToken = (z, bundle) => {
     code: bundle.inputData.code,
     refresh_token: bundle.authData.refresh_token,
     redirect_uri: REDIRECT_URI,
-    grant_type: 'authorization_code refresh_token',
+    grant_type: 'authorization_code',
     response_type: 'token id_token',
   };
 
@@ -46,8 +49,8 @@ const getAccessToken = (z, bundle) => {
       throw new Error('Unable to fetch access token: ' + response.content);
     }
 
+    z.console.log('getToken auth response: ' , response);
     const result = z.JSON.parse(response.content);
-    z.console.log('Result of auth: ' , result);
     
     return {
       access_token: result.access_token,
@@ -64,7 +67,7 @@ const refreshAccessToken = (z, bundle) => {
     code: bundle.inputData.code,
     refresh_token: bundle.authData.refresh_token,
     redirect_uri: REDIRECT_URI,
-    grant_type: 'authorization_code refresh_token',
+    grant_type: 'refresh_token',
     response_type: 'token id_token',
   };
 
@@ -82,8 +85,8 @@ const refreshAccessToken = (z, bundle) => {
       throw new Error('Unable to fetch access token: ' + response.content);
     }
 
+    z.console.log('getToken auth response: ' , response);
     const result = z.JSON.parse(response.content);
-    z.console.log('Result of auth: ' , result);
     
     return {
       access_token: result.access_token,
@@ -99,13 +102,14 @@ const refreshAccessToken = (z, bundle) => {
 // the token and not because the user didn't happen to have a recently created record.
 const testAuth = (z) => {
   const promise = z.request({
-    url: `https://platformdev.cloud.coveo.com/rest/templates/apikeys`,
+    url: 'https://' + platform + '/rest/templates/apikeys',
   });
 
   return promise.then((response) => {
     if (response.status === 401) {
-      throw new Error('The access token you supplied is not valid');
+      throw new Error('The access token supplied is not valid');
     }
+    z.console.log('Test auth response: ' , response);
     return z.JSON.parse(response.content);
   });
 };

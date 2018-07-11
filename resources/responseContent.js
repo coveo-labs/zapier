@@ -1,11 +1,9 @@
 'use strict';
 
 const utils = require('../utils');
+const messages = require('../messages');
+const platform = messages.PLATFORM;
 const handleError = utils.handleError;
-
-//Used to make the output format Zapier uses more flexible and dynamic. See
-//resources/push.js. Will remove for safer method.
-let numFields = 0;
 
 const getOrgInfoForOutput = (z, bundle, responseOutput) => {
 
@@ -14,13 +12,15 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
     sourceName: '',
     sourceOwner: '',
     numDocs: '',
+    docSize: '',
     orgName: '',
     orgOwner: '',
+    numFields: 0,
   };
 
   const orgInfoPromise = z.request({
 
-    url : `https://platformdev.cloud.coveo.com/rest/organizations/${bundle.inputData.orgId}`,
+    url : `https://` + platform + `/rest/organizations/${bundle.inputData.orgId}`,
     method: 'GET',
     body: {
       organizationId: bundle.inputData.orgId,
@@ -46,7 +46,7 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
 
       const orgSourcesPromise = z.request({
 
-        url: `https://platformdev.cloud.coveo.com/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
+        url: `https://` + platform + `/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
         method: 'GET',
         body: {
           organizationId: bundle.inputData.orgId,
@@ -67,16 +67,17 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
         const result = z.JSON.parse(response.content);
         outputInfo.sourceName = result.name;
         //Owner of source comes back at abc@coveo.com-google. '-google' isn't necessary for this and looks
-        //cleaner.
+        //cleaner without it.
         outputInfo.sourceOwner = (result.owner || '').split('-')[0];
         outputInfo.sourceType = result.sourceType;
         outputInfo.numDocs = result.information.numberOfDocuments;
+        outputInfo.docSize = result.information.documentsTotalSize;
 
         result.mappings.forEach((mapping, idx) => {
           let filedNum = 'Field #' + (idx + 1);
           outputInfo[filedNum] = mapping.fieldName;
-          numFields++;
-        })
+          outputInfo.numFields++;
+        });
 
         return outputInfo;
 
@@ -89,17 +90,17 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
 
           outputInfo.orgId = `${bundle.inputData.orgId}`;
           outputInfo.sourceId = `${bundle.inputData.sourceId}`;
-          outputInfo.platform = `${bundle.inputData.platform}`;
 
           return outputInfo;
         })
         .catch(handleError);
     })
     .catch(handleError);
-
 };
+
+const fieldsCount = getOrgInfoForOutput.numFields;
 
 module.exports ={
   getOrgInfoForOutput,
-  numFields,
+  fieldsCount,
 };

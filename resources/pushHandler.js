@@ -3,6 +3,7 @@
 const utils = require('../utils');
 const messages = require('../messages');
 const responseContent = require('./responseContent');
+const push = messages.PUSH;
 const handleError = utils.handleError;
 const fetchFileDetails = utils.fetchFile;
 const getStringByteSize = utils.getStringByteSize;
@@ -15,30 +16,30 @@ const handlePushCreation = (z, bundle) => {
 
   return containerInfo.then((container) => {
 
+    //Temporary until I figure out a better way of handling artbitrary numbers of input fields
+    bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
+    bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
+    bundle.inputData['documentId'] = bundle.inputData.docId;
+    delete bundle.inputData.docId;
+    delete bundle.inputData.field1;
+    delete bundle.inputData.field2;
+    delete bundle.inputData.field1Content;
+    delete bundle.inputData.field2Content;
+    bundle.inputData.compressedBinaryDataFileId = container.fileId;
+    bundle.inputData.compressionType = 'UNCOMPRESSED';
+    bundle.inputData.fileExtension = container.contentType;
+
     return processPush(z, bundle, container);
 
   })
     .catch(handleError);
 };
 
-const processPush = (z, bundle, container) => {
-
-  //Temporary until I figure out a better way of handling input fields of varying sizes
-  bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
-  bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
-  bundle.inputData['documentId'] = bundle.inputData.docId;
-  delete bundle.inputData.docId;
-  delete bundle.inputData.field1;
-  delete bundle.inputData.field2;
-  delete bundle.inputData.field1Content;
-  delete bundle.inputData.field2Content;
-  bundle.inputData.compressedBinaryDataFileId = container.fileId;
-  bundle.inputData.compressionType = 'UNCOMPRESSED';
-  bundle.inputData.fileExtension = container.contentType;
+const processPush = (z, bundle) => {
 
   const promise = z.request({
 
-    url: `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
+    url: `https://` + push + `/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'PUT',
     body: z.JSON.stringify(bundle.inputData),
     params: bundle.inputData,
@@ -72,7 +73,7 @@ const processPush = (z, bundle, container) => {
 
 const createContainer = (z, bundle) => {
 
-  let url = `https://${bundle.inputData.platform}/v1/organizations/${bundle.inputData.orgId}/files`;
+  let url = `https://` + push + `/v1/organizations/${bundle.inputData.orgId}/files`;
 
   const promise = z.request(url, {
     method: 'POST',
@@ -122,6 +123,8 @@ const uploadToContainer = (z, bundle, result) => {
     if(headers['content-length'] == null){
       headers['content-length'] = getStringByteSize(body.content);
     }
+
+    console.log('Body: ' , body);
 
     const promise = z.request(url, {
       method: 'PUT',

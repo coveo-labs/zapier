@@ -51,13 +51,6 @@ module.exports = {
         helpText: 'The main URL to your document or page you wish to push.',
       },
       {
-        key: 'platform',
-        required: true,
-        label: 'Platform',
-        choices: {'pushdev.cloud.coveo.com': 'Dev'},
-        helpText: 'The platform in which your organization lives.',
-      },
-      {
         key: 'title',
         required: true,
         type: 'string',
