@@ -61,8 +61,8 @@ module.exports = {
         key: 'content',
         required: true,
         type: 'string',
-        label: 'Files or Attachments',
-        helpText: 'File or attachment you wish to push relating to the Document ID. In Zapier, most apps display these as: (Exists but not shown).', 
+        label: 'Content',
+        helpText: 'The main content you want extracted into the source. This can be a URL, the document ID again, or a file. Zapier displays files as: (Exists but not shown). Do not put the document ID in again if the url requires authorization (i.e. the url of a gmail email), otherwise the content will not be extracted.', 
       },
       {
         key: 'field1',

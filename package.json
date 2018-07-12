@@ -1,10 +1,14 @@
 {
   "name": "coveo-push",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Send data to a Coveo Cloud V2 Push source",
-  "repository": "ibarnold19/zapier",
+  "repository": "coveo-labs/zapier",
   "homepage": "https://coveo.com/",
   "author": "Bryan Arnold <barnold@coveo.com>",
+  "contributors": [
+    "Peter McCormick <pmccormick@coveo.com>",
+    "Jerome Devost <jdevost@coveo.com"
+  ],
   "license": "MIT",
   "main": "index.js",
   "scripts": {
@@ -15,11 +19,9 @@
     "npm": ">=3.10.10"
   },
   "dependencies": {
-    "enlist": "^0.1.0",
     "eslint": "^5.0.1",
     "jszip": "3.1.5",
-    "zapier-platform-core": "7.0.0",
-    "zlib": "^1.0.5"
+    "zapier-platform-core": "7.0.0"
   },
   "devDependencies": {
     "mocha": "5.2.0",

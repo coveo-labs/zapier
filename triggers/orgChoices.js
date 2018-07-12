@@ -1,9 +1,7 @@
 'use strict';
 
-const utils = require('../utils');
-const messages = require('../messages');
-const platform = messages.PLATFORM;
-const handleError = utils.handleError;
+const handleError = require('../utils').handleError;
+const platform = require('../config').PLATFORM;
 
 const getOrgChoicesForInput = (z) => {
 
@@ -20,7 +18,7 @@ const getOrgChoicesForInput = (z) => {
   return orgChoicesPromise.then((response) => {
   
     if(response.status >= 400){
-      throw new Error('Error getting organization choices for dropdown: ' + response.content);
+      throw new Error('Error getting organization choices for dropdown.');
     }
   
     const results = z.JSON.parse(response.content);

@@ -1,9 +1,7 @@
 'use strict';
 
-const utils = require('../utils');
-const messages = require('../messages');
-const platform = messages.PLATFORM;
-const handleError = utils.handleError;
+const handleError = require('../utils').handleError;
+const platform = require('../config').PLATFORM;
 
 const getSourceChoicesForInput = (z, bundle) => {
 
@@ -24,7 +22,7 @@ const getSourceChoicesForInput = (z, bundle) => {
   return orgSourcesPromise.then((response) => {
   
     if(response.status >= 400){
-      throw new Error('Error getting organization choices for dropdown. The source must be chosen first to get these choices: ' + response.content);
+      throw new Error('Error getting source choices for dropdown. The organization ID must be chosen first to get these choices.');
     }
   
     const results = z.JSON.parse(response.content);

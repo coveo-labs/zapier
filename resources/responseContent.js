@@ -1,9 +1,7 @@
 'use strict';
 
-const utils = require('../utils');
-const messages = require('../messages');
-const platform = messages.PLATFORM;
-const handleError = utils.handleError;
+const handleError = require('../utils').handleError;
+const platform = require('../config').PLATFORM;
 
 const getOrgInfoForOutput = (z, bundle, responseOutput) => {
 

@@ -11,29 +11,31 @@ const handleError = (error) => {
 
 const handleZip = (details) => {
 
-  let zipDetails ={
+  const zipDetails ={
     content: '',
+    originalContentType: details.contentType,
     contentType: '',
     size: 0,
     filename: '',
   };
 
   const JSZIP = require('jszip');
-  var zip = new JSZIP();
+  const zip = new JSZIP();
 
-    const zipFile = zip.loadAsync(details.content);
+  const zipFile = zip.loadAsync(details.content);
 
-    return zipFile.then((zip) => {
+  return zipFile.then((zip) => {
 
-      let name = Object.keys(zip.files);
-      zipDetails.filename = name[0];
-      zipDetails.contentType = '.' + zipDetails.filename.split('.')[1].split('/')[0];
-      zipDetails.content = zip.files[name[0]]._data.compressedContent;
-      zipDetails.size = zip.files[name[0]]._data.uncompressedSize;
+    let name = Object.keys(zip.files);
+    console.log('Zip file: ' , zip.files);
+    zipDetails.filename = name[0];
+    zipDetails.contentType = '.' + zipDetails.filename.split('.')[1].split('/')[0];
+    zipDetails.content = zip.files[name[0]]._data.compressedContent;
+    zipDetails.size = zip.files[name[0]]._data.compressedSize;
 
-      return zipDetails;
+    return zipDetails;
 
-    });
+  });
 
 };
 

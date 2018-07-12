@@ -1,14 +1,11 @@
 'use strict';
 
-const utils = require('../utils');
-const messages = require('../messages');
-const responseContent = require('./responseContent');
-const push = messages.PUSH;
-const handleError = utils.handleError;
-const fetchFileDetails = utils.fetchFile;
-const getStringByteSize = utils.getStringByteSize;
-const fileTooBig = messages.BIG_FILE;
-const getOutputInfo = responseContent.getOrgInfoForOutput;
+const push = require('../config').PUSH;
+const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
+const fileTooBig = require('../messages').BIG_FILE;
+const handleError = require('../utils').handleError;
+const fetchFileDetails = require('../utils').fetchFile;
+const getStringByteSize = require('../utils').getStringByteSize;
 
 const handlePushCreation = (z, bundle) => {
 
@@ -20,14 +17,18 @@ const handlePushCreation = (z, bundle) => {
     bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
     bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
     bundle.inputData['documentId'] = bundle.inputData.docId;
+    bundle.inputData.compressedBinaryDataFileId = container.fileId;
+    bundle.inputData.compressionType = 'UNCOMPRESSED';
+    bundle.inputData.fileExtension = container.contentType;
     delete bundle.inputData.docId;
     delete bundle.inputData.field1;
     delete bundle.inputData.field2;
     delete bundle.inputData.field1Content;
     delete bundle.inputData.field2Content;
-    bundle.inputData.compressedBinaryDataFileId = container.fileId;
-    bundle.inputData.compressionType = 'UNCOMPRESSED';
-    bundle.inputData.fileExtension = container.contentType;
+
+    if(container.originalContentType === '.zip'){
+      bundle.inputData.compressionType = 'DEFLATE';
+    }
 
     return processPush(z, bundle, container);
 
@@ -103,6 +104,7 @@ const uploadToContainer = (z, bundle, result) => {
   const containerInfo = {
     fileId: result.fileId,
     contentType: '',
+    originalContentType: '',
   };
 
   let url = result.uploadUri;
@@ -112,6 +114,7 @@ const uploadToContainer = (z, bundle, result) => {
 
   return fileDetails.then((body) => {
     containerInfo.contentType = body.contentType;
+    containerInfo.originalContentType = body.originalContentType;
 
     if (body.size > (1000000 * 1000) || getStringByteSize(body.content) > (1000000 * 1000)) {
       throw new Error(fileTooBig);
@@ -124,12 +127,10 @@ const uploadToContainer = (z, bundle, result) => {
       headers['content-length'] = getStringByteSize(body.content);
     }
 
-    console.log('Body: ' , body);
-
     const promise = z.request(url, {
       method: 'PUT',
       body: body.content,
-      headers: headers,
+      headers: result.requiredHeaders,
     });
 
     return promise.then((response) => {

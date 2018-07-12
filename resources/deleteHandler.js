@@ -1,11 +1,8 @@
 'use strict';
 
-const utils = require('../utils');
-const responseContent = require('./responseContent');
-const messages = require('../messages');
-const push = messages.PUSH;
-const getOutputInfo = responseContent.getOrgInfoForOutput;
-const handleError = utils.handleError;
+const handleError = require('../utils').handleError;
+const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
+const push = require('../config').PUSH;
 
 const handleDeleteCreation = (z, bundle) => {
 

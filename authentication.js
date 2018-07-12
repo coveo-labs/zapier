@@ -1,12 +1,8 @@
 'use strict';
 
-const messages = require('./messages');
-const platform = messages.PLATFORM;
-
+const platform = require('./config').PLATFORM;
+const REDIRECT_URI = require('./config').REDIRECT_URI;
 const OAUTH_URL = 'https://' + platform + '/oauth';
-// To get your OAuth2 redirect URI, run `zapier describe` and update this variable.
-// Will looke like 'https://zapier.com/dashboard/auth/oauth/return/App123CLIAPI/'
-const REDIRECT_URI = 'https://zapier.com/dashboard/auth/oauth/return/App4771CLIAPI/';
 
 const getAuthorizeURL = () => {
   let url = `${OAUTH_URL}/authorize`;
