@@ -59,10 +59,17 @@ module.exports = {
       },
       {
         key: 'content',
-        required: true,
+        required: false,
         type: 'string',
-        label: 'Content',
-        helpText: 'The main content you want extracted into the source. This can be a URL, the document ID again, or a file. Zapier displays files as: (Exists but not shown). Do not put the document ID in again if the url requires authorization (i.e. the url of a gmail email), otherwise the content will not be extracted.', 
+        label: 'File',
+        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as: (Exists but not shown). Do not put the document ID here if the url requires authorization (i.e. the url of a gmail email), otherwise the content will not be extracted. This will always be the content of the push submission if it does not fail, if the input supplied does not require authorization (i.e. a gmail email link), and will always override the plain text field if successful.', 
+      },
+      {
+        key: 'data',
+        required: false,
+        type: 'string',
+        label: 'Plain Text',
+        helpText: 'The main content you want extracted into the source as plain text. This can be text of the file, free text, or a mix of both. Use this if no files or urls for the File field are supplied and you want content to be extracted with your push source. Will only be extracted if File field fails or is not supplied. If niether this nor the File field have any content, then no content will be extracted in the source.', 
       },
       {
         key: 'field1',
@@ -70,7 +77,7 @@ module.exports = {
         type: 'string',
         label: 'Field 1',
         dynamic: 'sourceFields.fieldName',
-        helpText: 'The name of a field that your source uses as a mapping. Must choose the source and organization first.',
+        helpText: 'The name of a field that your source uses as a mapping. Must choose the source ID and organization ID first.',
       },
       {
         key: 'field1Content',
@@ -85,7 +92,7 @@ module.exports = {
         type: 'string',
         label: 'Field 2',
         dynamic: 'sourceFields.fieldName',
-        helpText: 'The name of a field that your source uses as a mapping. Must choose the source and organization first.',
+        helpText: 'The name of a field that your source uses as a mapping. Must choose the source ID and organization ID first.',
       },
       {
         key: 'field2Content',
@@ -93,6 +100,21 @@ module.exports = {
         type: 'string',
         label: 'Field 2 Content',
         helpText: 'A url, text, files, or attachments you wish to push into Field 2.',
+      },
+      {
+        key: 'field3',
+        required: false,
+        type: 'string',
+        label: 'Field 3',
+        dynamic: 'sourceFields.fieldName',
+        helpText: 'The name of a field that your source uses as a mapping. Must choose the source ID and organization ID first.',
+      },
+      {
+        key: 'field3Content',
+        required: false,
+        type: 'string',
+        label: 'Field 3 Content',
+        helpText: 'A url, text, files, or attachments you wish to push into Field 3.',
       },
     ],
     //Action function

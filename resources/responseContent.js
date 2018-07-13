@@ -32,7 +32,7 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
   return orgInfoPromise.then((response) => {
 
     if(response.status >= 400){
-      throw new Error('Error getting organization name: ' + response.content);
+      throw new Error('Error getting organization name: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
 
     const result = z.JSON.parse(response.content);
@@ -59,7 +59,7 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
       return orgSourcesPromise.then((response) => {
 
         if(response.status >= 400){
-          throw new Error('Error getting source name and fields: ' , response.content);
+          throw new Error('Error getting source name and fields: ' , z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
         }
 
         const result = z.JSON.parse(response.content);

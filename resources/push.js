@@ -15,7 +15,8 @@ const outputFields = () => {
     {key: 'sourceType', label: 'Source Type'},
     {key: 'numDocs', label: 'Number of Documents in Source'},
     {key: 'title', label: 'Pushed Document Title'},
-    {key: 'content', label: 'File(s) Pushed'},
+    {key: 'content', label: 'File Pushed'},
+    {key: 'data', label: 'Plain Text Content'},
     {key: 'numFields', label: 'Number of Fields the Source Uses'},
     {key: 'docSize', label: 'Size (in bytes) of all the Documents in the Source'},
   ];

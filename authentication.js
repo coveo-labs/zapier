@@ -9,7 +9,7 @@ const getAuthorizeURL = () => {
 
   const urlParts = [
     `client_id=${process.env.CLIENT_ID}`,
-    'redirect_uri = REDIRECT_URI',
+    'redirect_uri=' + REDIRECT_URI,
     'response_type=code id_token',
     'scope=full',
   ];
@@ -42,10 +42,9 @@ const getAccessToken = (z, bundle) => {
 
   return promise.then((response) => {
     if (response.status !== 200) {
-      throw new Error('Unable to fetch access token: ' + response.content);
+      throw new Error('Error fetching access token: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
 
-    z.console.log('getToken auth response: ' , response);
     const result = z.JSON.parse(response.content);
     
     return {
@@ -78,10 +77,9 @@ const refreshAccessToken = (z, bundle) => {
 
   return promise.then((response) => {
     if (response.status !== 200) {
-      throw new Error('Unable to fetch access token: ' + response.content);
+      throw new Error('Error fetching refresh token: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
 
-    z.console.log('getToken auth response: ' , response);
     const result = z.JSON.parse(response.content);
     
     return {
@@ -102,20 +100,21 @@ const testAuth = (z) => {
   });
 
   return promise.then((response) => {
-    if (response.status === 401) {
-      throw new Error('The access token supplied is not valid');
+    if (response.status >= 401) {
+      throw new Error('Error occured testing authentication: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
-    z.console.log('Test auth response: ' , response);
     return z.JSON.parse(response.content);
   });
 };
 
 module.exports = {
   type: 'oauth2',
-  connectionLabel: 'Coveo Cloud V2',
+  connectionLabel: 'your-email-here',
   //oauth2Config data structure is how Zapier determines what to call when managing the ouath. The authorization url construction is
   //called when needed in authorizeUrl, whenever a access/refresh token is needed it calls getAccessToken, and whenever a 401 error occurs
   //it knows to call autoRefresh (which calls refreshAccessToken).
+  //See the following: https://zapier.com/developer/documentation/v2/authentication/
+  // https://zapier.github.io/zapier-platform-cli/?utm_source=zapier.com&utm_medium=referral&utm_campaign=zapier#oauth2
   oauth2Config: {
     authorizeUrl: getAuthorizeURL,
     getAccessToken,

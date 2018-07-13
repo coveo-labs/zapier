@@ -22,7 +22,7 @@ const getSourceChoicesForInput = (z, bundle) => {
   return orgSourcesPromise.then((response) => {
   
     if(response.status >= 400){
-      throw new Error('Error getting source choices for dropdown. The organization ID must be chosen first to get these choices.');
+      throw new Error('Error getting source choices for dropdown. The organization ID must be chosen first to get these choices: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
   
     const results = z.JSON.parse(response.content);

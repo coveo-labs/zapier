@@ -2,7 +2,7 @@
 
 const handleError = (error) => {
   if (typeof error === 'string') {
-    throw new Error(error);
+    throw new Error('Error occured: ' + error);
   }
 
   throw error;
@@ -27,7 +27,6 @@ const handleZip = (details) => {
   return zipFile.then((zip) => {
 
     let name = Object.keys(zip.files);
-    console.log('Zip file: ' , zip.files);
     zipDetails.filename = name[0];
     zipDetails.contentType = '.' + zipDetails.filename.split('.')[1].split('/')[0];
     zipDetails.content = zip.files[name[0]]._data.compressedContent;
@@ -54,6 +53,10 @@ const fetchFile = (url) => {
 
   return fetch(url)
     .then((response) => {
+
+      if(response.headers.get('link') || response.url !== url){
+        details.badFetch = true;
+      }
 
       details.size = response.headers.get('content-length');
       const disposition = response.headers.get('content-disposition');

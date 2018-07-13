@@ -28,7 +28,7 @@ const handleDeleteCreation = (z, bundle) => {
   return promise.then((response) => { 
    
     if(response.status !== 202){
-      throw new Error('Error occured sending delete request to Coveo: ' + z.JSON.parse(response.content).message);
+      throw new Error('Error occured sending delete request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
   
     const responseOutput = z.JSON.parse(response.request.body);

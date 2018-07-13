@@ -24,7 +24,7 @@ const getFieldChoicesForInput = (z, bundle) => {
   return sourceFieldsPromise.then((response) => {
   
     if(response.status >= 400){
-      throw new Error('Error getting field choices for dropdown. The source ID and organization ID must be chosen first to get these choices.');
+      throw new Error('Error getting field choices for dropdown. The source ID and organization ID must be chosen first to get these choices: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
   
     const results = z.JSON.parse(response.content);
