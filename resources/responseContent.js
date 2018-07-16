@@ -18,7 +18,7 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
 
   const orgInfoPromise = z.request({
 
-    url : `https://` + platform + `/rest/organizations/${bundle.inputData.orgId}`,
+    url : `https://${platform}/rest/organizations/${bundle.inputData.orgId}`,
     method: 'GET',
     body: {
       organizationId: bundle.inputData.orgId,
@@ -44,7 +44,7 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
 
       const orgSourcesPromise = z.request({
 
-        url: `https://` + platform + `/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
+        url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
         method: 'GET',
         body: {
           organizationId: bundle.inputData.orgId,
@@ -82,12 +82,9 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
       })
         .then(() => {
 
-          for(var j = 0; j < Object.keys(responseOutput).length; j++){
-            outputInfo[Object.keys(responseOutput)[j]] = responseOutput[Object.keys(responseOutput)[j]];
-          }
-
-          outputInfo.orgId = `${bundle.inputData.orgId}`;
-          outputInfo.sourceId = `${bundle.inputData.sourceId}`;
+          Object.assign(outputInfo, responseOutput);
+          outputInfo.orgId = bundle.inputData.orgId;
+          outputInfo.sourceId = bundle.inputData.sourceId;
 
           return outputInfo;
         })

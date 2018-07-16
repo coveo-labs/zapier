@@ -7,7 +7,7 @@
   "author": "Bryan Arnold <barnold@coveo.com>",
   "contributors": [
     "Peter McCormick <pmccormick@coveo.com>",
-    "Jerome Devost <jdevost@coveo.com"
+    "Jerome Devost <jdevost@coveo.com>"
   ],
   "license": "MIT",
   "main": "index.js",

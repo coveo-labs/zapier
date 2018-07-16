@@ -28,8 +28,8 @@ const outputFields = () => {
   //the label with the orgId value from the object as output, so it would display 
   //Organization ID <orgId here> on the app output on Zapier's site. This is for actions that occur after
   //this is returned.
-  for(var i = 0; i < numFields; i++){
-    var tempKey = 'Field #' + (i + 1) + ' used by source';
+  for(let i = 0; i < numFields; i++){
+    let tempKey = 'Field #' + (i + 1) + ' used by source';
     output.push({key: tempKey, label: tempKey});
   }
 

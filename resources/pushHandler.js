@@ -9,19 +9,6 @@ const getStringByteSize = require('../utils').getStringByteSize;
 
 const handlePushCreation = (z, bundle) => {
 
-  //Temporary until I figure out a better way of handling artbitrary numbers of input fields
-  bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
-  bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
-  bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
-  bundle.inputData['documentId'] = bundle.inputData.docId;
-  delete bundle.inputData.docId;
-  delete bundle.inputData.field1;
-  delete bundle.inputData.field2;
-  delete bundle.inputData.field3;
-  delete bundle.inputData.field1Content;
-  delete bundle.inputData.field2Content;
-  delete bundle.inputData.field3Content;
-
   if(bundle.inputData.content == null || bundle.inputData.content == undefined || bundle.inputData.content == ''){
         
     bundle.inputData.content = 'No file/url supplied in the File input field.';
@@ -29,45 +16,76 @@ const handlePushCreation = (z, bundle) => {
 
   } else {
 
-
     const containerInfo = createContainer(z, bundle);
 
-    return containerInfo.then((container) => {
+    return containerInfo.then((result) => {
 
-      if(container.badFetch == true) {
+      if(result.badFetch == true) {
 
-        bundle.inputData.content = 'No file supplied in input, fetching the content failed, or a bad url was given.';
+        bundle.inputData.content = 'Fetching the content failed or a bad url was given in the File input field.';
         return processPush(z, bundle);
 
       } else {
 
-        delete bundle.inputData.data;
-        bundle.inputData.compressedBinaryDataFileId = container.fileId;
-        bundle.inputData.compressionType = 'UNCOMPRESSED';
-        bundle.inputData.fileExtension = container.contentType;
+        if(result.addOrUpdate){
 
-        if(container.originalContentType === '.zip'){
-          bundle.inputData.compressionType = 'DEFLATE';
+          return processZipBatchPush(z, bundle, result);
+
+        } else {
+
+          bundle.inputData.compressedBinaryDataFileId = result.fileId;
+          bundle.inputData.compressionType = 'UNCOMPRESSED';
+          bundle.inputData.fileExtension = result.contentType;
+
+          if(result.originalContentType === '.zip'){
+            bundle.inputData.compressionType = 'DEFLATE';
+          }
+
+          return processPush(z, bundle);
+
         }
-
-        return processPush(z, bundle);
 
       }
 
     })
       .catch(handleError);
   }
+
+};
+
+const processZipBatchPush = (z, bundle, result) => {
+
+  const promise = z.request({
+    url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result.addOrUpdate[0].compressedBinaryDataFileId}`,
+    method: 'PUT',
+    body: {},
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  });
+
+  return promise.then((response) => {
+
+    if (response.status !== 202) {
+      throw new Error('Error occured sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+    }
+
+    return result;
+
+  })
+  .catch(handleError);
 };
 
 const processPush = (z, bundle) => {
 
-  if(bundle.inputData.data == null || bundle.inputData.data == '' || bundle.inputData.data == undefined){
+  if(bundle.inputData.data == null || bundle.inputData.data == '' || bundle.inputData.data == undefined || typeof bundle.inputData.data !== 'string'){
     delete bundle.inputData.data;
   }
-  
+
   const promise = z.request({
 
-    url: `https://` + push + `/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
+    url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'PUT',
     body: z.JSON.stringify(bundle.inputData),
     params: bundle.inputData,
@@ -102,11 +120,9 @@ const processPush = (z, bundle) => {
     .catch(handleError);
 };
 
-
-
 const createContainer = (z, bundle) => {
 
-  let url = `https://` + push + `/v1/organizations/${bundle.inputData.orgId}/files`;
+  let url = `https://${push}/v1/organizations/${bundle.inputData.orgId}/files`;
 
   const promise = z.request(url, {
     method: 'POST',
@@ -129,7 +145,82 @@ const createContainer = (z, bundle) => {
     .catch(handleError);
 };
 
+const uploadZipBatchToContainer = (z, bundle, body, result) => {
 
+  const batchContent = {
+    addOrUpdate: [],
+  };
+
+  let totalSize = 0;
+
+  if(body.badFetch == true){
+    return batchContent;
+  }
+
+  for(var i = 0; i < body.length; i++){
+
+      let batchItem = {};
+
+      for(let k in bundle.inputData){
+        batchItem[k] = bundle.inputData[k];
+      }
+
+      batchItem.title = bundle.inputData.title;
+      batchItem.fileExtension = body[i].contentType;
+      batchItem.compressedBinaryDataFileId = result.fileId;
+      batchItem.compressionType = 'DEFLATE';
+      batchItem.documentId = bundle.inputData.documentId;
+
+      delete batchItem.orgId;
+      delete batchItem.sourceId;
+      delete batchItem.data;
+
+      if(i != 0){
+
+        batchItem.title = body[i].filename;
+        batchItem.parentId = batchContent.addOrUpdate[i - 1].documentId;
+        batchItem.documentId = batchItem.parentId + '/attachment';
+        batchItem.compressedBinaryData = Buffer.from(body[i].content).toString('base64');
+        delete batchItem.compressedBinaryDataFileId;
+    
+      }
+
+    totalSize += body[i].size;
+
+    batchContent.addOrUpdate.push(batchItem);
+
+    if(totalSize > (1000000 * 1000)){
+      throw new Error(fileTooBig);
+    }
+
+  }
+
+  let url = result.uploadUri;
+  let headers = result.requiredHeaders;
+
+  const promise = z.request(url, {
+
+    method: 'PUT',
+    body: batchContent,
+    headers: headers,
+
+  });
+
+  return promise.then((response) => {
+
+    if (response.status !== 200) {
+      throw new Error('Error uploading file contents to container: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+    }
+
+    const result = z.JSON.stringify(response.content);
+    return result;
+
+  })
+  .then(() => {
+    return batchContent;
+  })
+   .catch(handleError);
+};
 
 const uploadToContainer = (z, bundle, result) => {
 
@@ -138,6 +229,8 @@ const uploadToContainer = (z, bundle, result) => {
     contentType: '',
     originalContentType: '',
   };
+
+  let batchUpload = {};
 
   let url = result.uploadUri;
   let file = bundle.inputData.content;
@@ -150,6 +243,10 @@ const uploadToContainer = (z, bundle, result) => {
 
       containerInfo.badFetch = true;
       return containerInfo;
+
+    } else if(body.length > 0){
+
+      batchUpload = uploadZipBatchToContainer(z, bundle, body, result);
 
     } else {
 
@@ -170,7 +267,7 @@ const uploadToContainer = (z, bundle, result) => {
       const promise = z.request(url, {
         method: 'PUT',
         body: body.content,
-        headers: result.requiredHeaders,
+        headers: headers,
       });
 
       return promise.then((response) => {
@@ -186,14 +283,15 @@ const uploadToContainer = (z, bundle, result) => {
     }
   })
     .then(() => {
-      return containerInfo;
+      if(batchUpload !== 'null' || batchUpload !== 'undefined'){
+        return batchUpload;
+      } else {
+        return containerInfo;
+      }
     })
     .catch(handleError);
 };
 
 module.exports = {
-  createContainer,
-  uploadToContainer,
-  processPush,
   handlePushCreation,
 };

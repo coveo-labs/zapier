@@ -7,7 +7,7 @@ const push = require('../config').PUSH;
 const handleDeleteCreation = (z, bundle) => {
 
   const promise = z.request({
-    url: `https://` + push + `/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
+    url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'DELETE',
     body: z.JSON.stringify({
       documentId: encodeURI(bundle.inputData.docId),
@@ -32,21 +32,16 @@ const handleDeleteCreation = (z, bundle) => {
     }
   
     const responseOutput = z.JSON.parse(response.request.body);
-    responseOutput.orgId = `${bundle.inputData.orgId}`;
-    responseOutput.sourceId = `${bundle.inputData.sourceId}`;
+    responseOutput.orgId = bundle.inputData.orgId;
+    responseOutput.sourceId = bundle.inputData.sourceId;
     delete responseOutput.deleteChildren;
   
     return getOutputInfo(z, bundle, responseOutput);
   
   })
-    .then((result) => {
-      return result;
-    })
     .catch(handleError);
 };
 
 module.exports = {
-
   handleDeleteCreation,
-
 };

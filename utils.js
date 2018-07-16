@@ -11,13 +11,7 @@ const handleError = (error) => {
 
 const handleZip = (details) => {
 
-  const zipDetails ={
-    content: '',
-    originalContentType: details.contentType,
-    contentType: '',
-    size: 0,
-    filename: '',
-  };
+  const addOrUpdate = [];
 
   const JSZIP = require('jszip');
   const zip = new JSZIP();
@@ -27,12 +21,16 @@ const handleZip = (details) => {
   return zipFile.then((zip) => {
 
     let name = Object.keys(zip.files);
-    zipDetails.filename = name[0];
-    zipDetails.contentType = '.' + zipDetails.filename.split('.')[1].split('/')[0];
-    zipDetails.content = zip.files[name[0]]._data.compressedContent;
-    zipDetails.size = zip.files[name[0]]._data.compressedSize;
 
-    return zipDetails;
+    for(var i = 0; i < name.length; i++){
+      if(name[i].indexOf('__MACOSX/') > -1){
+      } else {
+        addOrUpdate.push({'content': zip.files[name[i]]._data.compressedContent, 'contentType': '.' + name[i].split('.')[1].split('/')[0], 'size': zip.files[name[i]]._data.compressedSize, 'filename': name[i]});
+      }
+    }
+
+    addOrUpdate.badFetch = details.badFetch;
+    return addOrUpdate;
 
   });
 
@@ -78,18 +76,14 @@ const fetchFile = (url) => {
     })
     .then((content) => {
 
+      details.content = content;
+
       if(details.contentType === '.zip'){
-
-        details.content = content;
         return handleZip(details);
-
-      } else {
-
-        details.content = content;
+      } 
+      
         return details;
-
-      }
-
+      
     });
 };
 

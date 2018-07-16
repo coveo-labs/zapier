@@ -4,28 +4,26 @@ const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
 
 const getOrgChoicesForInput = (z) => {
-
-  const orgChoices = [];
   
   const orgChoicesPromise = z.request({
   
-    url: 'https://' + platform + '/rest/organizations/',
+    url: `https://${platform}/rest/organizations/`,
     method: 'GET',
     body: {},
   
   });
   
   return orgChoicesPromise.then((response) => {
-  
+
     if(response.status >= 400){
       throw new Error('Error getting organization choices for dropdown: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
   
     const results = z.JSON.parse(response.content);
      
-    for(var i = 0; i < results.length; i++){
-      orgChoices.push({'id': results[i].id, 'displayName': results[i].displayName});
-    }
+    let orgChoices = results.map( r => {
+      return {id: r.id, displayName: r.displayName};
+    });
 
     return orgChoices;
   

@@ -25,8 +25,8 @@ const outputFields = () => {
   //after a push or delete. Zapier looks in the response object for a property called orgId, and displays
   //the label with the orgId valie from the object as output. This is for actions that occur after
   //this is returned.
-  for(var i = 0; i < numFields; i++){
-    var tempKey = 'Field #' + (i + 1) + ' used by source';
+  for(let i = 0; i < numFields; i++){
+    let tempKey = 'Field #' + (i + 1) + ' used by source';
     output.push({key: tempKey, label: tempKey});
   }
 

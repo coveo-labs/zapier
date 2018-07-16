@@ -4,12 +4,10 @@ const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
 
 const getFieldChoicesForInput = (z, bundle) => {
-
-  const sourceFields = [];
   
   const sourceFieldsPromise = z.request({
   
-    url: `https://` + platform + `/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
+    url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
     method: 'GET',
     body: {
       organizationId: bundle.inputData.orgId,
@@ -23,13 +21,15 @@ const getFieldChoicesForInput = (z, bundle) => {
   
   return sourceFieldsPromise.then((response) => {
   
+    let sourceFields = [];
+
     if(response.status >= 400){
       throw new Error('Error getting field choices for dropdown. The source ID and organization ID must be chosen first to get these choices: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
   
     const results = z.JSON.parse(response.content);
      
-    for(var i = 0; i < results.mappings.length; i++){
+    for(let i = 0; i < results.mappings.length; i++){
       sourceFields.push({'id': results.mappings[i].id, 'fieldName': results.mappings[i].fieldName});
     }
 

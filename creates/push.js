@@ -5,6 +5,20 @@ const pushHandler = require('../resources/pushHandler');
 
 const createNewPush = (z, bundle) => {
 
+  //Temporary until I figure out a better way to do these actions that isn't
+  //so ugly to look at
+  bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
+  bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
+  bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
+  bundle.inputData['documentId'] = bundle.inputData.docId;
+  delete bundle.inputData.docId;
+  delete bundle.inputData.field1;
+  delete bundle.inputData.field2;
+  delete bundle.inputData.field3;
+  delete bundle.inputData.field1Content;
+  delete bundle.inputData.field2Content;
+  delete bundle.inputData.field3Content;
+
   return pushHandler.handlePushCreation(z, bundle);
 
 };

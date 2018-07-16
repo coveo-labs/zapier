@@ -2,7 +2,7 @@
 
 const platform = require('./config').PLATFORM;
 const REDIRECT_URI = require('./config').REDIRECT_URI;
-const OAUTH_URL = 'https://' + platform + '/oauth';
+const OAUTH_URL = `https://${platform}/oauth`;
 
 const getAuthorizeURL = () => {
   let url = `${OAUTH_URL}/authorize`;
@@ -96,7 +96,7 @@ const refreshAccessToken = (z, bundle) => {
 // the token and not because the user didn't happen to have a recently created record.
 const testAuth = (z) => {
   const promise = z.request({
-    url: 'https://' + platform + '/rest/templates/apikeys',
+    url: `https://${platform}/rest/templates/apikeys`,
   });
 
   return promise.then((response) => {
