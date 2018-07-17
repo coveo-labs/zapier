@@ -5,6 +5,9 @@ const zapier = require('zapier-platform-core');
 const App = require('../../index');
 const appTester = zapier.createAppTester(App);
 
+//Tests for deleting a document in a push source. Change the inputData to match the credentials
+//of the source you're testing.
+
 describe('deletes', () => {
   zapier.tools.env.inject();
   describe('Delete content', () => {
@@ -18,10 +21,11 @@ describe('deletes', () => {
           refresh_token: process.env.REFRESH_TOKEN,
 
         },
-	
+  
+        //Change these when you test
         inputData: {
-          docId: 'https://drive.google.com/a/uconn.edu/file/d/1CVhqP7vOyW1rpqvbI2yEbzMVIwnp5M4-/preview?usp=drivesdk',
-          title: 'Zapier Single Item Test',
+          docId: 'https://drive.google.com/a/uconn.edu/file/d/1lP7to4SR8xvw_mIhhpoFR2dvnobLrJfI/preview?usp=drivesdk',
+          title: 'Zapier Delete Test',
           sourceId: 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas',
           orgId: 'bryanarnoldzapier9xh3mbas',
         },

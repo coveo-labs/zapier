@@ -3,6 +3,9 @@
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
 
+//This creates needs to perform something when executed on the app. This functions is
+//a handoff to the pushHandler file to handle the creation of a push request, sending it
+//to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
 
   //Temporary until I figure out a better way to do these actions that isn't
@@ -32,7 +35,7 @@ module.exports = {
   // for users. Zapier will put them into the UX.
   noun: 'Push',
   display: {
-    label: 'Push or Update a Single Item',
+    label: 'Push or Update an Item',
     description: 'Push/Update an Item to a Specified Push Source.',
     important: true,
   },
@@ -46,7 +49,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Organization',
-        dynamic: 'orgChoices.id.displayName',
+        dynamic: 'orgChoices.id.displayName', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The ID of the organization where your source is located. Must be chosen before the source.',
       },
       {
@@ -54,7 +57,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Source',
-        dynamic: 'orgSources.id.name',
+        dynamic: 'orgSources.id.name', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The ID of the source in the Coveo Cloud V2 Organization you wish to push to. Must be chosen after the organization.',
       },
       {
@@ -76,7 +79,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as: (Exists but not shown). Do not put the document ID here if the url requires authorization (i.e. the url of a gmail email), otherwise the content will not be extracted. This will always be the content of the push submission if it does not fail, if the input supplied does not require authorization (i.e. a gmail email link), and will always override the plain text field if successful.', 
+        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as: (Exists but not shown). Do not put the document ID here if the url requires authorization (i.e. the url of a gmail email), otherwise the content will not be extracted. This will always be the content of the push submission if it does not fail, if the input supplied does not require authorization (i.e. a gmail email link), and will always override the plain text field if successful. If a zip file is supplied, the contents of the zip file will be pushed as a batch as long as the file count within the zip file does not exceed 30. If a zip file and plain text are supplied, both will be sent in the batch push.', 
       },
       {
         key: 'data',

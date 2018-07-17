@@ -3,7 +3,9 @@
 const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
 
-const getOrgInfoForOutput = (z, bundle, responseOutput) => {
+const getOrgInfoForOutput = (z, bundle) => {
+
+  const pretty = require('prettysize');
 
   const outputInfo = {
     sourceType: '',
@@ -69,7 +71,7 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
         outputInfo.sourceOwner = (result.owner || '').split('-')[0];
         outputInfo.sourceType = result.sourceType;
         outputInfo.numDocs = result.information.numberOfDocuments;
-        outputInfo.docSize = result.information.documentsTotalSize;
+        outputInfo.docSize = pretty(result.information.documentsTotalSize);
 
         result.mappings.forEach((mapping, idx) => {
           let filedNum = 'Field #' + (idx + 1);
@@ -82,9 +84,7 @@ const getOrgInfoForOutput = (z, bundle, responseOutput) => {
       })
         .then(() => {
 
-          Object.assign(outputInfo, responseOutput);
-          outputInfo.orgId = bundle.inputData.orgId;
-          outputInfo.sourceId = bundle.inputData.sourceId;
+          Object.assign(outputInfo, bundle.inputData);
 
           return outputInfo;
         })

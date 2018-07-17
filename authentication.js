@@ -4,6 +4,8 @@ const platform = require('./config').PLATFORM;
 const REDIRECT_URI = require('./config').REDIRECT_URI;
 const OAUTH_URL = `https://${platform}/oauth`;
 
+//Construction of the authorization url for Coveo. the url should come out to be roughly
+// to be the following depending on which platform is being used: https://platform.cloud.coveo.com/oauth/authorize?client_id=CLIENT_ID&redirect_uri=REDIRECT_URI/&response_type=code id_token&scope=full 
 const getAuthorizeURL = () => {
   let url = `${OAUTH_URL}/authorize`;
 
@@ -14,15 +16,20 @@ const getAuthorizeURL = () => {
     'scope=full',
   ];
 
+  //Join components of the url together into one
   const finalUrl = `${url}?${urlParts.join('&')}`;
 
   return finalUrl;
 
 };
 
+//Function is pretty self-explanatory. Sends a request to Coveo for an access_token and refresh_token.
+//This function is almost identical to refreshAccessToken function, but Zapier requires the two functions be defined 
+//separately. Combining the two functions may be possible.
 const getAccessToken = (z, bundle) => {
   let url = `${OAUTH_URL}/token`;
 
+  //Set up components to be sent to Coveo for access_token
   const body = {
     code: bundle.inputData.code,
     refresh_token: bundle.authData.refresh_token,
@@ -31,6 +38,7 @@ const getAccessToken = (z, bundle) => {
     response_type: 'token id_token',
   };
 
+  //Send request for token
   const promise = z.request(url, {
     method: 'POST',
     body,
@@ -40,6 +48,7 @@ const getAccessToken = (z, bundle) => {
     },
   });
 
+  //Get the response, handle any errors, and save the access/refresh tokens for use in any requests needed to Coveo.
   return promise.then((response) => {
     if (response.status !== 200) {
       throw new Error('Error fetching access token: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
@@ -55,9 +64,12 @@ const getAccessToken = (z, bundle) => {
   });
 };
 
+//Almost identical to getAccessToken, Zapier just requires this be defined separately so auto refresh triggers
+//can be carried out. Can combine with getAccessToken in the future.
 const refreshAccessToken = (z, bundle) => {
   let url = `${OAUTH_URL}/token`;
 
+  //Set up components to be sent to Coveo for refresh_token
   const body = {
     code: bundle.inputData.code,
     refresh_token: bundle.authData.refresh_token,
@@ -66,6 +78,7 @@ const refreshAccessToken = (z, bundle) => {
     response_type: 'token id_token',
   };
 
+  //Send request for token
   const promise = z.request(url, {
     method: 'POST',
     body,
@@ -75,6 +88,7 @@ const refreshAccessToken = (z, bundle) => {
     },
   });
 
+  //Get the response, handle any errors, and save the access/refresh tokens for use in any requests needed to Coveo.
   return promise.then((response) => {
     if (response.status !== 200) {
       throw new Error('Error fetching refresh token: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
@@ -95,10 +109,12 @@ const refreshAccessToken = (z, bundle) => {
 // like a /profile or /me endpoint. That way the success/failure is related to
 // the token and not because the user didn't happen to have a recently created record.
 const testAuth = (z) => {
+  //Test call to Coveo that only requires an access_token, just for testing the token.
   const promise = z.request({
     url: `https://${platform}/rest/templates/apikeys`,
   });
 
+  //Handle response
   return promise.then((response) => {
     if (response.status >= 401) {
       throw new Error('Error occured testing authentication: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);

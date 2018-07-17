@@ -10,12 +10,12 @@ const handleDeleteCreation = (z, bundle) => {
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'DELETE',
     body: z.JSON.stringify({
-      documentId: encodeURI(bundle.inputData.docId),
+      documentId: bundle.inputData.documentId,
       title: bundle.inputData.title,
       deleteChildren: true,	  	 	  
     }),
     params:{
-      documentId: encodeURI(bundle.inputData.docId),
+      documentId: bundle.inputData.documentId,
       title: bundle.inputData.title,
       deleteChildren: true,
     },
@@ -31,12 +31,9 @@ const handleDeleteCreation = (z, bundle) => {
       throw new Error('Error occured sending delete request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
   
-    const responseOutput = z.JSON.parse(response.request.body);
-    responseOutput.orgId = bundle.inputData.orgId;
-    responseOutput.sourceId = bundle.inputData.sourceId;
-    delete responseOutput.deleteChildren;
+    delete bundle.inputData.deleteChildren;
   
-    return getOutputInfo(z, bundle, responseOutput);
+    return getOutputInfo(z, bundle);
   
   })
     .catch(handleError);

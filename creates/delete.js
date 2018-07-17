@@ -3,7 +3,13 @@
 const deleteResource = require('../resources/delete');
 const deleteHandler = require('../resources/deleteHandler');
 
+//This creates needs to perform something when executed on the app. This functions is
+//a handoff to the deleteHandler file to handle the creation of a delete request, sending it
+//to Coveo, then handling the appropriate response content.
 const createDelete = (z, bundle) => {
+
+  bundle.inputData['documentId'] = bundle.inputData.docId;
+  delete bundle.inputData.docId;
 
   return deleteHandler.handleDeleteCreation(z, bundle);
 
@@ -29,7 +35,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Organization ID',
-        dynamic: 'orgChoices.id.displayName',
+        dynamic: 'orgChoices.id.displayName', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The ID of the organization within your platform.',
       },
       {
@@ -37,7 +43,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Source ID',
-        dynamic: 'orgSources.id.name',
+        dynamic: 'orgSources.id.name', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The ID of the source inside of your organization.',
       },
       {
@@ -45,7 +51,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The ID of the document you wish to delete, the url provided when indexing.',
+        helpText: 'The ID of the document you wish to delete, the url provided when indexing. Children of the document that are indexed have the same url with /attachment appended to it. If you wish to delete specific children and their descendents, simply add /attachment however many times to get a specific child with no spaces between them. Example: `https://example/com/attachment/attachment`.',
       },
       {
         key: 'title',

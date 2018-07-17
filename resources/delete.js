@@ -5,7 +5,7 @@ const numFields = require('./responseContent').fieldsCount;
 const outputFields = () => {
 
   const output = [
-    {key: 'documentId', label: 'Document ID'},
+    {key: 'documentId', label: 'Deleted Document ID'},
     {key: 'orgName', label: 'Organization Name'},
     {key: 'orgId', label: 'Organization ID'},
     {key: 'orgOwner', label: 'Organization Owner'},
@@ -14,9 +14,9 @@ const outputFields = () => {
     {key: 'sourceOwner', label: 'Source Owner'},
     {key: 'sourceType', label: 'Source Type'},
     {key: 'numDocs', label: 'Number of Documents in Source'},
-    {key: 'title', label: 'Pushed Document Title'},
+    {key: 'title', label: 'Deleted Document Title'},
     {key: 'numFields', label: 'Number of Fields the Source Uses'},
-    {key: 'docSize', label: 'Size (in bytes) of all the Documents in the Source'},
+    {key: 'docSize', label: 'Size of all the Documents in the Source'},
   ];
 
   //This loop is needed to put the response content I constructed into how Zapeier handles it.

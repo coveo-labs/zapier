@@ -18,7 +18,7 @@ const outputFields = () => {
     {key: 'content', label: 'File Pushed'},
     {key: 'data', label: 'Plain Text Content'},
     {key: 'numFields', label: 'Number of Fields the Source Uses'},
-    {key: 'docSize', label: 'Size (in bytes) of all the Documents in the Source'},
+    {key: 'docSize', label: 'Size of all the Documents in the Source'},
   ];
 
   //This loop is needed to put the response content I constructed into how Zapier handles output.
