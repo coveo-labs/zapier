@@ -1,4 +1,12 @@
+const DeleteResource = require('./resources/delete');
+const PushResource = require('./resources/push');
 const push = require('./creates/push');
+const deletes = require('./creates/delete');
+const authentication = require('./authentication');
+const orgChoices = require('./triggers/orgChoices');
+const orgSources = require('./triggers/orgSources');
+const sourceFields = require('./triggers/fieldChoices');
+const {includeBearerToken} = require('./before-handlers');
 
 // Now we can roll up all our behaviors in an App.
 const App = {
@@ -7,17 +15,25 @@ const App = {
   version: require('./package.json').version,
   platformVersion: require('zapier-platform-core').version,
 
+  authentication: authentication,
+
   beforeRequest: [
+    includeBearerToken,
   ],
 
   afterResponse: [
   ],
 
   resources: {
+    [PushResource.key]: PushResource,
+    [DeleteResource.key]: DeleteResource,
   },
 
   // If you want your trigger to show up, you better include it here!
   triggers: {
+    [orgChoices.key]: orgChoices,
+    [orgSources.key]: orgSources,
+    [sourceFields.key]: sourceFields,
   },
 
   // If you want your searches to show up, you better include it here!
@@ -26,8 +42,9 @@ const App = {
 
   // If you want your creates to show up, you better include it here!
   creates: {
-    [push.key]: push
-  }
+    [push.key]: push,
+    [deletes.key]: deletes,
+  },
 };
 
 // Finally, export the app.
