@@ -88,7 +88,7 @@ const processZipBatchPush = (z, bundle, result) => {
 
 const processPush = (z, bundle) => {
 
-  if(bundle.inputData.content){
+  if(bundle.inputData.content && bundle.inputData.data != undefined){
     delete bundle.inputData.data;
   }
 
@@ -199,6 +199,12 @@ const uploadZipBatchToContainer = (z, bundle, body, result) => {
       throw new Error(fileTooBig);
     }
 
+  }
+
+  //If the document has  zip file supplied and no plain text, the first
+  //item in the batch is useless, so don't index it.
+  if(bundle.inputData.data == '' || bundle.inputData.data == undefined || bundle.inputData.data == null){
+    batchContent.addOrUpdate.splice(0, 1);
   }
 
   let url = result.uploadUri;

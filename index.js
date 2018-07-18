@@ -15,12 +15,15 @@ const App = {
   version: require('./package.json').version,
   platformVersion: require('zapier-platform-core').version,
 
+  //Incude authentication
   authentication: authentication,
 
+  //Whenever an outbound request is made, this will be called before the request is sent.
   beforeRequest: [
     includeBearerToken,
   ],
 
+  //Whenever a response from a request is obtained, you can add calls in here (may be useful for responsecontent.js later).
   afterResponse: [
   ],
 
@@ -29,7 +32,7 @@ const App = {
     [DeleteResource.key]: DeleteResource,
   },
 
-  // If you want your trigger to show up, you better include it here!
+  // If you want your trigger to show up, you better include it here! These need to be included for creates to generate dynamic dropdowns
   triggers: {
     [orgChoices.key]: orgChoices,
     [orgSources.key]: orgSources,
@@ -40,7 +43,7 @@ const App = {
   searches: {
   },
 
-  // If you want your creates to show up, you better include it here!
+  // If you want your creates to show up, you better include it here! Push/delete
   creates: {
     [push.key]: push,
     [deletes.key]: deletes,

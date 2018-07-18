@@ -1,6 +1,6 @@
 {
   "name": "coveo-push",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Send data to a Coveo Cloud V2 Push source",
   "repository": "coveo-labs/zapier",
   "homepage": "https://coveo.com/",

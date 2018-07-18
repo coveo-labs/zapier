@@ -15,7 +15,6 @@ const getOrgInfoForOutput = (z, bundle) => {
     docSize: '',
     orgName: '',
     orgOwner: '',
-    numFields: 0,
   };
 
   const orgInfoPromise = z.request({
@@ -76,7 +75,6 @@ const getOrgInfoForOutput = (z, bundle) => {
         result.mappings.forEach((mapping, idx) => {
           let filedNum = 'Field #' + (idx + 1);
           outputInfo[filedNum] = mapping.fieldName;
-          outputInfo.numFields++;
         });
 
         return outputInfo;
@@ -93,9 +91,6 @@ const getOrgInfoForOutput = (z, bundle) => {
     .catch(handleError);
 };
 
-const fieldsCount = getOrgInfoForOutput.numFields;
-
 module.exports ={
   getOrgInfoForOutput,
-  fieldsCount,
 };

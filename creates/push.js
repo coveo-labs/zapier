@@ -65,7 +65,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The main URL to your document or page you wish to push.',
+        helpText: 'The main URL to your document or page you wish to push. Do not put urls that require authentication to access here (i.e. a gmail email url).',
       },
       {
         key: 'title',
@@ -79,7 +79,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as: (Exists but not shown). Do not put the document ID here if the url requires authorization (i.e. the url of a gmail email), otherwise the content will not be extracted. This will always be the content of the push submission if it does not fail, if the input supplied does not require authorization (i.e. a gmail email link), and will always override the plain text field if successful. If a zip file is supplied, the contents of the zip file will be pushed as a batch as long as the file count within the zip file does not exceed 30. If a zip file and plain text are supplied, both will be sent in the batch push.', 
+        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail, if the input supplied does not require authorization (i.e. a gmail email link), and will always override the plain text field if successful. If you wish to push a batch of items, zip files are supported for this (30 file limit not including folders in the zip file). If a zip file and plain text are supplied, both will be sent in a batch push.', 
       },
       {
         key: 'data',
