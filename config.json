@@ -2,5 +2,5 @@
 {
  "PLATFORM": "platform.cloud.coveo.com",
  "PUSH": "push.cloud.coveo.com",
- "REDIRECT_URI": "https://zapier.com/dashboard/auth/oauth/return/App5410CLIAPI/"
+ "REDIRECT_URI": "https://zapier.com/dashboard/auth/oauth/return/APP-ID/"
 }

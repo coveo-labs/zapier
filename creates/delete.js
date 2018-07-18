@@ -44,7 +44,7 @@ module.exports = {
         type: 'string',
         label: 'Source ID',
         dynamic: 'orgSources.id.name', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the source inside of your organization.',
+        helpText: 'The ID of the source inside of your organization. Must be chosen after the organization ID. Note: the source must be a PUSH source.',
       },
       {
         key: 'docId',

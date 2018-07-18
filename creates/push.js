@@ -50,7 +50,7 @@ module.exports = {
         type: 'string',
         label: 'Organization',
         dynamic: 'orgChoices.id.displayName', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the organization where your source is located. Must be chosen before the source.',
+        helpText: 'The ID of the organization where your source is located. Must be chosen before the source ID.',
       },
       {
         key: 'sourceId',
@@ -58,7 +58,7 @@ module.exports = {
         type: 'string',
         label: 'Source',
         dynamic: 'orgSources.id.name', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the source in the Coveo Cloud V2 Organization you wish to push to. Must be chosen after the organization.',
+        helpText: 'The ID of the source in the Coveo Cloud V2 Organization you wish to push to. Must be chosen after the organization ID. Note: the source must be a PUSH source.',
       },
       {
         key: 'docId',
