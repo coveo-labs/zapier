@@ -13,17 +13,17 @@ const appTester = zapier.createAppTester(App);
 
 describe('pushes', () => {
 
-  it('Zip Testing', (done) => {
+  it('Push Test', (done) => {
     zapier.tools.env.inject();
     const bundle = {
       authData: {
         access_token: process.env.ACCESS_TOKEN,
       },
-      //Change this contentto match your source and what you want to push when testing
+      //Change this content to match your source and what you want to push when testing
       inputData: {
-        docId: 'https://drive.google.com/a/uconn.edu/file/d/1qFsBAhOwYT2a8uhk9bIl1Z6cxUFdETzP/preview?usp=drivesdk',
-        title: 'Folders in Zip Test',
-        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kD1vwjAQhv-LB6ZCYscxdiRUtVWRurQd6NAuUWJfPoixg-1AAfHfmyDW3nTve49ueC6oNT4URkLeKpTRGPOY0OQBVS1olZtiBygbgwb0gGQDsss7OKEMM5LeOGlNABPycOon8n3EumPhao-yCxqcHrsmhN5nUaSsnGM6Z_F83PyitrbWMHhw9x8LaXcT5CMPcnDgZdR2Hsh22NIYWN1DL_plqROhugr21plD5FOdcl_1fG_KSpVLrCTZhrg9aO772oUIpwkWlMa3iXDCEko5SWgquIix4Ev2T7lf--en5uP4vSEFH5pOlG8a_zD5-7VWr5vz52OzwhQzvGREMM5InFBGaTqDlbJHo22hZrVaBTdM5irrdkUYXZzbfoyhDXqy5cA6BQ7Uy93AdL5e_wB8SX_0:1fftEz:pV5dcvok5C6hSHrK3pDArxKjTNQ/',
+        docId: 'https://drive.google.com/a/uconn.edu/file/d/1ADr6MijRQXau5knmlfEAIEz6nz_BsUP5/preview?usp=drivesdk',
+        title: '100MB',
+        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kMtqwzAQRf9Fi6yaWLJk-QGhJDSLLlLaQqE740hjW7YsOZLckIT-e-3SbWc193CYgXtHyvhQGQGlkqhgmGQ4ZvQB1Qq0LE01ACrmoAE9INGC6MserqggPE5-PWFNABPKcB0X82XW-kvlGo-KO5qcnlkbwuiLKJJWrDFbc7yeN79prG00TB7c342NsMMi-ciDmBx4EaneQ9xNHcPAmxHGfExPmuayr-FsnfmKEhmGKYWudd1JM5oPaZC2HalqCZ3qs4hIQmNMMcPLRIRyylgWU5bkWY5JnqX8H7h7cvyouve3z2pKejPo-rB7Pty4uZV7__GaPLZbwggnKY9znvH5CeOMJSvYSnsx2lZy1chtcNPSXG3dUIW5i5sa5xhU0EtbBOPjfrOw7-8fBKN6fw:1fgFuK:IIRCUHDlfuxXK6Rd2aYC4rip8w4/',
         field1: 'thumbnail',
         data: 'This should be in the content of the submission if no content',
         field1Content: 'testing thumbnail field',

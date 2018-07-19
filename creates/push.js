@@ -2,26 +2,26 @@
 
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
+const _ = require('lodash');
 
 //This creates needs to perform something when executed on the app. This functions is
 //a handoff to the pushHandler file to handle the creation of a push request, sending it
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
 
-  //Temporary until I figure out a better way to do these actions that isn't
-  //so ugly to look at
+  //Set the field names as properties and the values of these new properties
+  //to what the user put as the content for these fields. Not sure if there's a better
+  //way of doing this.
   bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
   bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
   bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
   bundle.inputData['documentId'] = bundle.inputData.docId;
-  delete bundle.inputData.docId;
-  delete bundle.inputData.field1;
-  delete bundle.inputData.field2;
-  delete bundle.inputData.field3;
-  delete bundle.inputData.field1Content;
-  delete bundle.inputData.field2Content;
-  delete bundle.inputData.field3Content;
 
+  //Don't need these components of the bundle anymore after assigning the content of each field
+  //to the field name in the bundle, so remove them from the bundle and carry on.
+  bundle.inputData = _.omit(bundle.inputData, ['field1', 'field2', 'field3', 'docId', 'field1Content', 'field2Content', 'field3Content']);
+
+  //Move on to handling the push process
   return pushHandler.handlePushCreation(z, bundle);
 
 };
@@ -65,7 +65,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The main URL to your document or page you wish to push. Do not put urls that require authentication to access here (i.e. a gmail email url).',
+        helpText: 'The main URL to your document or page you wish to push. Do not put urls that require authorization to access here (i.e. a gmail email url). If no urls are provided that do not require authorization, most apps provide and ID. You can do something like this: gmail://EMAIL_ID.',
       },
       {
         key: 'title',
@@ -79,7 +79,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail, if the input supplied does not require authorization (i.e. a gmail email link), and will always override the plain text field if successful. If you wish to push a batch of items, zip files are supported for this (30 file limit not including folders in the zip file). If a zip file and plain text are supplied, both will be sent in a batch push.', 
+        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). Batches of items can be pushed if they are within a zip file. If a zip file and plain text are supplied, both will be sent in a batch push.', 
       },
       {
         key: 'data',

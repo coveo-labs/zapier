@@ -1,12 +1,15 @@
 'use strict';
 
+const tooManyFiles = require('./messages').TOO_MANY_FILES;
+const badFetch = require('./messages').BAD_FETCH;
+const fileTooBig = require('./messages').BIG_FILE;
 const path = require('path');
 
 //Simple function to handle an error occuring in a function that I didn't catch.
 //For instance, an error in grabbing the index of an array out of bounds would be caught by this.
 const handleError = (error) => {
   if (typeof error === 'string') {
-    throw new Error('Error occured: ' + error);
+    throw new Error('Error occured during processing: ' + error);
   }
 
   throw error;
@@ -30,12 +33,11 @@ const handleZip = (details) => {
     //may prefer not to have their hidden files pushed into an index.
     let names = Object.keys(zip.files).filter(file => !(/(^|\/)\.[^\/\.]/g).test(file));
 
-    //Track folder names and number of files currently prepped for upload.
+    //Track folder names and number of files currently prepped for upload. Also
+    //track total file size so the user doesn't send files that are too big.
     let folderNames = [];
     let fileCount = 0;
-
-    //Set limit on number of documents that a zip file can contain in order to avoid
-    //customers sending hundreds of files at once and crashing services
+    let totalFileSize = 0;
 
     for(let i = 0; i < names.length; i++){
 
@@ -52,11 +54,23 @@ const handleZip = (details) => {
 
       } else {
 
-        zipContent.content = zip.files[names[i]]._data.compressedContent;
-        zipContent.contentType = path.extname(names[i]);
+        //Extract important details for the files here
         zipContent.size = zip.files[names[i]]._data.compressedSize;
+        totalFileSize += zipContent.size;
+        zipContent.contentType = path.extname(names[i]);
         zipContent.filename = names[i];
 
+        //The files are too big (100 MB for now), throw an error telling
+        //the user so and the file size limit.
+        if(totalFileSize >= (100 * 1024 * 1024)){
+          throw new Error(fileTooBig);
+        }
+
+        zipContent.content = zip.files[names[i]]._data.compressedContent;
+
+        //If a file is in a folder, the file name includes the folder's name
+        //as well. This looks at the encountered folders so far and removes
+        //the excess folder name out of the file name.
         for(let k in folderNames){
 
           if(zipContent.filename.indexOf(folderNames[k]) > -1){
@@ -73,6 +87,8 @@ const handleZip = (details) => {
           zipContent.contentType = '.' + names[i].split('/')[1].split(';')[0];
         }
 
+        //If the data is in a zip but not compressed, give it that data compression,
+        //otherwise it is deflate for zip.
         if(zipContent.size == zip.files[names[i]]._data.uncompressedSize){
           zipContent.compressionType = 'UNCOMPRESSED';
         } else {
@@ -81,10 +97,10 @@ const handleZip = (details) => {
 
         fileCount++;
 
-        //Limit number of files allowed to push to 30, prevents user from uploading
-        //thousands of files at once, breaking services.
-        if(fileCount > 30){
-          throw new Error('The maximum number of files that can be sent in a zip file is 30. Please reduce the number of files in the zip file and try again.');
+        //Set limit on number of documents that a zip file can contain in order to avoid
+        //customers sending hundreds of files at once and crashing services. Currently set at 30.
+        if(fileCount > 50){
+          throw new Error(tooManyFiles);
         }
         
         addOrUpdate.push(zipContent);
@@ -93,7 +109,6 @@ const handleZip = (details) => {
 
     }
 
-    addOrUpdate.badFetch = details.badFetch;
     return addOrUpdate;
 
   });
@@ -122,11 +137,18 @@ const fetchFile = (url) => {
       //If the url given is redirected to another place, doesn;t match the given url, or contains link, the given file url
       //wasn't the url content was extracted from. So, set the bad fetch flag to true.
       if(response.headers.get('link') || response.url !== url){
-        details.badFetch = true;
+        throw new Error(badFetch);
       }
 
+      
       details.size = response.headers.get('content-length');
       const disposition = response.headers.get('content-disposition');
+
+      //The file is too big (100 MB for now), throw an error telling
+      //the user so and the file size limit.
+      if(details.size >= (100 * 1024 * 1024)){
+        throw new Error(fileTooBig);
+      }
 
       if (disposition) {
         details.filename = contentDisposition.parse(disposition).parameters.filename;

@@ -10,7 +10,7 @@ const appTester = zapier.createAppTester(App);
 
 describe('deletes', () => {
   zapier.tools.env.inject();
-  describe('Delete content', () => {
+  describe('Delete Test', () => {
 
     it('Delete single document', (done) => {
       zapier.tools.env.inject();
@@ -24,7 +24,7 @@ describe('deletes', () => {
   
         //Change these when you test
         inputData: {
-          docId: 'https://drive.google.com/a/uconn.edu/file/d/1qFsBAhOwYT2a8uhk9bIl1Z6cxUFdETzP/preview?usp=drivesdk',
+          docId: 'https://drive.google.com/a/uconn.edu/file/d/1DRCsGERTqW3-cw0ELqqUaj7wZ2lENbDN/preview?usp=drivesdk/attachment1',
           title: 'Zapier Delete Test',
           sourceId: 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas',
           orgId: 'bryanarnoldzapier9xh3mbas',
