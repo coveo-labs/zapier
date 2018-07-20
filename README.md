@@ -7,18 +7,19 @@ single item push, or a batch. The batch push is currently limited to zip files o
 ## Setting Up The App
 
 Before starting anything Zapier related, it will probably be helpful to brush up on some of Coveo's API. 
-Head to [here](https://platform.cloud.coveo.com/docs?api=Platform) for a refresher or to get antiquated with 
+Head [here](https://platform.cloud.coveo.com/docs?api=Platform) for a refresher or to get antiquated with 
 Coveo API, as many different calls using the API are used within this project.
 
 For general information regarding Zapier, follow this [link](https://zapier.com/developer/documentation/v2/) to their main
 documentation page. Since this is part of their CLI Interface, you may also find it useful to have [this](https://www.npmjs.com/package/zapier-platform-cli) or
 [this](https://zapier.github.io/zapier-platform-cli/cli.html) on hand.
 
-In order to get a better grasp of the requirements for the CLI as well as how it functions, follow setup portion of this [tutorial](https://zapier.com/developer/start/introduction).
+In order to get a better grasp of the requirements for the CLI as well as how it functions, follow the first section, the setup portion, of this [tutorial](https://zapier.com/developer/start/introduction).
 You can follow the entire tutorial if you wish, but do not clone the Coveo app if you do, clone their example app instead.
-Note: you will need your own Zapier account or the Coveo Zapier account information in order to login on the command line on the `Run Zapier Login` step in the setup. If you
+
+Note: you will need your own Zapier account or the Coveo Zapier account information in order to login from the command line in the `Run Zapier Login` step in the tutorial. If you
 choose to login from another account other than Coveo's, you will need to change the contents of the config file to the dev platform as well as get the correct redirect_uri
-after pushing the app for the first time. Hence, it is suggested you login with the Coveo Zapier account.
+after pushing the app for the first time. Hence, it is suggested you login with the Coveo Zapier account. Contact whomever has it on hand.
 
 Once you have completed the set up and logged in, you'll want to clone the Coveo app, move into the directory where the app code was stored, and install it's components:
 
@@ -37,13 +38,14 @@ sudo npm install zapier-platform-core
 The basics of setting up the app should be complete at this point. If any problems arose, diagnose them from the errors in the command line
 and resolve them.
 
-At any point if you want to see the available zapier commands and what they do, run `zapier help`.
+At any point if you want to see the available zapier commands and what they do, run `zapier help` or for more info on specific commands run
+`zapier help [command]`.
 
 ## Adding in the Coveo App's Specific Information
 
-Now you'll have to update any information that is specific to the Coveo App. First, navigate to the config.json file. You should find the following inside:
+Now you'll have to update any information that is specific to the Coveo App. First, navigate to the `config.json` file. You should find the following inside:
 
-```bash
+```json
 {
  "PLATFORM": "platform.cloud.coveo.com",
  "PUSH": "push.cloud.coveo.com",
@@ -52,13 +54,13 @@ Now you'll have to update any information that is specific to the Coveo App. Fir
 ```
 
 From here, ensure that `PLATFORM` and `PUSH` are the values associated with the Prod platform for Coveo. If for any reason you wish to change these two
-to either dev or qa (solely for testing purposes only, DO NOT push the same version of the app when you do. See the section regarding Zapier CLI commands for why. 
+to either dev or qa (solely for testing purposes only), DO NOT push the same version of the app when you do. See the section regarding updating the app as to why you must do this. 
 
 Next, ensure the `REDIRECT_URI` is the following: `https://zapier.com/dashboard/auth/oauth/return/APP-ID/`. If it isn't, update it. Next, run `zapier describe` on 
 the command line to get the correct `REDIRECT_URI`. It will be located in the `Authentication` section of the output. Copy paste the url into the `REDIRECT_URI`
 in `config.json`. The following should be the content of `config.json`:
 
-```bash
+```json
 {
  "PLATFORM": "platform.cloud.coveo.com",
  "PUSH": "push.cloud.coveo.com",
@@ -91,7 +93,7 @@ the following:
 
  1. `const orgId`
  1. `const sourceId`
- 1.  The keys of the fields within the `inputData` in the `bundle`
+ 1.  The values of the keys within the `inputData` in the `bundle`
 
 Replace the `const orgId` and `const sourceId` values with the corresponding source and organization IDs you wish to push to.
 The values of the `inputData` can be anything you wish.
@@ -100,8 +102,8 @@ Now, you'll have to give authentication to the local test. This requires an acce
 these files, we must do the following commands on the command line:
 
 ```bash
-export ACCESS_TOKEN='<coveo-source-api-key>'
-export REFRESH_TOKEN='<coveo-source-api-key>'
+export ACCESS_TOKEN=<coveo-source-api-key>
+export REFRESH_TOKEN=<coveo-source-api-key>
 ```
 
 This gives access to your source in your organization. Now, you can begin to test with any values you put into the `inputData` fields with the `zapier test` command.
@@ -152,4 +154,4 @@ Run `zapier help deprecate` on what exactly occurs when you deprecate an app and
 
 At any point if you want to see the available zapier commands and what they do, run `zapier help`.
 
-# Happy Zapping!
+Happy Zapping!
