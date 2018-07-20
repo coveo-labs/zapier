@@ -9,6 +9,8 @@ const appTester = zapier.createAppTester(App);
 //of the source you're testing.
 
 describe('deletes', () => {
+// This must be included in any test file before bundle, as it extracts the
+// authentication data that was exported from the command line.
   zapier.tools.env.inject();
   describe('Delete Test', () => {
 

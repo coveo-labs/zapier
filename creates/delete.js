@@ -22,7 +22,7 @@ module.exports = {
   // for users. Zapier will put them into the UX.
   noun: 'Delete',
   display: {
-    label: 'Delete Item From Source',
+    label: 'Delete Content',
     description: 'Delete content from a specified push source.',
   },
 

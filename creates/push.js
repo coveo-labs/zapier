@@ -35,8 +35,8 @@ module.exports = {
   // for users. Zapier will put them into the UX.
   noun: 'Push',
   display: {
-    label: 'Push or Update an Item',
-    description: 'Push/Update an Item to a Specified Push Source.',
+    label: 'Push or Update Content',
+    description: 'Push/Update Content to a Specified Push Source.',
     important: true,
   },
 

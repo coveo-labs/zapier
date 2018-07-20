@@ -1,7 +1,7 @@
 require('should');
 
-const orgId = 'bryanarnoldzapier9xh3mbas';
-const sourceId = 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas';
+const orgId = 'testzaporg1g2oidag';
+const sourceId = 'testzaporg1g2oidag-v5226ruqmtt32dgbfsi6nzcmcq';
 
 const zapier = require('zapier-platform-core');
 
@@ -14,6 +14,8 @@ const appTester = zapier.createAppTester(App);
 describe('pushes', () => {
 
   it('Push Test', (done) => {
+    //This must be included in any test file before bundle, as it extracts the
+    //authentication data that was exported from the command line.
     zapier.tools.env.inject();
     const bundle = {
       authData: {
@@ -21,9 +23,9 @@ describe('pushes', () => {
       },
       //Change this content to match your source and what you want to push when testing
       inputData: {
-        docId: 'https://drive.google.com/a/uconn.edu/file/d/1ADr6MijRQXau5knmlfEAIEz6nz_BsUP5/preview?usp=drivesdk',
-        title: '100MB',
-        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kMtqwzAQRf9Fi6yaWLJk-QGhJDSLLlLaQqE740hjW7YsOZLckIT-e-3SbWc193CYgXtHyvhQGQGlkqhgmGQ4ZvQB1Qq0LE01ACrmoAE9INGC6MserqggPE5-PWFNABPKcB0X82XW-kvlGo-KO5qcnlkbwuiLKJJWrDFbc7yeN79prG00TB7c342NsMMi-ciDmBx4EaneQ9xNHcPAmxHGfExPmuayr-FsnfmKEhmGKYWudd1JM5oPaZC2HalqCZ3qs4hIQmNMMcPLRIRyylgWU5bkWY5JnqX8H7h7cvyouve3z2pKejPo-rB7Pty4uZV7__GaPLZbwggnKY9znvH5CeOMJSvYSnsx2lZy1chtcNPSXG3dUIW5i5sa5xhU0EtbBOPjfrOw7-8fBKN6fw:1fgFuK:IIRCUHDlfuxXK6Rd2aYC4rip8w4/',
+        docId: 'https://drive.google.com/a/uconn.edu/file/d/1lP7to4SR8xvw_mIhhpoFR2dvnobLrJfI/preview?usp=drivesdk',
+        title: 'Byte Test',
+        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kD1rwzAURf-Lhkx1LFmyYhlCh0LGUJpCoYtxpGf5U3IkOSEN-e-VoWvfdO_h8obzQJ3xoTYSqk6hkmFSMErJC2o6GFVl6glQGcsI6AXJFuRQDXBHJeFZnjEamTUBTKjCfV6XxzgbbrXTHpUPtLgxsjaE2ZdpqqxMsE84TmLyW22tHmHx4P5-bKWd1pFPPcjFgZdpN3jI-qVnGLieYRbz7jxSoYYGLtaZa-qyWgchNTd9Ls4N5aSda62IC4u9LPSakpxmBAuO10sJ5ZSxIqMsF4XARBQ7_g88JvJ06Gtmv738eu91xw964h_3Nw9BnD7Na7snjHCy45ngBc8wZZyxfAN7ZW9mtLXaaLUPblnNNdZNdYgufro51tCFcbVFD1Gs367w-fwFsXF7vA:1fgZs4:9qeSpn9DOocwVWDSMKrGZYL4ans/',
         field1: 'thumbnail',
         data: 'This should be in the content of the submission if no content',
         field1Content: 'testing thumbnail field',

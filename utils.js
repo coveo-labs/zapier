@@ -67,6 +67,13 @@ const handleZip = (details) => {
         }
 
         zipContent.content = zip.files[names[i]]._data.compressedContent;
+        fileCount++;
+
+        //Set limit on number of documents that a zip file can contain in order to avoid
+        //customers sending hundreds of files at once and crashing services. Currently set at 30.
+        if(fileCount > 50){
+          throw new Error(tooManyFiles);
+        }
 
         //If a file is in a folder, the file name includes the folder's name
         //as well. This looks at the encountered folders so far and removes
@@ -93,14 +100,6 @@ const handleZip = (details) => {
           zipContent.compressionType = 'UNCOMPRESSED';
         } else {
           zipContent.compressionType = 'DEFLATE';
-        }
-
-        fileCount++;
-
-        //Set limit on number of documents that a zip file can contain in order to avoid
-        //customers sending hundreds of files at once and crashing services. Currently set at 30.
-        if(fileCount > 50){
-          throw new Error(tooManyFiles);
         }
         
         addOrUpdate.push(zipContent);
