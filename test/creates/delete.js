@@ -29,7 +29,7 @@ describe('deletes', () => {
   
         //Change these when you test
         inputData: {
-          docId: 'https://drive.google.com/a/uconn.edu/file/d/1DRCsGERTqW3-cw0ELqqUaj7wZ2lENbDN/preview?usp=drivesdk/attachment1',
+          docId: 'https://drive.google.com/a/uconn.edu/file/d/19jphegXTaj2v2Av-LrvUA0jxMQdQirIA/preview?usp=drivesdk',
           title: 'Zapier Delete Test',
           sourceId,
           orgId,

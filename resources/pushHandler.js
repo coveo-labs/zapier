@@ -2,10 +2,8 @@
 
 const push = require('../config').PUSH;
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
-const fileTooBig = require('../messages').BIG_FILE;
-const handleError = require('../utils').handleError;
-const fetchFileDetails = require('../utils').fetchFile;
-const getStringByteSize = require('../utils').getStringByteSize;
+const messages = require('../messages');
+const { handleError, fetchFile, getStringByteSize } = require('../utils');
 const _ = require('lodash');
 
 
@@ -33,37 +31,8 @@ const handlePushCreation = (z, bundle) => {
     //return the creation and upload to amazon
     return containerInfo.then((result) => {
 
-      //This property of the result can only exist if a zip file was put into
-      //the File input field, the contents were successfully fetched, extracted,
-      //and uploaded to the container created. If this is the case, a different request must
-      //be made to Coveo to push a file container into the source.
-      if(result.addOrUpdate){
-
-        //Push file container into the source, batch pushes only occur
-        //with zip files.
-        return processZipBatchPush(z, bundle, result);
-
-      //The successful file fetch wasn't a zip file, meaning it was
-      //only one file. There's no need to push a container for one file,
-      //so move on to pushing a single item.
-      } else {
-
-        //Assign the bundle the correct components needed for Coveo to
-        //properly index the file. Will be uncompressed by default.
-        bundle.inputData.compressedBinaryDataFileId = result.fileId;
-        bundle.inputData.compressionType = 'UNCOMPRESSED';
-        bundle.inputData.fileExtension = result.contentType;
-
-        //If a zip file contained one file, just change the
-        //compression type to DEFLATE. 
-        if(result.originalContentType === '.zip'){
-          bundle.inputData.compressionType = 'DEFLATE';
-        }
-
-        //Continue on to creating a single item push to Coveo.
-        return processPush(z, bundle);
-
-      }
+      //Push file container into the source.
+      return processBatchPush(z, bundle, result);
 
     })
       .catch(handleError);
@@ -75,7 +44,7 @@ const handlePushCreation = (z, bundle) => {
 
 //The function for sending a file container push to Coveo. Used for zip files with more than 1 file
 //as a batch push.
-const processZipBatchPush = (z, bundle, result) => {
+const processBatchPush = (z, bundle, result) => {
 
   //Send request to Coveo
   const promise = z.request({
@@ -107,17 +76,15 @@ const processZipBatchPush = (z, bundle, result) => {
 
 
 
-//Function to send single item push to Coveo.
+//Function to send single item push to Coveo with no File input field.
 const processPush = (z, bundle) => {
 
-  //If the inputData has content that is valid (passed the fetch and got valid content of
-  //a file), and the bundle has plain text input data, the file contents override the plain text.
-  //If a user submits plain text about a single file, that we have all the content about, there is no
-  //real value in indexing both of them into the source.
-  if(bundle.inputData.content && bundle.inputData.data != undefined){
-    delete bundle.inputData.data;
+  if(/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(bundle.inputData.data) == true){
+    bundle.inputData['fileExtension'] = '.html';
   }
 
+  z.console.log('Bundle to Coveo for push with no content and html body: ' , bundle.inputData);
+  
   //Send request to Coveo
   const promise = z.request({
 
@@ -132,19 +99,13 @@ const processPush = (z, bundle) => {
   });
 
   //Handle request response
-  return promise.then((response) => {
+  return promise.then((response) => {  
 
     if (response.status !== 202) {
-      throw new Error('Error occured sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+      throw new Error('Error occured sending push request to Coveo: ' + z.JSON.parse(response.content).message +  ' Error Code: ' + response.status);
     }
 
-    //If there was a file extracted in the request, remove the unecessary information the
-    //user doesn't need to see in the output in Zapier. 
-    if(bundle.inputData.content){
-
-      bundle.inputData = _.omit(bundle.inputData, 'compressedBinaryDataFileId', 'compressionType', 'fileExtension');
-
-    }
+    delete bundle.inputData.fileExtension;
 
     //send to responseContent handler
     return getOutputInfo(z, bundle);
@@ -198,7 +159,16 @@ const uploadZipBatchToContainer = (z, bundle, fileContents, result) => {
   //Total size of all the files, for backup error checking
   let totalSize = 0;
 
-  for(let i = 0; i < fileContents.length; i++){
+  //This is the first submission in the batch. This is needed to allow the
+  //files in the batch to have a parent ID, as well as an easier method of checking
+  //whether or not the data property has a value. If not, this will be removed after the files
+  //have been added to the batch.
+  let firstBatchItem = {};
+  Object.assign(firstBatchItem, bundle.inputData);
+  firstBatchItem = _.omit(firstBatchItem, 'orgId', 'sourceId');
+  batchContent.addOrUpdate.push(firstBatchItem);
+
+  fileContents.forEach((fileContent, i) => {
 
     //Empty batch component to be put into the batch
     let batchItem = {};
@@ -207,9 +177,7 @@ const uploadZipBatchToContainer = (z, bundle, fileContents, result) => {
     //and assign them to the bundle component. Metadata
     //will be included for each item pushed (should always be this since
     //the first item pushed may be deleted if it has no valuable content).
-    for(let k in bundle.inputData){
-      batchItem[k] = bundle.inputData[k];
-    }
+    Object.assign(batchItem, bundle.inputData);
 
     //No reason to keep the org and source id for the meta data, 
     //so remove them from the batch component.
@@ -222,36 +190,35 @@ const uploadZipBatchToContainer = (z, bundle, fileContents, result) => {
     if(batchContent.addOrUpdate.length >= 1){
 
       delete batchItem.data;
-      batchItem.title = bundle.inputData.title + ' attachment #' + (i + 1) + ': ' + fileContents[i].filename;
-      batchItem.fileExtension = fileContents[i].contentType;
-      batchItem.compressedBinaryData = Buffer.from(fileContents[i].content).toString('base64');
-      batchItem.compressionType = fileContents[i].compressionType;
+      batchItem.title = bundle.inputData.title + ' file #' + (i + 1) + ': ' + fileContent.filename;
+      batchItem.fileExtension = fileContent.contentType;
+      batchItem.compressedBinaryData = Buffer.from(fileContent.content).toString('base64');
+      batchItem.compressionType = fileContent.compressionType;
       batchItem.parentId = batchContent.addOrUpdate[i].documentId;
+      batchItem.uri = bundle.inputData.uri + '/attachment' + (i + 1);
       batchItem.documentId = bundle.inputData.documentId + '/attachment' + (i + 1);
-      totalSize += fileContents[i].size;
+      totalSize += fileContent.size;
 
-    //The first item is currently being processed, so reduce the loop counter by 1
-    //in order to start at the first item in the fileContents.
-    } else {
-      i--;
-    }
+    } 
 
     //Add batch item to total batch
     batchContent.addOrUpdate.push(batchItem);
 
     //A backup error checker for the size of the files being too high
     if(totalSize >= (100 * 1024 * 1024)){
-      throw new Error(fileTooBig);
+      throw new Error(messages.BIG_FILE);
     }
 
-  }
+  });
 
   //If the document has zip file supplied and no plain text, the first
   //item in the batch is useless, as it will contain no data or file content.
   //No point in keeping this, so remove it. Note: deleting from this components document ID
   //will still work even if it isn't in the index (intended?).
-  if(bundle.inputData.data == '' || bundle.inputData.data == undefined || bundle.inputData.data == null){
+  if(firstBatchItem.data == '' || firstBatchItem.data == undefined || firstBatchItem.data == null){
     batchContent.addOrUpdate.splice(0, 1);
+  } else if(/<[a-z][\s\S]*>/i.test(firstBatchItem.data) == true){
+    firstBatchItem.fileExtension = '.html';
   }
 
   //Amazon doesn't get mad about no content-length headers for this upload for some reason,
@@ -296,12 +263,8 @@ const uploadZipBatchToContainer = (z, bundle, fileContents, result) => {
 //the container that was created. 
 const uploadToContainer = (z, bundle, result) => {
 
-  //Information that is helpful for the function and
-  //returned for other functions.
-  const containerInfo = {
-    fileId: result.fileId,
-    contentType: '',
-    originalContentType: '',
+  const upload = {
+    addOrUpdate: [],
   };
 
   //Empty object that a batch will be put in if one exists
@@ -309,7 +272,7 @@ const uploadToContainer = (z, bundle, result) => {
   let file = bundle.inputData.content;
 
   //Fetch the contents of the file given in the File field.
-  const fileDetails = fetchFileDetails(file);
+  const fileDetails = fetchFile(file);
 
   //Returned the file contents successfully, now handle them
   return fileDetails.then((fileContents) => {
@@ -325,31 +288,65 @@ const uploadToContainer = (z, bundle, result) => {
     //single item to push handle
     } else {
 
-      //Get the file's type and original type (if zip) and save them.
-      containerInfo.contentType = fileContents.contentType;
-      containerInfo.originalContentType = fileContents.originalContentType;
+      let contentNumber = 0;
+
+      while(contentNumber != 2){
+
+        let uploadContent = {};
+
+        //Scan through the bundle input information
+        //and assign them to the bundle component. Metadata
+        //will be included for each item pushed (should always be this since
+        //the first item pushed may be deleted if it has no valuable content).
+        Object.assign(uploadContent, bundle.inputData);
+
+        //No reason to keep the org and source id for the meta data, 
+        //so remove them from the batch component.
+        uploadContent = _.omit(uploadContent, 'orgId', 'sourceId');
+
+        //The first item of the batch hasn't been processed yet, only do these after
+        //the first item is created. This is because these items require parent ID's 
+        //and doc ID's dependent on the first item, so they cannot be made until the
+        //first one is.
+        if(upload.addOrUpdate.length >= 1){
+
+          delete uploadContent.data;
+          uploadContent.fileExtension = fileContents.contentType;
+          uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
+          uploadContent.compressionType = 'UNCOMPRESSED';
+          uploadContent.parentId = upload.addOrUpdate[contentNumber - 1].documentId;
+          uploadContent.uri = bundle.inputData.uri + '/attachment';
+          uploadContent.documentId = bundle.inputData.documentId + '/attachment';
+
+        }
+        
+        upload.addOrUpdate.push(uploadContent);
+        contentNumber++;
+
+      }
 
       //This is a backup error checker for the size of the file.
       if (fileContents.size >= (100 * 1024 * 1024) || getStringByteSize(fileContents.content) >= (100 * 1024 * 1024)) {
-        throw new Error(fileTooBig);
+        throw new Error(messages.BIG_FILE);
       }
 
-      //Amazon sometimes doesn't like it when you don't sent a content-length header,
-      //so create one here. If this isn't supplied, timeouts or header errors can occur.
-      //How z.request interacts with amazon seems to cause this.
+      //If the document has zip file supplied and no plain text, the first
+      //item in the batch is useless, as it will contain no data or file content.
+      //No point in keeping this, so remove it. Note: deleting from this components document ID
+      //will still work even if it isn't in the index (intended?).
+      if(upload.addOrUpdate[0].data == '' || upload.addOrUpdate[0].data == undefined || upload.addOrUpdate[0].data == null){
+        upload.addOrUpdate.splice(0, 1);
+      } else if(/<[a-z][\s\S]*>/i.test(upload.addOrUpdate[0].data) == true){
+        upload.addOrUpdate[0].fileExtension = '.html';
+      }
+
       let headers = result.requiredHeaders;
-      headers['content-length'] = fileContents.size;
-
-      //If the size wasn't grabbed successfully, get the size from the buffer
-      if(headers['content-length'] == null){
-        headers['content-length'] = getStringByteSize(fileContents.content);
-      }
 
       //Send request to upload the file to amazon
       const promise = z.request({
         url: result.uploadUri,
         method: 'PUT',
-        body: fileContents.content,
+        body: upload,
         headers: headers,
       });
 
@@ -376,7 +373,8 @@ const uploadToContainer = (z, bundle, result) => {
       if(Object.keys(batchUpload).length !== 0){
         return batchUpload;
       } else {
-        return containerInfo;
+        upload.fileId = result.fileId;
+        return upload;
       }
     })
     .catch(handleError);

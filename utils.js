@@ -1,8 +1,6 @@
 'use strict';
 
-const tooManyFiles = require('./messages').TOO_MANY_FILES;
-const badFetch = require('./messages').BAD_FETCH;
-const fileTooBig = require('./messages').BIG_FILE;
+const messages = require('./messages');
 const path = require('path');
 
 //Simple function to handle an error occuring in a function that I didn't catch.
@@ -39,81 +37,79 @@ const handleZip = (details) => {
     let fileCount = 0;
     let totalFileSize = 0;
 
-    for(let i = 0; i < names.length; i++){
+    names.forEach(name => {
 
       let zipContent = {};
 
       //These files are macOS dependent and don't have any valuable content for
       //Coveo to extract, so ignore them.
-      if(names[i].indexOf('__MACOSX/') > -1){
+      if(name.indexOf('__MACOSX/') > -1){
         //Also ignore folders within the zip file, just want their contents not the folders themselves, but keep folder names
         //to help alter the file names within it.
-      } else if(zip.files[names[i]].dir == true){
+      } else if(zip.files[name].dir == true){
 
-        folderNames.unshift(names[i]);
+        folderNames.unshift(name);
 
       } else {
 
         //Extract important details for the files here
-        zipContent.size = zip.files[names[i]]._data.compressedSize;
+        zipContent.size = zip.files[name]._data.compressedSize;
         totalFileSize += zipContent.size;
-        zipContent.contentType = path.extname(names[i]);
-        zipContent.filename = names[i];
-
+        zipContent.contentType = path.extname(name);
+        zipContent.filename = name;
+ 
         //The files are too big (100 MB for now), throw an error telling
         //the user so and the file size limit.
         if(totalFileSize >= (100 * 1024 * 1024)){
-          throw new Error(fileTooBig);
+          throw new Error(messages.BIG_FILE);
         }
-
-        zipContent.content = zip.files[names[i]]._data.compressedContent;
+ 
+        zipContent.content = zip.files[name]._data.compressedContent;
         fileCount++;
 
         //Set limit on number of documents that a zip file can contain in order to avoid
         //customers sending hundreds of files at once and crashing services. Currently set at 50.
         if(fileCount > 50){
-          throw new Error(tooManyFiles);
+          throw new Error(messages.TOO_MANY_FILES);
         }
 
         //If a file is in a folder, the file name includes the folder's name
         //as well. This looks at the encountered folders so far and removes
         //the excess folder name out of the file name.
-        for(let k in folderNames){
+        folderNames.forEach(folderName => {
 
-          if(zipContent.filename.indexOf(folderNames[k]) > -1){
+          if(zipContent.filename.indexOf(folderName) > -1){
 
-            zipContent.filename = names[i].substr(folderNames[k].length, names[i].length);
+            zipContent.filename = name.substr(folderName.length, name.length);
 
           }
 
-        }
+        });
 
-        //The sometimes extension for files can be screwed up by how Zapier handles zip files. Not sure if
+        //Sometimes extensions for files can be screwed up by how Zapier handles zip files. Not sure if
         //null is possible, so I put it in just to be safe.
         if(zipContent.contentType === 'undefined' || zipContent.contentType === 'null' || zipContent.contentType === ''){
-          zipContent.contentType = '.' + names[i].split('/')[1].split(';')[0];
+          zipContent.contentType = '.' + name.split('/')[1].split(';')[0];
         }
 
         //If the data is in a zip but not compressed, give it the uncompressed data compression,
         //otherwise it is deflate for zip. Check the first few bits to see if other algorithms used
-        //before defaulting to deflate. Best way to deal with this for now...
-        if(zipContent.size == zip.files[names[i]]._data.uncompressedSize){
+        //before defaulting to deflate.
+        //Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
+        //May not even have to deal with the other compression types, but zip files do support these compression types, so possible to exist (will do more research later).
+        if(zipContent.size == zip.files[name]._data.uncompressedSize){
           zipContent.compressionType = 'UNCOMPRESSED';
-        } else if(zipContent.content[0] == 31 && zipContent.content[1] == 139 && zipContent.content[2] == 8) {
-          zipContent.compressionType = 'GZIP';
-        } else if (((zipContent.content[0] * 256) + zipContent.content[1]) % 31 == 0){
-          zipContent.compressionType = 'ZLIB';
-        } else if (details.content[0] == 80 && details.content[1] == 75 && details.content[2] == 3 && details.content[3] == 4){
+        } else if (details.content[0] === 0x50 && details.content[1] === 0x4b && details.content[2] === 0x03 && details.content[3] === 0x04){
           zipContent.compressionType = 'DEFLATE';
         } else {
-          zipContent.compressionType = 'LZMA';
+          throw new Error('Unsupported compression type.');
         }
         
         addOrUpdate.push(zipContent);
 
       }
 
-    }
+    });
 
     return addOrUpdate;
 
@@ -143,7 +139,7 @@ const fetchFile = (url) => {
       //If the url given is redirected to another place, doesn;t match the given url, or contains link, the given file url
       //wasn't the url content was extracted from. So, set the bad fetch flag to true.
       if(response.headers.get('link') || response.url !== url){
-        throw new Error(badFetch);
+        throw new Error(messages.BAD_FETCH);
       }
 
       
@@ -153,7 +149,7 @@ const fetchFile = (url) => {
       //The file is too big (100 MB for now), throw an error telling
       //the user so and the file size limit.
       if(details.size >= (100 * 1024 * 1024)){
-        throw new Error(fileTooBig);
+        throw new Error(messages.BIG_FILE);
       }
 
       if (disposition) {

@@ -1,6 +1,6 @@
 'use strict';
 
-const badDocID = require('../messages').BAD_DOC_ID;
+const messages = require('../messages');
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
 const _ = require('lodash');
@@ -10,19 +10,14 @@ const _ = require('lodash');
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
 
-  //check the doc ID, all urls with # in them do not index properly, so just
-  //tell the user this and prevent them from doing so.
-  if(bundle.inputData.docId.indexOf('#') > -1){
-    throw new Error(badDocID);
-  }
-
   //Set the field names as properties and the values of these new properties
   //to what the user put as the content for these fields. Not sure if there's a better
   //way of doing this.
   bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
   bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
   bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
-  bundle.inputData['documentId'] = bundle.inputData.docId;
+  bundle.inputData['uri'] = bundle.inputData.docId;
+  bundle.inputData['documentId'] = bundle.inputData.docId.replace(/[?&#]/g, '=');
 
   //Don't need these components of the bundle anymore after assigning the content of each field
   //to the field name in the bundle, so remove them from the bundle and carry on.

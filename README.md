@@ -17,9 +17,7 @@ documentation page. Since this is part of their CLI Interface, you may also find
 In order to get a better grasp of the requirements for the CLI as well as how it functions, follow the first section, the setup portion, of this [tutorial](https://zapier.com/developer/start/introduction).
 You can follow the entire tutorial if you wish, but do not clone the Coveo app if you do, clone their example app instead.
 
-Note: you will need your own Zapier account or the Coveo Zapier account information in order to login from the command line in the `Run Zapier Login` step in the tutorial. If you
-choose to login from another account other than Coveo's, you will need to change the contents of the config file to the dev platform as well as get the correct redirect_uri
-after pushing the app for the first time. Hence, it is suggested you login with the Coveo Zapier account. Contact whomever has it on hand.
+Note: you will need your own Zapier account in order to login from the command line in the `Run Zapier Login` step in the tutorial.
 
 Once you have completed the set up and logged in, you'll want to clone the Coveo app, move into the directory where the app code was stored, and install it's components:
 
@@ -51,13 +49,10 @@ Now you'll have to update any information that is specific to the Coveo App. Fir
  "PUSH": "push.cloud.coveo.com",
  "REDIRECT_URI": "https://zapier.com/dashboard/auth/oauth/return/APP-ID/"
 }
-```
+``` 
 
-From here, ensure that `PLATFORM` and `PUSH` are the values associated with the Prod platform for Coveo. If for any reason you wish to change these two
-to either dev or qa (solely for testing purposes only), DO NOT push the same version of the app when you do. See the section regarding updating the app as to why you must do this. 
-
-Next, ensure the `REDIRECT_URI` is the following: `https://zapier.com/dashboard/auth/oauth/return/APP-ID/`. If it isn't, update it. Next, run `zapier describe` on 
-the command line to get the correct `REDIRECT_URI`. It will be located in the `Authentication` section of the output. Copy paste the url into the `REDIRECT_URI`
+Now, you will need to replace the `REDIRECT_URI` with the correct one. Run `zapier describe` on the command line to get the correct `REDIRECT_URI`.
+It will be located in the `Authentication` section of the output. Copy paste the url into the `REDIRECT_URI`
 in `config.json`. The following should be the content of `config.json`:
 
 ```json
@@ -127,6 +122,8 @@ You can add `z.console.log` commands in the code to log anything that happens in
 
 You can also test the app on Zapier's site, you should 100% do this, by heading over to Zapier's [site](https://zapier.com) and creating a Zap with the Coveo Zap app. Please
 read the next section before testing on the site though.
+
+Everything relating to what you can do on the command line as well as practical examples using Zapier can be found [here](https://github.com/zapier/zapier-platform-cli).
 
 At any point if you want to see the available zapier commands and what they do, run `zapier help` or for more info on specific commands run
 `zapier help [command]`.
