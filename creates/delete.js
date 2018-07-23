@@ -1,5 +1,6 @@
 'use strict';
 
+const badDocID = require('../messages').BAD_DOC_ID;
 const deleteResource = require('../resources/delete');
 const deleteHandler = require('../resources/deleteHandler');
 
@@ -7,6 +8,12 @@ const deleteHandler = require('../resources/deleteHandler');
 //a handoff to the deleteHandler file to handle the creation of a delete request, sending it
 //to Coveo, then handling the appropriate response content.
 const createDelete = (z, bundle) => {
+
+  //Check the doc ID, all urls with # in them do not index properly, so just
+  //tell the user this and prevent them from doing so.
+  if(bundle.inputData.docId.indexOf('#') > -1){
+    throw new Error(badDocID);
+  }
 
   bundle.inputData['documentId'] = bundle.inputData.docId;
   delete bundle.inputData.docId;

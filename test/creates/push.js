@@ -23,9 +23,9 @@ describe('pushes', () => {
       },
       //Change this content to match your source and what you want to push when testing
       inputData: {
-        docId: 'https://drive.google.com/a/uconn.edu/file/d/1lP7to4SR8xvw_mIhhpoFR2dvnobLrJfI/preview?usp=drivesdk',
-        title: 'Byte Test',
-        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kD1rwzAURf-Lhkx1LFmyYhlCh0LGUJpCoYtxpGf5U3IkOSEN-e-VoWvfdO_h8obzQJ3xoTYSqk6hkmFSMErJC2o6GFVl6glQGcsI6AXJFuRQDXBHJeFZnjEamTUBTKjCfV6XxzgbbrXTHpUPtLgxsjaE2ZdpqqxMsE84TmLyW22tHmHx4P5-bKWd1pFPPcjFgZdpN3jI-qVnGLieYRbz7jxSoYYGLtaZa-qyWgchNTd9Ls4N5aSda62IC4u9LPSakpxmBAuO10sJ5ZSxIqMsF4XARBQ7_g88JvJ06Gtmv738eu91xw964h_3Nw9BnD7Na7snjHCy45ngBc8wZZyxfAN7ZW9mtLXaaLUPblnNNdZNdYgufro51tCFcbVFD1Gs367w-fwFsXF7vA:1fgZs4:9qeSpn9DOocwVWDSMKrGZYL4ans/',
+        docId: 'https://drive.google.com/a/uconn.edu/file/d/1pa3F3PzEjgkFqdvnlpbmN6CEezD6G4-r/preview?usp=drivesdk',
+        title: 'Compression Test',
+        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kL1uwyAUhd-FIVMdg8H4R4o6tEm3qG9gOXBjY2MggBMlUd69dtW1dzrn6NMdvidSJsTWCGiURDXDpMQZo2_orEDLxrQToHopGtAbEj2IsRnhjmrCs_yXE9ZEMLGJd7eSxwUbb63vAqqfaPZ62foYXajTVFqR4DLhOFlS2HbWdhrmAP7vx1bYaYVCGkDMHoJI1RggG-aBYeCdA1e54qRpJcczXKw317S_Tlpibzg2Q9_l2qooTHGifvK5dGpKSU4zmjOG10sJ5ZSxMqMsr8oKk6os-D-ja-mBfj_2QzceLvJqtDtNR_6xh8cn_2KJf-93hBFOCp5VvOQZpowzlm9gJ-3NaNvKTSd30c-rubP1UxsXFw_llhpV1KsteljEhu06vl4_4AZ77w:1fhc2m:db_50yWXVD3HAAak-RsN1BpeBhc/',
         field1: 'thumbnail',
         data: 'This should be in the content of the submission if no content',
         field1Content: 'testing thumbnail field',

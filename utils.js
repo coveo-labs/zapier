@@ -70,7 +70,7 @@ const handleZip = (details) => {
         fileCount++;
 
         //Set limit on number of documents that a zip file can contain in order to avoid
-        //customers sending hundreds of files at once and crashing services. Currently set at 30.
+        //customers sending hundreds of files at once and crashing services. Currently set at 50.
         if(fileCount > 50){
           throw new Error(tooManyFiles);
         }
@@ -94,12 +94,19 @@ const handleZip = (details) => {
           zipContent.contentType = '.' + names[i].split('/')[1].split(';')[0];
         }
 
-        //If the data is in a zip but not compressed, give it that data compression,
-        //otherwise it is deflate for zip.
+        //If the data is in a zip but not compressed, give it the uncompressed data compression,
+        //otherwise it is deflate for zip. Check the first few bits to see if other algorithms used
+        //before defaulting to deflate. Best way to deal with this for now...
         if(zipContent.size == zip.files[names[i]]._data.uncompressedSize){
           zipContent.compressionType = 'UNCOMPRESSED';
-        } else {
+        } else if(zipContent.content[0] == 31 && zipContent.content[1] == 139 && zipContent.content[2] == 8) {
+          zipContent.compressionType = 'GZIP';
+        } else if (((zipContent.content[0] * 256) + zipContent.content[1]) % 31 == 0){
+          zipContent.compressionType = 'ZLIB';
+        } else if (details.content[0] == 80 && details.content[1] == 75 && details.content[2] == 3 && details.content[3] == 4){
           zipContent.compressionType = 'DEFLATE';
+        } else {
+          zipContent.compressionType = 'LZMA';
         }
         
         addOrUpdate.push(zipContent);

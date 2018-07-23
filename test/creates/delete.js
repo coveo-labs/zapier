@@ -1,5 +1,8 @@
 require('should');
 
+const orgId = 'testzaporg1g2oidag';
+const sourceId = 'testzaporg1g2oidag-v5226ruqmtt32dgbfsi6nzcmcq';
+
 const zapier = require('zapier-platform-core');
 
 const App = require('../../index');
@@ -28,8 +31,8 @@ describe('deletes', () => {
         inputData: {
           docId: 'https://drive.google.com/a/uconn.edu/file/d/1DRCsGERTqW3-cw0ELqqUaj7wZ2lENbDN/preview?usp=drivesdk/attachment1',
           title: 'Zapier Delete Test',
-          sourceId: 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas',
-          orgId: 'bryanarnoldzapier9xh3mbas',
+          sourceId,
+          orgId,
         },
       };
       appTester(App.creates.deletes.operation.perform, bundle)
