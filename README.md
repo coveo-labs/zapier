@@ -81,10 +81,6 @@ CLIENT_ID = <coveo-client-id>
 CLIENT_SECRET = <coveo-client-secret>
 ```
 
-IMPORTANT: once all of the credentials and the app has been installed locally, DO NOT EVER use the command `zapier init .` and then `zapier push`. You
-will completely overwrite the app and it will stop working for anyone using it. Just avoid `zapier init .` completely unless you are in a different directory
-and want to start a completely new app.
-
 At any point if you want to see the available zapier commands and what they do, run `zapier help` or for more info on specific commands run
 `zapier help [command]`.
 
