@@ -16,8 +16,8 @@ const createNewPush = (z, bundle) => {
   bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
   bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
   bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
-  bundle.inputData['uri'] = bundle.inputData.docId;
   bundle.inputData['documentId'] = bundle.inputData.docId.replace(/[?&#]/g, '=');
+  bundle.inputData['uri'] = bundle.inputData.docId;
 
   //Don't need these components of the bundle anymore after assigning the content of each field
   //to the field name in the bundle, so remove them from the bundle and carry on.
@@ -81,14 +81,14 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). Batches of items can be pushed if they are within a zip file. If a zip file and plain text are supplied, both will be sent in a batch push.', 
+        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 are supported. The files in the archive file will be extracted and pushed to the source.', 
       },
       {
         key: 'data',
         required: false,
         type: 'string',
         label: 'Plain Text',
-        helpText: 'The main content you want extracted into the source as plain text. This can be text of the file, free text, or a mix of both. Use this if no files or urls for the File field are supplied and you want content to be extracted with your push source. Will only be extracted if File field fails or is not supplied. If niether this nor the File field have any content, then no content will be extracted in the source.', 
+        helpText: 'The main content you want extracted into the source as plain text. This can be text of the file, free text, or a mix of both. Use this if no files or urls for the File field are supplied and you want content to be extracted with your push source. Will only be extracted if File field fails or is not supplied. If niether this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed as a batch.', 
       },
       {
         key: 'field1',

@@ -1,6 +1,6 @@
 {
   "name": "coveo-zap",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Index documents in a push source on your Coveo Cloud V2.",
   "repository": "coveo-labs/zapier",
   "homepage": "https://coveo.com/",
@@ -19,9 +19,14 @@
     "npm": ">=3.10.10"
   },
   "dependencies": {
+    "decompress": "^4.2.0",
+    "decompress-tar": "^4.1.1",
+    "decompress-tarbz2": "^4.1.1",
+    "decompress-targz": "^4.1.1",
     "eslint": "^5.0.1",
     "jszip": "3.1.5",
     "lodash": "^4.17.10",
+    "node-native-zip": "^1.1.0",
     "prettysize": "^1.1.0",
     "zapier-platform-cli": "^7.1.0",
     "zapier-platform-core": "7.1.0"

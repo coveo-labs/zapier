@@ -82,9 +82,9 @@ const processPush = (z, bundle) => {
   if(/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(bundle.inputData.data) == true){
     bundle.inputData['fileExtension'] = '.html';
   }
-
-  z.console.log('Bundle to Coveo for push with no content and html body: ' , bundle.inputData);
   
+  console.log('bundle: ' , bundle.inputData);
+
   //Send request to Coveo
   const promise = z.request({
 
@@ -195,8 +195,8 @@ const uploadZipBatchToContainer = (z, bundle, fileContents, result) => {
       batchItem.compressedBinaryData = Buffer.from(fileContent.content).toString('base64');
       batchItem.compressionType = fileContent.compressionType;
       batchItem.parentId = batchContent.addOrUpdate[i].documentId;
-      batchItem.uri = bundle.inputData.uri + '/attachment' + (i + 1);
-      batchItem.documentId = bundle.inputData.documentId + '/attachment' + (i + 1);
+      batchItem.uri = bundle.inputData.uri + '/file' + (i + 1);
+      batchItem.documentId = bundle.inputData.documentId + '/file' + (i + 1);
       totalSize += fileContent.size;
 
     } 
@@ -315,8 +315,8 @@ const uploadToContainer = (z, bundle, result) => {
           uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
           uploadContent.compressionType = 'UNCOMPRESSED';
           uploadContent.parentId = upload.addOrUpdate[contentNumber - 1].documentId;
-          uploadContent.uri = bundle.inputData.uri + '/attachment';
-          uploadContent.documentId = bundle.inputData.documentId + '/attachment';
+          uploadContent.uri = bundle.inputData.uri + '/file';
+          uploadContent.documentId = bundle.inputData.documentId + '/file';
 
         }
         
