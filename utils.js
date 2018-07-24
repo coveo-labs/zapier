@@ -26,42 +26,42 @@ const convertToZip = (details) => {
 
   let archiveFile = details;
 
-    //This is all for decompressing the contents of the files
-    //See: https://www.npmjs.com/search?q=keywords:decompressplugin
-    const decompress = require('decompress');
-    const decompressTar = require('decompress-tar');
-    const decompressTargz = require('decompress-targz');
-    const decompressTarbz = require('decompress-tarbz2');
-    const zip = require('node-native-zip');
+  //This is all for decompressing the contents of the files
+  //See: https://www.npmjs.com/search?q=keywords:decompressplugin
+  const decompress = require('decompress');
+  const decompressTar = require('decompress-tar');
+  const decompressTargz = require('decompress-targz');
+  const decompressTarbz = require('decompress-tarbz2');
+  const zip = require('node-native-zip');
 
-    //Create new zip archive, and decompress the contents. The plugins are
-    //checkers that alter the function depending on the archive file type.
-    let newArchive = new zip();
-    const toConvert = decompress(archiveFile.content, {
-      plugins: [
-        decompressTar(),
-        decompressTargz(),
-        decompressTarbz()
-      ]
+  //Create new zip archive, and decompress the contents. The plugins are
+  //checkers that alter the function depending on the archive file type.
+  let newArchive = new zip();
+  const toConvert = decompress(archiveFile.content, {
+    plugins: [
+      decompressTar(),
+      decompressTargz(),
+      decompressTarbz(),
+    ],
+  });
+
+  return toConvert.then(files => {
+
+    //Too many files in archive, catch early and throw an error
+    if(files.length > 50){
+      throw new Error(messages.TOO_MANY_FILES);
+    }
+
+    //Loop through the file contents and add them to the new zip archive
+    //with the file names and buffers associated with them.
+    files.forEach(file => {
+      newArchive.add(file.path, file.data);
     });
-
-    return toConvert.then(files => {
-
-      //Too many files in archive, catch early and throw an error
-      if(files.length > 50){
-        throw new Error(messages.TOO_MANY_FILES);
-      }
-
-      //Loop through the file contents and add them to the new zip archive
-      //with the file names and buffers associated with them.
-      files.forEach(file => {
-        newArchive.add(file.path, file.data);
-      });
-      //Turn the entire zip in a zip file buffer, and send off to the
-      //zip file handler.
-      archiveFile.content = newArchive.toBuffer();
-      return handleZip(archiveFile);
-    });
+    //Turn the entire zip in a zip file buffer, and send off to the
+    //zip file handler.
+    archiveFile.content = newArchive.toBuffer();
+    return handleZip(archiveFile);
+  });
 
 };
 
