@@ -53,7 +53,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The ID of the document you wish to delete. Children of the document ID supplied will also be deleted. Children of the document that are indexed have the same url with /attachment# appended to it when pushed through Zapier. If you wish to delete specific children, simply add /attachment#. Example: `https://example/com/attachment2`.',
+        helpText: 'The ID of the document you wish to delete. Children of the document ID supplied will also be deleted. Children of the document that are indexed have the same url with /file# appended to it when pushed through Zapier. If you wish to delete specific children, simply add /file#. Example: `https://example.com/file2`.',
       },
       {
         key: 'title',

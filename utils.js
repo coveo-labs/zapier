@@ -24,20 +24,24 @@ const handleError = (error) => {
 //file types would be very labor intensive.
 const convertToZip = (details) => {
 
-  let archiveFile = details;
+  let archiveFile = details
 
   //This is all for decompressing the contents of the files
-  //See: https://www.npmjs.com/search?q=keywords:decompressplugin
+  //See: https://www.npmjs.com/package/decompress
+  //Will work for any tar archive file type with any compression type applied
+  //This can be expanded upon in the future, but having all tar and zip files
+  //available for all the content to be uploaded is a good start
   const decompress = require('decompress');
   const decompressTar = require('decompress-tar');
-  const decompressTargz = require('decompress-targz');
   const decompressTarbz = require('decompress-tarbz2');
-  const zip = require('node-native-zip');
+  const decompressTargz = require('decompress-targz');
+  const zip = require('node-native-zip');   //Consider swapping to this in the future: https://github.com/archiverjs/node-archiver
 
   //Create new zip archive, and decompress the contents. The plugins are
   //checkers that alter the function depending on the archive file type.
   let newArchive = new zip();
   const toConvert = decompress(archiveFile.content, {
+    inputFile: archiveFile.content,
     plugins: [
       decompressTar(),
       decompressTargz(),
@@ -47,15 +51,25 @@ const convertToZip = (details) => {
 
   return toConvert.then(files => {
 
-    //Too many files in archive, catch early and throw an error
-    if(files.length > 50){
-      throw new Error(messages.TOO_MANY_FILES);
-    }
+    let fileCount = 0;
 
     //Loop through the file contents and add them to the new zip archive
     //with the file names and buffers associated with them.
     files.forEach(file => {
+
+      //Ignore folders in the total file count, as we
+      //do not care about indexing folders.
+      if(file.type !== 'directory'){
+        fileCount++;
+      }
+
+      //Too many files in archive, catch early and throw an error
+      if(fileCount > 50){
+        throw new Error(messages.TOO_MANY_FILES);
+      }
+
       newArchive.add(file.path, file.data);
+
     });
     //Turn the entire zip in a zip file buffer, and send off to the
     //zip file handler.
@@ -160,9 +174,11 @@ const handleZip = (details) => {
           zipContent.compressionType = 'ZLIB';
         } else if (zipContent.contentType === '.lzma'){
           zipContent.compressionType = 'LZMA';
-        } else if (details.content[0] === 0x50 && details.content[1] === 0x4b && details.content[2] === 0x03 && details.content[3] === 0x04){
+        } else {
           zipContent.compressionType = 'DEFLATE'; 
-        }  else {
+        }  
+        
+        if (zipContent.contentType === '' || zipContent.contentType == undefined) {
           //If you ever get here, something went VERY wrong
           throw new Error(messages.BAD_COMPRESSION);
         }
@@ -235,14 +251,28 @@ const fetchFile = (url) => {
 
       details.content = content;
 
+      console.log('Deets: ' , details);
+
       //Zip file, send to handleZip to get content. The content type being zip or the bytes at the beginning being that of a zip will make sure a zip file is currently being processed.
       if(details.contentType === '.zip' || (details.content[0] === 0x50 && details.content[1] === 0x4b && details.content[2] === 0x03 && details.content[3] === 0x04)){
+
         return handleZip(details);
+
         //This looks at bytes in the beginning of the buffers as well as the content type of the other supported archive files.
-      } else if ((details.contentType === '.gz' || (details.content[0] === 0x1f && details.content[1] === 0x8b && details.content[2] === 0x08)) || (details.contentType === '.tar') || (details.contentType === '.bz2' || (details.content[0] === 0x42 && details.content[1] === 0x5a && details.content[2] === 0x68))){
+        //This helps me detect gzip: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
+        //this tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar include xz, Z, gzip, bz2, and lzma.
+        //As far as I can tell, there's no good way of detecting tar compression types other than this, since sometimes the content type provided from the fetch will be an octet stream (which isn't helpful)
+      } else if (((details.content[0] === 0x1f && details.content[1] === 0x8b && details.content[2] === 0x08)) || ((details.content[0] === 0x42 && details.content[1] === 0x5a && details.content[2] === 0x68)) || (details.contentType === '.tar')){
+       
         return convertToZip(details);
+        
+        //Currently unsuppoted tar compression types
+      } else if(((details.content[0] === 0x1f && details.content[1] === 0x9d)) || (details.contentType === '.tlz' || details.contentType === '.lzma') || ((details.content[0] === 0xfd && details.content[1] === 0x37 && details.content[2] === 0x7a && details.content[3] === 0x58 && details.content[4] === 0x5a && details.content[5] === 0x00))){
+        throw new Error(messages.UNSUPPORTED);
       }
       
+      //If nither the zip or tar cases picked up anything, this is some single file
+      //type, like pdf, or a archive file type that isn't supported (in which no valuable content will be extracted in the source).
       return details;
       
     });

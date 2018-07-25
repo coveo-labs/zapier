@@ -80,10 +80,12 @@ const processBatchPush = (z, bundle, result) => {
 const processPush = (z, bundle) => {
 
   if(/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(bundle.inputData.data) == true){
-    bundle.inputData['fileExtension'] = '.html';
+    bundle.inputData.fileExtension = '.html';
+    z.console.log('File ext: ' , bundle.inputData.fileExtension);
+    z.console.log('Data: ' , bundle.inputData.data);
   }
   
-  console.log('bundle: ' , bundle.inputData);
+  z.console.log('bundle: ' , bundle.inputData);
 
   //Send request to Coveo
   const promise = z.request({
@@ -217,7 +219,7 @@ const uploadZipBatchToContainer = (z, bundle, fileContents, result) => {
   //will still work even if it isn't in the index (intended?).
   if(firstBatchItem.data == '' || firstBatchItem.data == undefined || firstBatchItem.data == null){
     batchContent.addOrUpdate.splice(0, 1);
-  } else if(/<[a-z][\s\S]*>/i.test(firstBatchItem.data) == true){
+  } else if(/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(firstBatchItem.data) == true){
     firstBatchItem.fileExtension = '.html';
   }
 
@@ -311,6 +313,7 @@ const uploadToContainer = (z, bundle, result) => {
         if(upload.addOrUpdate.length >= 1){
 
           delete uploadContent.data;
+          uploadContent.title = bundle.inputData.title + ' file: ' + fileContents.filename;
           uploadContent.fileExtension = fileContents.contentType;
           uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
           uploadContent.compressionType = 'UNCOMPRESSED';
@@ -335,8 +338,9 @@ const uploadToContainer = (z, bundle, result) => {
       //No point in keeping this, so remove it. Note: deleting from this components document ID
       //will still work even if it isn't in the index (intended?).
       if(upload.addOrUpdate[0].data == '' || upload.addOrUpdate[0].data == undefined || upload.addOrUpdate[0].data == null){
+        uploadContent.addOrUpdate[1].title = fileContents.filename;
         upload.addOrUpdate.splice(0, 1);
-      } else if(/<[a-z][\s\S]*>/i.test(upload.addOrUpdate[0].data) == true){
+      } else if(/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(upload.addOrUpdate[0].data) == true){
         upload.addOrUpdate[0].fileExtension = '.html';
       }
 
@@ -364,11 +368,11 @@ const uploadToContainer = (z, bundle, result) => {
         .catch(handleError);
     }
   })
-    //After the uplaod succeeds
+    //After the upload succeeds
     .then(() => {
-      //If the batchUpload object has anything in it, then a zip file
+      //If the batchUpload object has anything in it, then a zip/tar file
       //batch push was used instead of a single item push. If this is the case,
-      //return that object. Return the details gathered for a single item push
+      //return that object. Return the details gathered for a single, non-archive push
       //otherwise.
       if(Object.keys(batchUpload).length !== 0){
         return batchUpload;

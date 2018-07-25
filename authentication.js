@@ -11,7 +11,7 @@ const getAuthorizeURL = () => {
 
   const urlParts = [
     `client_id=${process.env.CLIENT_ID}`,
-    'redirect_uri=' + REDIRECT_URI,
+    'redirect_uri=' + encodeURI(REDIRECT_URI),
     'response_type=code id_token',
     'scope=full',
   ];

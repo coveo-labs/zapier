@@ -1,6 +1,6 @@
 
 {
- "PLATFORM": "platformdev.cloud.coveo.com",
- "PUSH": "pushdev.cloud.coveo.com",
+ "PLATFORM": "platform.cloud.coveo.com",
+ "PUSH": "push.cloud.coveo.com",
  "REDIRECT_URI": "https://zapier.com/dashboard/auth/oauth/return/APP-IDCLIAPI/"
 }

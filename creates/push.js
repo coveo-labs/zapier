@@ -67,7 +67,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The main URL to your document or page you wish to push. Do not put urls that require authorization to access here (i.e. a gmail email url). If no urls are provided that do not require authorization, most apps provide and ID. You can do something like this: gmail://EMAIL_ID.',
+        helpText: 'The main URL to your document or page you wish to push. This MUST be a url. If no urls are provided, most apps provide and ID or some other sort of identifier. You can do something like this: gmail://EMAIL_ID.',
       },
       {
         key: 'title',
