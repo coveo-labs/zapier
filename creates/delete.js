@@ -25,7 +25,7 @@ module.exports = {
   noun: 'Delete',
   display: {
     label: 'Delete Content',
-    description: 'Delete content from a specified push source.',
+    description: 'Delete Content From a Specified Push source.',
   },
 
   // `operation` is where the business logic goes.
@@ -46,21 +46,21 @@ module.exports = {
         type: 'string',
         label: 'Source ID',
         dynamic: 'orgSources.id.name', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the source inside of your organization. Must be chosen after the organization ID. Note: the source must be a PUSH source.',
+        helpText: 'The ID of the source inside of your organization. Must be chosen after the organization ID.',
       },
       {
         key: 'docId',
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The ID of the document you wish to delete. Children of the document ID supplied will also be deleted. Children of the document that are indexed have the same url with /file# appended to it when pushed through Zapier. If you wish to delete specific children, simply add /file#. Example: `https://example.com/file2`.',
+        helpText: 'The ID of the document you wish to delete. Children of the document ID supplied will also be deleted. Children of the document that are indexed have the same url with /file# appended to it when pushed through Zapier, like this: DOC_ID/file#. If you wish to delete specific children, simply add /file#. Example: `https://example.com/file2`.',
       },
       {
         key: 'title',
         required: false,
         type: 'string',
         label: 'Title of Document',
-        helpText: 'The title of the document being deleted. Only needed if you want possible inputs for additional actions to have more content.',
+        helpText: 'The title of the document being deleted. Only needed if you want more detailed output of this action.',
       },
     ],
     //Action function

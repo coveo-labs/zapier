@@ -34,7 +34,7 @@ module.exports = {
   key: 'push',
 
   // You'll want to provide some helpful display labels and descriptions
-  // for users. Zapier will put them into the UX.
+  // for users. Zapier will put them into the UI/UX.
   noun: 'Push',
   display: {
     label: 'Push or Update Content',
@@ -52,7 +52,7 @@ module.exports = {
         type: 'string',
         label: 'Organization',
         dynamic: 'orgChoices.id.displayName', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the organization where your source is located. Must be chosen before the source ID.',
+        helpText: 'The ID of the organization where your source is located.',
       },
       {
         key: 'sourceId',
@@ -60,7 +60,7 @@ module.exports = {
         type: 'string',
         label: 'Source',
         dynamic: 'orgSources.id.name', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the source in the Coveo Cloud V2 Organization you wish to push to. Must be chosen after the organization ID. Note: the source must be a PUSH source.',
+        helpText: 'The ID of the source in the organization you wish to push to. This can only be chosen after the organization ID.',
       },
       {
         key: 'docId',
@@ -74,21 +74,21 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Title of Submission',
-        helpText: 'The title to be displayed within the content browser.',
+        helpText: 'The title of the content to be displayed within the source content browser.',
       },
       {
         key: 'content',
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 are supported. The files in the archive file will be extracted and pushed to the source.', 
+        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz (.tgz), and .tar.bz2 (.tbz2) are supported. The files in these archive files will be extracted and pushed to the source. Other archive file types besides these will have no content extracted. Only supply one url or file here, otherwise no content will be extracted.', 
       },
       {
         key: 'data',
         required: false,
         type: 'string',
         label: 'Plain Text',
-        helpText: 'The main content you want extracted into the source as plain text. This can be text of the file, free text, or a mix of both. Use this if no files or urls for the File field are supplied and you want content to be extracted with your push source. Will only be extracted if File field fails or is not supplied. If niether this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed as a batch.', 
+        helpText: 'The main content you want extracted into the source as plain text. This can be text of a file, some free text you input, an HTML body, or a mix of any of these. Use this if no files or urls for the File field are supplied and you want content to be extracted into your push source. If niether this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed into the source.', 
       },
       {
         key: 'field1',
@@ -96,14 +96,14 @@ module.exports = {
         type: 'string',
         label: 'Field 1',
         dynamic: 'sourceFields.fieldName',
-        helpText: 'The name of a field that your source uses as a mapping. Must choose the source ID and organization ID first.',
+        helpText: 'The name of a field that your source uses as a mapping. You must choose the source ID and organization ID first to see these options.',
       },
       {
         key: 'field1Content',
         required: false,
         type: 'string',
         label: 'Field 1 Content',
-        helpText: 'A url, text, files, or attachments you wish to push into Field 1.',
+        helpText: 'Any content you wish to assign to Field 1 when the push is made to the source.',
       },
       {
         key: 'field2',
@@ -111,14 +111,14 @@ module.exports = {
         type: 'string',
         label: 'Field 2',
         dynamic: 'sourceFields.fieldName',
-        helpText: 'The name of a field that your source uses as a mapping. Must choose the source ID and organization ID first.',
+        helpText: 'The name of a field that your source uses as a mapping. You must choose the source ID and organization ID first to see these options.',
       },
       {
         key: 'field2Content',
         required: false,
         type: 'string',
         label: 'Field 2 Content',
-        helpText: 'A url, text, files, or attachments you wish to push into Field 2.',
+        helpText: 'Any content you wish to assign to Field 1 when the push is made to the source.',
       },
       {
         key: 'field3',
@@ -126,14 +126,14 @@ module.exports = {
         type: 'string',
         label: 'Field 3',
         dynamic: 'sourceFields.fieldName',
-        helpText: 'The name of a field that your source uses as a mapping. Must choose the source ID and organization ID first.',
+        helpText: 'The name of a field that your source uses as a mapping. You must choose the source ID and organization ID first to see these options.',
       },
       {
         key: 'field3Content',
         required: false,
         type: 'string',
         label: 'Field 3 Content',
-        helpText: 'A url, text, files, or attachments you wish to push into Field 3.',
+        helpText: 'Any content you wish to assign to Field 1 when the push is made to the source.',
       },
     ],
     //Action function

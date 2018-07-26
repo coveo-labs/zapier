@@ -23,10 +23,11 @@ const App = {
     includeBearerToken,
   ],
 
-  //Whenever a response from a request is obtained, you can add calls in here (may be useful for responsecontent.js later).
+  //Whenever a response from a request is obtained, you can add calls in here (may be useful for responsecontent.js).
   afterResponse: [
   ],
 
+  //Include resources in the app so that the creates can access the methods from within
   resources: {
     [PushResource.key]: PushResource,
     [DeleteResource.key]: DeleteResource,
@@ -43,7 +44,7 @@ const App = {
   searches: {
   },
 
-  // If you want your creates to show up, you better include it here! Push/delete
+  // If you want your creates to show up, you better include it here! Push/delete are included here
   creates: {
     [push.key]: push,
     [deletes.key]: deletes,

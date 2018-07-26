@@ -15,14 +15,13 @@ const handleDeleteCreation = (z, bundle) => {
   const promise = z.request({
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'DELETE',
-    body: z.JSON.stringify({
+    body: JSON.stringify({
       documentId: bundle.inputData.documentId,
       title: bundle.inputData.title,
       deleteChildren: true,	  	 	  
     }),
     params:{
       documentId: bundle.inputData.documentId,
-      title: bundle.inputData.title,
       deleteChildren: true,
     },
     headers: {

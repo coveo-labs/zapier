@@ -42,15 +42,14 @@ const handlePushCreation = (z, bundle) => {
 
 
 
-//The function for sending a file container push to Coveo. Used for zip files with more than 1 file
-//as a batch push.
+//The function for sending a file container push to Coveo. Used for pushes with more than 1 file
+// or a file along with plain text as a batch push.
 const processBatchPush = (z, bundle, result) => {
 
   //Send request to Coveo
   const promise = z.request({
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result.fileId}`,
     method: 'PUT',
-    body: {},
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -77,23 +76,22 @@ const processBatchPush = (z, bundle, result) => {
 
 
 //Function to send single item push to Coveo with no File input field.
+//Will upload plain text content and if niether plain text nor a file is supplied,
+//this will not upload any valuable content.
 const processPush = (z, bundle) => {
 
   if(/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(bundle.inputData.data) == true){
     bundle.inputData.fileExtension = '.html';
-    z.console.log('File ext: ' , bundle.inputData.fileExtension);
-    z.console.log('Data: ' , bundle.inputData.data);
   }
-  
-  z.console.log('bundle: ' , bundle.inputData);
 
   //Send request to Coveo
   const promise = z.request({
-
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'PUT',
-    body: z.JSON.stringify(bundle.inputData),
-    params: bundle.inputData,
+    body: JSON.stringify(_.omit(bundle.inputData, ['documentId', 'orgId', 'sourceId'])),
+    params: {
+      documentId: bundle.inputData.documentId,
+    },
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -131,7 +129,7 @@ const createContainer = (z, bundle) => {
     },
   });
 
-  //Handle rrequest response
+  //Handle request response
   return promise.then((response) => {
 
     if (response.status !== 201) {
@@ -150,7 +148,7 @@ const createContainer = (z, bundle) => {
 
 //The function to handle a batch upload to amazon when a zip file
 //is supplied in the File input field.
-const uploadZipBatchToContainer = (z, bundle, fileContents, result) => {
+const uploadBatchToContainer = (z, bundle, fileContents, result) => {
 
   //Object to hold the addOrUpdate batch that will
   //be pushed to amazon/Coveo.
@@ -229,12 +227,10 @@ const uploadZipBatchToContainer = (z, bundle, fileContents, result) => {
 
   //Send upload request to amazon
   const promise = z.request({
-
     url: result.uploadUri,
     method: 'PUT',
     body: batchContent,
     headers: headers,
-
   });
 
   //Handle amazon response
@@ -285,7 +281,7 @@ const uploadToContainer = (z, bundle, result) => {
     //Skip the rest of the function from here.
     if(fileContents.length > 0){
 
-      batchUpload = uploadZipBatchToContainer(z, bundle, fileContents, result);
+      batchUpload = uploadBatchToContainer(z, bundle, fileContents, result);
 
     //single item to push handle
     } else {
@@ -318,8 +314,8 @@ const uploadToContainer = (z, bundle, result) => {
           uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
           uploadContent.compressionType = 'UNCOMPRESSED';
           uploadContent.parentId = upload.addOrUpdate[contentNumber - 1].documentId;
-          uploadContent.uri = bundle.inputData.uri + '/file';
-          uploadContent.documentId = bundle.inputData.documentId + '/file';
+          uploadContent.uri = bundle.inputData.uri + '/file1';
+          uploadContent.documentId = bundle.inputData.documentId + '/file1';
 
         }
         
@@ -338,7 +334,7 @@ const uploadToContainer = (z, bundle, result) => {
       //No point in keeping this, so remove it. Note: deleting from this components document ID
       //will still work even if it isn't in the index (intended?).
       if(upload.addOrUpdate[0].data == '' || upload.addOrUpdate[0].data == undefined || upload.addOrUpdate[0].data == null){
-        uploadContent.addOrUpdate[1].title = fileContents.filename;
+        upload.addOrUpdate[1].title = fileContents.filename;
         upload.addOrUpdate.splice(0, 1);
       } else if(/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(upload.addOrUpdate[0].data) == true){
         upload.addOrUpdate[0].fileExtension = '.html';

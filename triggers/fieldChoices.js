@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
 
@@ -9,20 +10,13 @@ const platform = require('../config').PLATFORM;
 //gets the fields used by a specific source, fills the input value with the field name, and displays the field name in a readable format.
 const getFieldChoicesForInput = (z, bundle) => {
   
+  z.console.log('Bundle: ' , bundle.inputData);
+
   //Request to Coveo to get fields that specified source uses in it's mappings. Source ID and Org ID must be
   //given by the user beforehand for this to work.
   const sourceFieldsPromise = z.request({
-  
     url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
     method: 'GET',
-    body: {
-      organizationId: bundle.inputData.orgId,
-      sourceId: bundle.inputData.sourceId,
-    },
-    params: {
-      organizationId: bundle.inputData.orgId,
-      sourceId: bundle.inputData.sourceId,
-    },
   });
   
   //Handle response
@@ -33,10 +27,11 @@ const getFieldChoicesForInput = (z, bundle) => {
     }
   
     const results = z.JSON.parse(response.content);
-     
-    //Only want the ids and names of the fields from this call
+
+    //Only want the ids and names of the fields from this call. If the field has
+    //already been selected in another input box, ignore it, otherwise grab it.
     let sourceFields = results.mappings.map(r => {
-      return {id: r.id, fieldName: r.fieldName};
+        return {id: r.id, fieldName: r.fieldName};
     });
 
     return sourceFields;

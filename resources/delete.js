@@ -17,9 +17,9 @@ const outputFields = () => {
     {key: 'sourceType', label: 'Source Type'},
     {key: 'numDocs', label: 'Number of Documents in Source'},
     {key: 'title', label: 'Deleted Document Title'},
-    {key: 'numFields', label: 'Number of Fields the Source Uses'},
+    {key: 'numFields', label: 'Number of Fields the Source Uses as Mappings'},
     {key: 'docSize', label: 'Size of all the Documents in the Source'},
-    {key: 'uri', label: 'Document URL'},
+    {key: 'uri', label: 'Document URI'},
   ];
 
   return output;
