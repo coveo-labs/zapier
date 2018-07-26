@@ -1,5 +1,8 @@
 require('should');
 
+const orgId = 'bryanarnoldzapier9xh3mbas';
+const sourceId = 'slevs7b47ktbrkzfundtc22nvi-bryanarnoldzapier9xh3mbas';
+
 const zapier = require('zapier-platform-core');
 
 const App = require('../../index');
@@ -9,8 +12,10 @@ const appTester = zapier.createAppTester(App);
 //of the source you're testing.
 
 describe('deletes', () => {
+// This must be included in any test file before bundle, as it extracts the
+// authentication data that was exported from the command line.
   zapier.tools.env.inject();
-  describe('Delete content', () => {
+  describe('Delete Test', () => {
 
     it('Delete single document', (done) => {
       zapier.tools.env.inject();
@@ -24,10 +29,10 @@ describe('deletes', () => {
   
         //Change these when you test
         inputData: {
-          docId: 'https://drive.google.com/a/uconn.edu/file/d/1lP7to4SR8xvw_mIhhpoFR2dvnobLrJfI/preview?usp=drivesdk',
+          docId: 'https://drive.google.com/a/uconn.edu/file/d/1Cau7dNBMMF9ZjNwbsXkSt-m6a_3yTNse/preview=usp=drivesdk',
           title: 'Zapier Delete Test',
-          sourceId: 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas',
-          orgId: 'bryanarnoldzapier9xh3mbas',
+          sourceId,
+          orgId,
         },
       };
       appTester(App.creates.deletes.operation.perform, bundle)

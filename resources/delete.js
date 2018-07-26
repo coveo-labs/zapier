@@ -1,9 +1,11 @@
 'use strict';
 
-const numFields = require('./responseContent').fieldsCount;
-
 const outputFields = () => {
 
+  //This is how Zapier handles outputs from responses on the app. It looks at the
+  //object returned from a function in perform, matches the keys declared here to those
+  //in the returned object, then displays the values corresponding to those keys. The label
+  //tag is what is displayed to be readable and make more sense to the user when they see it.
   const output = [
     {key: 'documentId', label: 'Deleted Document ID'},
     {key: 'orgName', label: 'Organization Name'},
@@ -17,18 +19,8 @@ const outputFields = () => {
     {key: 'title', label: 'Deleted Document Title'},
     {key: 'numFields', label: 'Number of Fields the Source Uses'},
     {key: 'docSize', label: 'Size of all the Documents in the Source'},
+    {key: 'uri', label: 'Document URL'},
   ];
-
-  //This loop is needed to put the response content I constructed into how Zapeier handles it.
-  //I have the fields the source uses marked as 'Field #i used by source' in my response content,
-  //so I have to manually construct all of these keys and labels like above. Example: orgId is returned
-  //after a push or delete. Zapier looks in the response object for a property called orgId, and displays
-  //the label with the orgId valie from the object as output. This is for actions that occur after
-  //this is returned.
-  for(let i = 0; i < numFields; i++){
-    let tempKey = 'Field #' + (i + 1) + ' used by source';
-    output.push({key: tempKey, label: tempKey});
-  }
 
   return output;
 
@@ -39,6 +31,8 @@ module.exports = {
   key: 'delete',
   noun: 'Delete',
 
+  //Samples are used for the output of the app if no
+  //fetch can be performed or some issues getting the details occurs.
   sample: {
     docId: 'http://example.com/',
     title: 'my-doc.txt',

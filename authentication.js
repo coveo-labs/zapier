@@ -11,7 +11,7 @@ const getAuthorizeURL = () => {
 
   const urlParts = [
     `client_id=${process.env.CLIENT_ID}`,
-    'redirect_uri=' + REDIRECT_URI,
+    'redirect_uri=' + encodeURI(REDIRECT_URI),
     'response_type=code id_token',
     'scope=full',
   ];
@@ -125,7 +125,7 @@ const testAuth = (z) => {
 
 module.exports = {
   type: 'oauth2',
-  connectionLabel: 'your-email-here',
+  connectionLabel: '(your-email-here)',
   //oauth2Config data structure is how Zapier determines what to call when managing the ouath. The authorization url construction is
   //called when needed in authorizeUrl, whenever a access/refresh token is needed it calls getAccessToken, and whenever a 401 error occurs
   //it knows to call autoRefresh (which calls refreshAccessToken).

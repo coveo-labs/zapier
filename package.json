@@ -1,7 +1,7 @@
 {
-  "name": "coveo-push",
+  "name": "coveo-zap",
   "version": "1.0.1",
-  "description": "Send data to a Coveo Cloud V2 Push source",
+  "description": "Index documents in a push source on your Coveo Cloud V2.",
   "repository": "coveo-labs/zapier",
   "homepage": "https://coveo.com/",
   "author": "Bryan Arnold <barnold@coveo.com>",
@@ -19,10 +19,18 @@
     "npm": ">=3.10.10"
   },
   "dependencies": {
-    "eslint": "^5.0.1",
+    "decompress": "^4.2.0",
+    "decompress-tar": "^4.1.1",
+    "decompress-tarbz2": "^4.1.1",
+    "decompress-targz": "^4.1.1",
+    "decompress-tarxz": "^2.1.1",
+    "eslint": "^5.2.0",
     "jszip": "3.1.5",
+    "lodash": "^4.17.10",
+    "node-native-zip": "^1.1.0",
     "prettysize": "^1.1.0",
-    "zapier-platform-core": "7.0.0"
+    "zapier-platform-cli": "^7.1.0",
+    "zapier-platform-core": "7.1.0"
   },
   "devDependencies": {
     "mocha": "5.2.0",

@@ -1,7 +1,7 @@
 require('should');
 
 const orgId = 'bryanarnoldzapier9xh3mbas';
-const sourceId = 'qewkgvadvtzzr5ciycjoyhkf54-bryanarnoldzapier9xh3mbas';
+const sourceId = 'slevs7b47ktbrkzfundtc22nvi-bryanarnoldzapier9xh3mbas';
 
 const zapier = require('zapier-platform-core');
 
@@ -13,19 +13,21 @@ const appTester = zapier.createAppTester(App);
 
 describe('pushes', () => {
 
-  it('Zip Testing', (done) => {
+  it('Push Test', (done) => {
+    //This must be included in any test file before bundle, as it extracts the
+    //authentication data that was exported from the command line.
     zapier.tools.env.inject();
     const bundle = {
       authData: {
         access_token: process.env.ACCESS_TOKEN,
       },
-      //Change this contentto match your source and what you want to push when testing
+      //Change this content to match your source and what you want to push when testing
       inputData: {
-        docId: 'gmail://164a9dc8b1abd5c1',
-        title: 'Zip Testing',
-        content: 'https://zapier.com/engine/hydrate/1625243/.eJxtk1ePo1gQRv8Lz82KHPyGsYk2GQdGo6tLzsFcGptW__fx7szDrrSvVeerkk6pvrCqnxHskwxUKbZjCFIkCIr6wPIqa1PQwy7DdhhECCZll_Voxj6wpMySBjTZC9uRHMVSDP2uDT16twF6jX8HrDfWrPBRzNjuC-uyeYbF7w0YyTFQTBMhJmGcsgn5Jv89fvfjC_uHkyy1Tg1R8u-ml85yZtGNCfqT-Qh08aK6A6O1SCniAd98kb4piTuzTAGVwbBGae_qp1fnh2lLmXOCb6NxRYs98c0x9nr9OjkCmKLFikMSqh3F6cMINP8WxqsGWgby6ZBeddsqBpqulOBU7xcSXnTTajk2WRqFv7NiNu6pT8dQijprZt7blIoimGxIV2Uxnatn2tmlXGWVVPVALKuG9etC0FIjXrvs_CxYgs7nU5iOvpoPnL1X1Q0P65kjm3Viw0Pt6Kz4wuU2STce6QVpUk4vvnSdWaJKQCXr3u4XcOSP8EB17mIj3rnghzHvm2DB0e1AO4b71vrneK9haasmq-G2_ZUOyRP7_viPYhxw8zji6-ToN__A2H4eblEeRYD3nvy-cw-Af7ZLKq1alXxyN2ODXE2wBDTlIAjPc9wKkXlyapBa3iSfKGOuSzS11XOKRb4rjau69-M9Y7j1rRxEN03op-kRcLSts_EQPfGyKslojuhqlpLp85_MkkQHSzpSYw-uFN5ndcgLwiYFaubcQ2JKlG4YSc8vdXwKCoHcR6ghFwGgMdFGUWkrTtXB-Qxr9PhUfal0w-IhB_dso-zYmjUbt8oCly7aWTB1kJpAmUfvJsZxMNnDHAiePEmyz-sHOs_F40wqZce0Fv0yTxEJdVfvI028eRa5lhKODsOjkD0woAfrObaI86Xx_97f75FXBfb98_v7F4X9JKQ:1ffWII:dg4P4ttnwu0Abz2iSZLf9sQ48kE/',
+        docId: 'https://drive.google.com/a/uconn.edu/file/d/1gCo7WwsHuD5qQbmscWClbeaqydpGa3-v/preview?usp=drivesdk',
+        title: 'No parent test',
+        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kD1vgzAQhv-Lh0wFbPwRQIo6pFI7VeqUERFzgIOxwTakSZT_Xqi69qZ733t0w_NAyvhQGQmlqlHBMMlwyugLahToujTVAKhYgwb0gmQHsi97uKGCiJT_ctKaACaU4TZu5OeK9dfKtR4VDzQ7vXZdCKMvkqS2MsIsEjhaNx-31rYaZg_u70cs7bBBPvEgZwdeJqr3kF7mC8Mg2hHGfNyfNc3rvoHJOrMkBpxivu_6cbrw3i-d50Zjq5ppUXlHmoRwmnKWZXibhFBBGctSynie5Zjk2V78U7ZHuz9d_cf8xqev8-Dl6ajPUE23enyvaLS8dgfCiCB7keYiEymmTDDGd3Co7dVoW9W7tj4EN2_mGuuGKqwuvu9rCiroTdYw66DauxoD-BCHysXr-fn8AeMOgSI:1fiRIj:yiiFnRaR_x9fgNpXoVji-A3G16E/',
         field1: 'thumbnail',
-        data: 'This should be in the content of the submission',
+        data: '<html><p>Why no work</p></html>',
         field1Content: 'testing thumbnail field',
         field2: 'additionalcontent',
         field2Content: 'testing additional content field',

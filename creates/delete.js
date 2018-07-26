@@ -1,5 +1,6 @@
 'use strict';
 
+const messages = require('../messages');
 const deleteResource = require('../resources/delete');
 const deleteHandler = require('../resources/deleteHandler');
 
@@ -8,7 +9,8 @@ const deleteHandler = require('../resources/deleteHandler');
 //to Coveo, then handling the appropriate response content.
 const createDelete = (z, bundle) => {
 
-  bundle.inputData['documentId'] = bundle.inputData.docId;
+  bundle.inputData['documentId'] = bundle.inputData.docId.replace(/[?&#]/g, '=');
+  bundle.inputData['uri'] = bundle.inputData.docId;
   delete bundle.inputData.docId;
 
   return deleteHandler.handleDeleteCreation(z, bundle);
@@ -22,7 +24,7 @@ module.exports = {
   // for users. Zapier will put them into the UX.
   noun: 'Delete',
   display: {
-    label: 'Delete Item From Source',
+    label: 'Delete Content',
     description: 'Delete content from a specified push source.',
   },
 
@@ -51,7 +53,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The ID of the document you wish to delete, the url provided when indexing. Children of the document that are indexed have the same url with /attachment appended to it. If you wish to delete specific children and their descendents, simply add /attachment however many times to get a specific child with no spaces between them. Example: `https://example/com/attachment/attachment`.',
+        helpText: 'The ID of the document you wish to delete. Children of the document ID supplied will also be deleted. Children of the document that are indexed have the same url with /file# appended to it when pushed through Zapier. If you wish to delete specific children, simply add /file#. Example: `https://example.com/file2`.',
       },
       {
         key: 'title',
