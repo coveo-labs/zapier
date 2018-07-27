@@ -6,6 +6,9 @@ const messages = require('../messages');
 const { handleError, fetchFile, findCompressionType, getStringByteSize } = require('../utils');
 const _ = require('lodash');
 
+const RE_IS_HTML = /<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i;
+
+
 //The handler for creating a push request to Coveo. This function can be hard to follow,
 //I'll do my best to explain how it operates.
 const handlePushCreation = (z, bundle) => {
@@ -69,7 +72,7 @@ const processBatchPush = (z, bundle, result) => {
 const processPush = (z, bundle) => {
   //Check for any HTML tags in the data if it exists, and change the fileExtension to
   //.html so it is indexed properly
-  if (/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(bundle.inputData.data)) {
+  if (RE_IS_HTML.test(bundle.inputData.data)) {
     bundle.inputData.fileExtension = '.html';
   }
 
@@ -198,7 +201,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     batchContent.addOrUpdate.splice(0, 1);
   }
   //Check for any HTML tags in the data if it exists, and change the fileExtension to .html so it is indexed properly
-  else if (/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(firstBatchItem.data)) {
+  else if (RE_IS_HTML.test(firstBatchItem.data)) {
     firstBatchItem.fileExtension = '.html';
   }
 
@@ -312,7 +315,7 @@ const uploadToContainer = (z, bundle, result) => {
           }
           //Check for any HTML tags in the data if it exists, and change the fileExtension to
           //.html so it is indexed properly
-          else if (/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(upload.addOrUpdate[0].data)) {
+          else if (RE_IS_HTML.test(upload.addOrUpdate[0].data)) {
             upload.addOrUpdate[0].fileExtension = '.html';
           }
 
