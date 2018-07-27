@@ -20,6 +20,7 @@ const getOrgInfoForOutput = (z, bundle) => {
     sourceType: '',
     sourceName: '',
     sourceOwner: '',
+    numFields: 0,
     numDocs: '',
     docSize: '',
     orgName: '',
@@ -28,16 +29,8 @@ const getOrgInfoForOutput = (z, bundle) => {
 
   //Start promise to get org information from Coveo
   const orgInfoPromise = z.request({
-
     url : `https://${platform}/rest/organizations/${bundle.inputData.orgId}`,
     method: 'GET',
-    body: {
-      organizationId: bundle.inputData.orgId,
-    },
-    params: {
-      organizationId: bundle.inputData.orgId,
-    },
-
   });
 
   //Handle request response from Coveo
@@ -58,17 +51,8 @@ const getOrgInfoForOutput = (z, bundle) => {
 
       //Get the source information the user pushed to from Coveo
       const orgSourcesPromise = z.request({
-
         url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
         method: 'GET',
-        body: {
-          organizationId: bundle.inputData.orgId,
-          sourceId: bundle.inputData.sourceId,
-        },
-        params: {
-          organizationId: bundle.inputData.orgId,
-          sourceId: bundle.inputData.sourceId,
-        },
       });
 
       //Handle response from request
@@ -92,8 +76,14 @@ const getOrgInfoForOutput = (z, bundle) => {
 
         //Fields of the source
         result.mappings.forEach((mapping, idx) => {
-          let filedNum = 'Field #' + (idx + 1);
-          outputInfo[filedNum] = mapping.fieldName;
+
+          let fieldNum = 'Field #' + (idx + 1);
+          outputInfo[fieldNum] = mapping.fieldName;
+
+          if(outputInfo[fieldNum] != '' || outputInfo[fieldNum] != null || outputInfo[fieldNum] != undefined){
+            outputInfo.numFields++;
+          }
+
         });
 
         return outputInfo;

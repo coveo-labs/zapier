@@ -12,15 +12,8 @@ const getSourceChoicesForInput = (z, bundle) => {
   //Request to Coveo to get fields that specified source uses in it's mappings. Org ID must be
   //given by the user beforehand for this to work.
   const orgSourcesPromise = z.request({
-  
     url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources`,
     method: 'GET',
-    body: {
-      organizationId: bundle.inputData.orgId,
-    },
-    params: {
-      organizationId: bundle.inputData.orgId,
-    },
   });
   
   //Handle response

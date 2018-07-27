@@ -11,11 +11,8 @@ const getOrgChoicesForInput = (z) => {
   
   //Request to Coveo to get organizations user has access to.
   const orgChoicesPromise = z.request({
-  
     url: `https://${platform}/rest/organizations/`,
     method: 'GET',
-    body: {},
-  
   });
   
   //Handle response
@@ -28,7 +25,7 @@ const getOrgChoicesForInput = (z) => {
     const results = z.JSON.parse(response.content);
      
     //Only wants org ids and names from this call
-    let orgChoices = results.map( r => {
+    let orgChoices = results.map(r => {
       return {id: r.id, displayName: r.displayName};
     });
 
