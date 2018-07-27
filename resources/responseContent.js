@@ -80,7 +80,7 @@ const getOrgInfoForOutput = (z, bundle) => {
         //Fields of the source
         result.mappings.forEach((mapping, idx) => {
 
-          let fieldNum = 'Field #' + (idx + 1);
+          let fieldNum = 'Field #' + (idx + 1) + ' Used By the Source';
           outputInfo[fieldNum] = mapping.fieldName;
 
           if(outputInfo[fieldNum] != '' || outputInfo[fieldNum] != null || outputInfo[fieldNum] != undefined){

@@ -250,7 +250,7 @@ const uploadToContainer = (z, bundle, result) => {
   return (
     fileDetails
       .then(fileContents => {
-        //If the returned response was a zip file, this means the returned contents
+        //If the returned response was an accepted archive file, this means the returned contents
         //will have a length greater than 0 in them. If that is the case, use the empty
         //object from earlier to store the result from the function handling batch uploading.
         //Skip the rest of the function from here.

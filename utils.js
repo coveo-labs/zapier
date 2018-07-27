@@ -224,17 +224,19 @@ const fetchFile = url => {
 
       // Using short names like 'c' and 'len' to improve readability in this case.
       const c = details.content;
+      const type = details.contentType;
       const len = c.length;
 
       //Zip file, send to handleZip to get content. The content type being zip or the bytes at the beginning being that of a zip will make sure a zip file is currently being processed.
       //This helps me detect compression/file types based upon bytes in the data buffer: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
-      if (details.contentType === '.zip' || (c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05))) {
+      if (type === '.zip' || (c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05))) {
         return handleZip(details);
 
         //These aren't supported tar compression types in the implementation, so just return what file details were grabbed and
         //push into the source. Throw an error telling them these aren't supported, might change this later to just index with no content.
-      } else if ((c[0] === 0x1f && c[1] === 0x9d) || details.contentType === '.tlz' || (c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00)) {
-        throw new Error(messages.UNSUPPORTED);
+      } else if(((c[0] === 0x1f && c[1] === 0x9d) && type.indexOf('.tar') > 0) || ((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00) && (type.indexOf('xz') > 0 || type === '.txz')) || ((type.indexOf('.tar') > 0 && type == '.lzma') || type === '.tlz')){
+        
+        throw new Error(messages.UNSUPPORTED_TAR);
 
         //This looks at bytes in the beginning of the buffers as well as the content type of the other supported archive files.
         //This tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar that are supported include: gzip, bz2, and no compression.
