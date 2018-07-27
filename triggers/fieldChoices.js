@@ -29,8 +29,8 @@ const getFieldChoicesForInput = (z, bundle) => {
     const results = z.JSON.parse(response.content);
 
     //Only want the ids and names of the fields from this call.
-    let sourceFields = results.mappings.map(r => {
-      return {name: r.name};
+    let sourceFields = results.items.map(r => {
+      return {id: r.name, name: r.name};
     });
 
     //Check to make sure that fields exist in the source as mappings,
@@ -57,6 +57,6 @@ module.exports = {
 
   operation:{
     perform: getFieldChoicesForInput,
-    canPaginate: true, //Incase the nuber of fields is very high, allos for the results to be displayed in pages
+    canPaginate: true, //Incase the nuber of fields is very high, allows for the results to be displayed in pages
   },
 };

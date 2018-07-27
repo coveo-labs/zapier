@@ -262,6 +262,7 @@ const uploadToContainer = (z, bundle, result) => {
           //would look and be ugly. So, better to just have a two loop iteration to handle it
           //similar to the one in the uploadBatch function
           while (contentNumber !== 2) {
+            
             let uploadContent = {};
 
             //Scan through the bundle input information
@@ -279,13 +280,13 @@ const uploadToContainer = (z, bundle, result) => {
             //and doc ID's dependent on the first item, so they cannot be made until the
             //first one is.
             if (upload.addOrUpdate.length >= 1) {
+
               delete uploadContent.data;
               uploadContent.title = bundle.inputData.title + ' file: ' + fileContents.filename;
               uploadContent.fileExtension = fileContents.contentType;
               uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
               uploadContent.parentId = upload.addOrUpdate[contentNumber - 1].documentId;
-              uploadContent.uri = bundle.inputData.uri + '/file1';
-              uploadContent.documentId = bundle.inputData.documentId + '/file1';
+              uploadContent.documentId = bundle.inputData.documentId + '/file';
 
               // A single file sent can have a different compression type than just UNCOMPRESSED depending what the user
               // inputs into this field. So, check for it and change accordingly.
@@ -295,6 +296,7 @@ const uploadToContainer = (z, bundle, result) => {
 
             upload.addOrUpdate.push(uploadContent);
             contentNumber++;
+
           }
 
           //This is a backup error checker for the size of the file.
@@ -308,6 +310,8 @@ const uploadToContainer = (z, bundle, result) => {
           //will still work even if it isn't in the index (intended?).
           if (!upload.addOrUpdate[0].data) {
             upload.addOrUpdate[1].title = fileContents.filename;
+            delete upload.addOrUpdate[1].parentId;
+            upload.addOrUpdate[1].documentId = bundle.inputData.documentId;
             upload.addOrUpdate.splice(0, 1);
           }
           //Check for any HTML tags in the data if it exists, and change the fileExtension to

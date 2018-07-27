@@ -14,13 +14,13 @@ const createNewPush = (z, bundle) => {
   bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
   bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
   bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
-  bundle.inputData['uri'] = bundle.inputData.documentId;
+  bundle.inputData['clickableuri'] = bundle.inputData.documentId;
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   //Don't need these components of the bundle anymore after assigning the content of each field
   //to the field name in the bundle, so remove them from the bundle and carry on.
   bundle.inputData = _.omit(bundle.inputData, ['field1', 'field2', 'field3', 'field1Content', 'field2Content', 'field3Content']);
-
+  
   //Move on to handling the push process
   return pushHandler.handlePushCreation(z, bundle);
 };
@@ -93,7 +93,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Field 1',
-        dynamic: 'sourceFields.name',
+        dynamic: 'sourceFields.id.name',
         helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
       },
       {
@@ -108,7 +108,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Field 2',
-        dynamic: 'sourceFields.name',
+        dynamic: 'sourceFields.id.name',
         helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
       },
       {
@@ -123,7 +123,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Field 3',
-        dynamic: 'sourceFields.name',
+        dynamic: 'sourceFields.id.name',
         helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
       },
       {

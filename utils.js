@@ -66,21 +66,24 @@ const convertToZip = details => {
 const findCompressionType = (zipContent, uncompressedSize) => {
   // If the data is in a zip but not compressed, give it the uncompressed data compression,
   // otherwise it is deflate for zip. Check the first few bits to see if other algorithms used
-  // before defaulting to deflate.
+  //otherwise default to either uncompressed or deflate. If no uncompressedSize is provided in the parameters, a zip file content is being looked at, so default to deflate, otherwise default uncompressed.
   // Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
-  // This may not be necessary, will have to do some testing to confirm. May be needed, as files can be compressed differently within the same zip, depending on
-  // how the archive file was made. So, if anything, this is a backup case for the files inside.  DEFLATE last as it is the last possible valid compression type Coveo allows wihtin a zip file, throw an error otherwise.
+  //Needed as files can be compressed differently within the same zip, depending on how the archive file was made. 
+  //So, if anything, this is a backup case for the files inside.  DEFLATE last as it is the last possible valid compression type Coveo allows wihtin a zip file, throw an error otherwise.
 
   let compressionType = 'UNCOMPRESSED';
 
+  if(uncompressedSize){
+    compressionType = 'DEFLATE';
+  }
+
   const c = zipContent.content;
-  const len = c.length;
 
   if (c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) {
     compressionType = 'GZIP';
   } else if ((c[0] * 256 + c[1]) % 31 === 0) {
     compressionType = 'ZLIB';
-  } else if (c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) {
+  } else if (c[0] === 0x78 && (c[1] === 1 || c[1] === 0x9c || c[1] === 0xda)){
     compressionType = 'DEFLATE';
   } else if (zipContent.contentType === '.lzma') {
     compressionType = 'LZMA';
@@ -89,6 +92,7 @@ const findCompressionType = (zipContent, uncompressedSize) => {
   }
 
   return compressionType;
+
 };
 
 //This is the handler for extracting all the files within a zip file. Extracts the files important features
@@ -187,7 +191,7 @@ const fetchFile = url => {
     .then(response => {
       //If the url given is redirected to another place, doesn;t match the given url, or contains link, the given file url
       //wasn't the url content was extracted from. So, throw the bad fetch error.
-      if (response.headers.get('link') || response.url !== url || response.headers.get('www-authenticate')) {
+      if ((response.headers.get('link') || response.url !== url || response.headers.get('www-authenticate'))) {
         throw new Error(messages.BAD_FETCH);
       }
 

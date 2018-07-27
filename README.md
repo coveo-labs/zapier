@@ -102,6 +102,12 @@ changed unless you desire.
 This gives access to your source in your organization. Now, you can begin to test with any values you put into the `inputData` fields with the `zapier test` command.
 You should replace all of the `inputData` fields, since the ones in the repo will most likely not work anymore.
 
+If for any reason you are getting authentication errors about your `ACCESS_TOKEN` being invalid, simply run this command and it should resolve the issue:
+
+```bash
+export ACCESS_TOKEN=<coveo-source-api-key>
+```
+
 Note: if you receive a timeout error, do not panic. The first run of the day will almost always timeout, and sometimes the network connections for the
 app aren't very strong. Also, sometimes fetching content can take awhile ontop of pushing or deleting, so a timeout error will occur but the test will keep running.
 Completey wait until the app stops running and you can use the command line again. You should see some content appear in the console if the push/delete truly
