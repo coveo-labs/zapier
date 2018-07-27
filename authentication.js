@@ -20,8 +20,8 @@ module.exports = {
       method: 'GET',
       url: `${OAUTH_URL}/authorize`,
       params: {
-        client_id: '{{process.env.CLIENT_ID}}',
-        redirect_uri: '{{config.REDIRECT_URI}}',
+        client_id: process.env.CLIENT_ID,
+        redirect_uri: config.REDIRECT_URI,
         response_type: 'code id_token',
         scope: 'full',
       },
@@ -32,9 +32,9 @@ module.exports = {
       url: `${OAUTH_URL}/token`,
       body: {
         code: '{{bundle.inputData.code}}',
-        client_id: '{{process.env.CLIENT_ID}}',
-        client_secret: '{{process.env.CLIENT_SECRET}}',
-        redirect_uri: '{{config.REDIRECT_URI}}',
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
+        redirect_uri: config.REDIRECT_URI,
         grant_type: 'authorization_code',
       },
       headers: {
@@ -48,9 +48,9 @@ module.exports = {
       url: `${OAUTH_URL}/token`,
       body: {
         code: '{{bundle.inputData.code}}',
-        client_id: '{{process.env.CLIENT_ID}}',
-        client_secret: '{{process.env.CLIENT_SECRET}}',
-        redirect_uri: '{{config.REDIRECT_URI}}',
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
+        redirect_uri: config.REDIRECT_URI,
         grant_type: 'refresh_token',
       },
       headers: {
