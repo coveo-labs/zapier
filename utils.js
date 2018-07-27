@@ -71,12 +71,17 @@ const findCompressionType = (zipContent, uncompressedSize) => {
   // This may not be necessary, will have to do some testing to confirm. May be needed, as files can be compressed differently within the same zip, depending on
   // how the archive file was made. So, if anything, this is a backup case for the files inside.  DEFLATE last as it is the last possible valid compression type Coveo allows wihtin a zip file, throw an error otherwise.
 
-  let compressionType = 'DEFLATE';
+  let compressionType = 'UNCOMPRESSED';
 
-  if (zipContent.content[0] === 0x1f && zipContent.content[1] === 0x8b && zipContent.content[2] === 0x08) {
+  const c = zipContent.content;
+  const len = c.length;
+
+  if (c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) {
     compressionType = 'GZIP';
-  } else if ((zipContent.content[0] * 256 + zipContent.content[1]) % 31 === 0) {
+  } else if ((c[0] * 256 + c[1]) % 31 === 0) {
     compressionType = 'ZLIB';
+  } else if (c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) {
+    compressionType = 'DEFLATE';
   } else if (zipContent.contentType === '.lzma') {
     compressionType = 'LZMA';
   } else if (zipContent.size === uncompressedSize) {
@@ -249,6 +254,7 @@ const getStringByteSize = string => Buffer.byteLength(string, 'utf8');
 
 module.exports = {
   fetchFile,
+  findCompressionType,
   handleError,
   getStringByteSize,
 };
