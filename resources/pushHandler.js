@@ -286,7 +286,7 @@ const uploadToContainer = (z, bundle, result) => {
     //Single item to push handle and also handles
     //plain text with a single item
     } else {
-
+      
       let contentNumber = 0;
 
       //This only needs to iterate twice, but manually coding out each component of the push
@@ -322,19 +322,19 @@ const uploadToContainer = (z, bundle, result) => {
 
           //A single file sent can have a different compression type than just UNCOMPRESSED depending what the user
           //inputs into this field. So, check for it and change accordingly. Default will be UNCOMPRESSED though, as
-          //almost all files that get to this point are UNCOMPRESSED
+          //almost all files that get to this point are UNCOMPRESSED. Had to look up DEFLATE separately
           //See: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
           if (fileContents.content[0] === 0x1f && fileContents.content[1] === 0x8b && fileContents.content[2] === 0x08){
             uploadContent.compressionType = 'GZIP';
           } else if (((fileContents.content[0] * 256) + fileContents.content[1]) % 31 == 0){
             uploadContent.compressionType = 'ZLIB';
-          } else if((fileContents.content[0] === 0x50 && fileContents.content[1] === 0x4b && fileContents.content[2] === 0x03 && fileContents.content[3] === 0x04 && fileContents.content[fileContents.content.length] === 0x06 && (fileContents.content[fileContents.content.length - 1] === 0x06 || fileContents.content[fileContents.content.length - 1] === 0x05))){
+          } else if(fileContents.content[0] === 0x78 && (fileContents.content[1] === 1 || fileContents.content[1] === 0x9c || fileContents.content[1] === 0xda)){
             uploadContent.compressionType = 'DEFLATE';  
-          } else if (fileContents.contentType === '.lzma'){
+          } else if (zipContent.contentType === '.lzma'){
             uploadContent.compressionType = 'LZMA';
           } else {
             uploadContent.compressionType = 'UNCOMPRESSED';
-          }
+          } 
 
         }
         

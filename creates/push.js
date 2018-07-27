@@ -93,8 +93,8 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Field 1',
-        dynamic: 'sourceFields.fieldName',
-        helpText: 'The name of a field that your source uses as a mapping. You must choose the source ID and organization ID first to see these options.',
+        dynamic: 'sourceFields.name',
+        helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
       },
       {
         key: 'field1Content',
@@ -108,8 +108,8 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Field 2',
-        dynamic: 'sourceFields.fieldName',
-        helpText: 'The name of a field that your source uses as a mapping. You must choose the source ID and organization ID first to see these options.',
+        dynamic: 'sourceFields.name',
+        helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
       },
       {
         key: 'field2Content',
@@ -123,8 +123,8 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Field 3',
-        dynamic: 'sourceFields.fieldName',
-        helpText: 'The name of a field that your source uses as a mapping. You must choose the source ID and organization ID first to see these options.',
+        dynamic: 'sourceFields.name',
+        helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
       },
       {
         key: 'field3Content',

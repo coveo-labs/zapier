@@ -153,7 +153,7 @@ const handleZip = (details) => {
 
         //If the data is in a zip but not compressed, give it the uncompressed data compression,
         //otherwise it is deflate for zip. Check the first few bits to see if other algorithms used
-        //before defaulting to deflate.
+        //before defaulting to deflate, as that is generally the go to compression used for zips. 
         //Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
         //This may not be necessary, will have to do some testing to confirm. May be needed, as files can be compressed differently within the same zip, depending on
         //how the archive file was made. So, if anything, this is a backup case for the files inside.  DEFLATE last as it is the last possible valid compression type Coveo allows wihtin a zip file, throw an error otherwise.
@@ -167,7 +167,7 @@ const handleZip = (details) => {
           zipContent.compressionType = 'UNCOMPRESSED';
         } else {
           zipContent.compressionType = 'DEFLATE'; 
-        }  
+        } 
         
         addOrUpdate.push(zipContent);
 
@@ -239,15 +239,15 @@ const fetchFile = (url) => {
 
       //Zip file, send to handleZip to get content. The content type being zip or the bytes at the beginning being that of a zip will make sure a zip file is currently being processed.
       //This helps me detect compression/file types based upon bytes in the data buffer: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
-      if(details.contentType === '.zip' || (details.content[0] === 0x50 && details.content[1] === 0x4b && details.content[2] === 0x03 && details.content[3] === 0x04 && details.content[details.content.length] === 0x06 && (details.content[details.content.length - 1] === 0x06 || details.content[details.content.length - 1] === 0x05))){
+      if(details.contentType === '.zip' || (details.content[0] === 0x50 && details.content[1] === 0x4b && details.content[2] === 0x03 && details.content[3] === 0x04 && details.content[details.content.length - 1] === 0x06 && (details.content[details.content.length - 2] === 0x06 || details.content[details.content.length - 2] === 0x05))){
 
         return handleZip(details);
 
         //These aren't supported tar compression types in the implementation, so just return what file details were grabbed and
         //push into the source. Throw an error telling them these aren't supported, might change this later to just index with no content.
-      } else if(((details.content[0] === 0x1f && details.content[1] === 0x9d)) || (details.contentType === '.tlz') || ((details.content[0] === 0xfd && details.content[1] === 0x37 && details.content[2] === 0x7a && details.content[3] === 0x58 && details.content[4] === 0x5a && details.content[5] === 0x00))){
+      } else if(((details.content[0] === 0x1f && details.content[1] === 0x9d) && details.contentType.indexOf('.tar') > 0) || ((details.content[0] === 0xfd && details.content[1] === 0x37 && details.content[2] === 0x7a && details.content[3] === 0x58 && details.content[4] === 0x5a && details.content[5] === 0x00) && (details.contentType.indexOf('xz') > 0 || details.contentType === '.txz')) || ((details.contentType.indexOf('.tar') > 0 && details.contentType == '.lzma') || details.contentType === '.tlz')){
         
-        throw new Error(messages.UNSUPPORTED);
+        throw new Error(messages.UNSUPPORTED_TAR);
 
         //This looks at bytes in the beginning of the buffers as well as the content type of the other supported archive files.
         //This tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar that are supported include: gzip, bz2, and no compression.

@@ -15,7 +15,7 @@ const getFieldChoicesForInput = (z, bundle) => {
   //Request to Coveo to get fields that specified source uses in it's mappings. Source ID and Org ID must be
   //given by the user beforehand for this to work.
   const sourceFieldsPromise = z.request({
-    url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
+    url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/indexes/page/fields`,
     method: 'GET',
   });
   
@@ -28,10 +28,9 @@ const getFieldChoicesForInput = (z, bundle) => {
   
     const results = z.JSON.parse(response.content);
 
-    //Only want the ids and names of the fields from this call. If the field has
-    //already been selected in another input box, ignore it, otherwise grab it.
+    //Only want the ids and names of the fields from this call.
     let sourceFields = results.mappings.map(r => {
-      return {id: r.id, fieldName: r.fieldName};
+      return {name: r.name};
     });
 
     //Check to make sure that fields exist in the source as mappings,
