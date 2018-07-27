@@ -18,7 +18,7 @@ const getOrgInfoForOutput = (z, bundle) => {
   //On top of the input information the user supplied being returned as output
   //of the action on Zapier, these are the custom ones constructed. The source type,
   //the name of the source, the owner of the source, the number of documents in the source,
-  //the total memory used in the source, the org owners, as well as the org name. 
+  //the total memory used in the source, the org owners, as well as the org name.
   const outputInfo = {
     sourceType: '',
     sourceName: '',
