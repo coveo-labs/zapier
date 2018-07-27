@@ -18,7 +18,7 @@ const handleDeleteCreation = (z, bundle) => {
     body: JSON.stringify({
       documentId: bundle.inputData.documentId,
       title: bundle.inputData.title,
-      deleteChildren: true,	  	 	  
+      deleteChildren: true,
     }),
     params:{
       documentId: bundle.inputData.documentId,
@@ -29,22 +29,22 @@ const handleDeleteCreation = (z, bundle) => {
       'Accept': 'application/json',
     },
   });
-  
+
   //Handle request response
-  return promise.then((response) => { 
-   
+  return promise.then((response) => {
+
     if(response.status !== 202){
       throw new Error('Error occured sending delete request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
-  
+
     //No point in saving this for the response content the user sees.
     //Better practice for this to always be true and its already indicated
     //to the user that this always happens in a delete.
     delete bundle.inputData.deleteChildren;
-  
+
     //Send to responseContent handler
     return getOutputInfo(z, bundle);
-  
+
   })
     .catch(handleError);
 };
