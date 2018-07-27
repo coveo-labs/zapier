@@ -1,6 +1,5 @@
 'use strict';
 
-const messages = require('../messages');
 const deleteResource = require('../resources/delete');
 const deleteHandler = require('../resources/deleteHandler');
 
@@ -13,7 +12,6 @@ const createDelete = (z, bundle) => {
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   return deleteHandler.handleDeleteCreation(z, bundle);
-
 };
 
 module.exports = {
