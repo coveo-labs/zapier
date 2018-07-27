@@ -350,9 +350,9 @@ const uploadToContainer = (z, bundle, result) => {
         //to continue from here, so just return that.
         if (Object.keys(batchUpload).length !== 0) {
           return batchUpload;
-        } else {
-          return result.fileId;
         }
+
+        return result.fileId;
       })
       .catch(handleError)
   );
