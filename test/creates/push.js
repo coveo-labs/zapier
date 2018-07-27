@@ -36,8 +36,8 @@ describe('pushes', function() {
         field2Content: 'testing additional content field',
         field3: 'downloadlink',
         field3Content: 'download link test',
-        sourceId: process.env.TEST_SOURCE_ID,
         orgId: process.env.TEST_ORG_ID,
+        sourceId: process.env.TEST_SOURCE_ID,
       },
     };
 

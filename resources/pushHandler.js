@@ -6,6 +6,9 @@ const messages = require('../messages');
 const { handleError, fetchFile, findCompressionType, getStringByteSize } = require('../utils');
 const _ = require('lodash');
 
+const RE_IS_HTML = /<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i;
+
+
 //The handler for creating a push request to Coveo. This function can be hard to follow,
 //I'll do my best to explain how it operates.
 const handlePushCreation = (z, bundle) => {
@@ -69,7 +72,7 @@ const processBatchPush = (z, bundle, result) => {
 const processPush = (z, bundle) => {
   //Check for any HTML tags in the data if it exists, and change the fileExtension to
   //.html so it is indexed properly
-  if (/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(bundle.inputData.data)) {
+  if (RE_IS_HTML.test(bundle.inputData.data)) {
     bundle.inputData.fileExtension = '.html';
   }
 
@@ -198,7 +201,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     batchContent.addOrUpdate.splice(0, 1);
   }
   //Check for any HTML tags in the data if it exists, and change the fileExtension to .html so it is indexed properly
-  else if (/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(firstBatchItem.data)) {
+  else if (RE_IS_HTML.test(firstBatchItem.data)) {
     firstBatchItem.fileExtension = '.html';
   }
 
@@ -251,7 +254,7 @@ const uploadToContainer = (z, bundle, result) => {
         //will have a length greater than 0 in them. If that is the case, use the empty
         //object from earlier to store the result from the function handling batch uploading.
         //Skip the rest of the function from here.
-        if (fileContents.length > 0) {
+        if (fileContents.length) {
           batchUpload = uploadBatchToContainer(z, bundle, fileContents, result);
         }
         // Single item to push handle and also handles plain text with a single item
@@ -316,7 +319,7 @@ const uploadToContainer = (z, bundle, result) => {
           }
           //Check for any HTML tags in the data if it exists, and change the fileExtension to
           //.html so it is indexed properly
-          else if (/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(upload.addOrUpdate[0].data)) {
+          else if (RE_IS_HTML.test(upload.addOrUpdate[0].data)) {
             upload.addOrUpdate[0].fileExtension = '.html';
           }
 
@@ -352,7 +355,7 @@ const uploadToContainer = (z, bundle, result) => {
         //batch push was used instead of a single item push. If this is the case,
         //return that object. Only need the file id of the container in order
         //to continue from here, so just return that.
-        if (Object.keys(batchUpload).length !== 0) {
+        if (Object.keys(batchUpload).length) {
           return batchUpload;
         }
 
