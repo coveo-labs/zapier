@@ -1,6 +1,5 @@
 'use strict';
 
-const messages = require('../messages');
 const deleteResource = require('../resources/delete');
 const deleteHandler = require('../resources/deleteHandler');
 
@@ -8,13 +7,11 @@ const deleteHandler = require('../resources/deleteHandler');
 //a handoff to the deleteHandler file to handle the creation of a delete request, sending it
 //to Coveo, then handling the appropriate response content.
 const createDelete = (z, bundle) => {
-
   bundle.inputData['documentId'] = bundle.inputData.docId.replace(/[?&#]/g, '=');
   bundle.inputData['uri'] = bundle.inputData.docId;
   delete bundle.inputData.docId;
 
   return deleteHandler.handleDeleteCreation(z, bundle);
-
 };
 
 module.exports = {
