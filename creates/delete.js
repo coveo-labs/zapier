@@ -9,9 +9,8 @@ const deleteHandler = require('../resources/deleteHandler');
 //to Coveo, then handling the appropriate response content.
 const createDelete = (z, bundle) => {
 
-  bundle.inputData['documentId'] = bundle.inputData.docId.replace(/[?&#]/g, '=');
-  bundle.inputData['uri'] = bundle.inputData.docId;
-  delete bundle.inputData.docId;
+  bundle.inputData['uri'] = bundle.inputData.documentId;
+  bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   return deleteHandler.handleDeleteCreation(z, bundle);
 
@@ -49,7 +48,7 @@ module.exports = {
         helpText: 'The ID of the source inside of your organization. Must be chosen after the organization ID.',
       },
       {
-        key: 'docId',
+        key: 'documentId',
         required: true,
         type: 'string',
         label: 'Document ID',

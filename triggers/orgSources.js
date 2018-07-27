@@ -2,6 +2,7 @@
 
 const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
+const message = require('../messages');
 
 //This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
 //without the trigger actual showing up in the app. This allows me to create dynamic dropdowns for the input users
@@ -22,7 +23,7 @@ const getSourceChoicesForInput = (z, bundle) => {
     let orgSources = [];
 
     if(response.status >= 400){
-      throw new Error('Error getting source choices for dropdown. The organization ID must be chosen first to get these choices: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+      throw new Error('Error getting source choices for dropdown. Please ensure the organization ID has been selected already: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
   
     const results = z.JSON.parse(response.content);
@@ -33,6 +34,12 @@ const getSourceChoicesForInput = (z, bundle) => {
         orgSources.push({'id': source.id, 'name': source.name});
       }
     });
+
+    //Check if the selected organization has any push sources 
+    //in it, if not throw an error.
+    if(!Array.isArray(orgSources) || orgSources.length == 0){
+      throw new Error(message.NO_PUSH_SOURCES);
+    }
 
     return orgSources;
   

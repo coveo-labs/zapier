@@ -16,12 +16,12 @@ const createNewPush = (z, bundle) => {
   bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
   bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
   bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
-  bundle.inputData['documentId'] = bundle.inputData.docId.replace(/[?&#]/g, '=');
-  bundle.inputData['uri'] = bundle.inputData.docId;
+  bundle.inputData['uri'] = bundle.inputData.documentId;
+  bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   //Don't need these components of the bundle anymore after assigning the content of each field
   //to the field name in the bundle, so remove them from the bundle and carry on.
-  bundle.inputData = _.omit(bundle.inputData, ['field1', 'field2', 'field3', 'docId', 'field1Content', 'field2Content', 'field3Content']);
+  bundle.inputData = _.omit(bundle.inputData, ['field1', 'field2', 'field3', 'field1Content', 'field2Content', 'field3Content']);
 
   //Move on to handling the push process
   return pushHandler.handlePushCreation(z, bundle);
@@ -63,7 +63,7 @@ module.exports = {
         helpText: 'The ID of the source in the organization you wish to push to. This can only be chosen after the organization ID.',
       },
       {
-        key: 'docId',
+        key: 'documentId',
         required: true,
         type: 'string',
         label: 'Document ID',

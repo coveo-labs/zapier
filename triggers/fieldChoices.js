@@ -1,8 +1,8 @@
 'use strict';
 
-const _ = require('lodash');
 const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
+const message = require('../messages');
 
 //This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
 //without the trigger actual showing up in the app. This allows me to create dynamic dropdowns for the input users
@@ -23,7 +23,7 @@ const getFieldChoicesForInput = (z, bundle) => {
   return sourceFieldsPromise.then((response) => {
 
     if(response.status >= 400){
-      throw new Error('Error getting field choices for dropdown. The source ID and organization ID must be chosen first to get these choices: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+      throw new Error('Error getting field choices for dropdown. Please ensure the source and organization IDs have been selected already: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
   
     const results = z.JSON.parse(response.content);
@@ -31,8 +31,14 @@ const getFieldChoicesForInput = (z, bundle) => {
     //Only want the ids and names of the fields from this call. If the field has
     //already been selected in another input box, ignore it, otherwise grab it.
     let sourceFields = results.mappings.map(r => {
-        return {id: r.id, fieldName: r.fieldName};
+      return {id: r.id, fieldName: r.fieldName};
     });
+
+    //Check to make sure that fields exist in the source as mappings,
+    //if not throw an error to the user.
+    if(!Array.isArray(sourceFields) || sourceFields.length == 0){
+      throw new Error(message.NO_FIELDS);
+    }
 
     return sourceFields;
   

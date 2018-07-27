@@ -2,6 +2,7 @@
 
 const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
+const message = require('../messages');
 
 //This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
 //without the trigger actual showing up in the app. This allows me to create dynamic dropdowns for the input users
@@ -28,6 +29,12 @@ const getOrgChoicesForInput = (z) => {
     let orgChoices = results.map(r => {
       return {id: r.id, displayName: r.displayName};
     });
+
+    //Make sure that the user has access to some organization in the platform
+    //with the connected account, if not throw an error
+    if(!Array.isArray(orgChoices) || orgChoices.length == 0){
+      throw new Error(message.NO_ORGS);
+    }
 
     return orgChoices;
   

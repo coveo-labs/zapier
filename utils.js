@@ -24,7 +24,7 @@ const handleError = (error) => {
 //file types would be very labor intensive.
 const convertToZip = (details) => {
 
-  let archiveFile = details
+  let archiveFile = details;
 
   //This is all for decompressing the contents of the files
   //See: https://www.npmjs.com/package/decompress
@@ -156,24 +156,18 @@ const handleZip = (details) => {
         //before defaulting to deflate.
         //Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
         //This may not be necessary, will have to do some testing to confirm. May be needed, as files can be compressed differently within the same zip, depending on
-        //how the archive file was made. So, if anything, this is a backup case for the files inside. UNCOMPRESSED always first since if there is no compression of the file,
-        //don't look at anything else. DEFLATE last as it is the last possible valid compression type Coveo allows wihtin a zip file, throw an error otherwise.
-        if(zipContent.size == zip.files[name]._data.uncompressedSize){
-          zipContent.compressionType = 'UNCOMPRESSED';
-        } else if (zipContent.content[0] === 0x1f && zipContent.content[1] === 0x8b && zipContent.content[2] === 0x08){
+        //how the archive file was made. So, if anything, this is a backup case for the files inside.  DEFLATE last as it is the last possible valid compression type Coveo allows wihtin a zip file, throw an error otherwise.
+        if (zipContent.content[0] === 0x1f && zipContent.content[1] === 0x8b && zipContent.content[2] === 0x08){
           zipContent.compressionType = 'GZIP';
         } else if (((zipContent.content[0] * 256) + zipContent.content[1]) % 31 == 0){
           zipContent.compressionType = 'ZLIB';
         } else if (zipContent.contentType === '.lzma'){
           zipContent.compressionType = 'LZMA';
+        } else if(zipContent.size == zip.files[name]._data.uncompressedSize){
+          zipContent.compressionType = 'UNCOMPRESSED';
         } else {
           zipContent.compressionType = 'DEFLATE'; 
         }  
-        
-        if (zipContent.contentType === '' || zipContent.contentType == undefined) {
-          //If you ever get here, something went VERY wrong
-          throw new Error(messages.BAD_COMPRESSION);
-        }
         
         addOrUpdate.push(zipContent);
 
@@ -209,8 +203,8 @@ const fetchFile = (url) => {
     .then((response) => {
 
       //If the url given is redirected to another place, doesn;t match the given url, or contains link, the given file url
-      //wasn't the url content was extracted from. So, set the bad fetch flag to true.
-      if(response.headers.get('link') || response.url !== url){
+      //wasn't the url content was extracted from. So, throw the bad fetch error.
+      if(response.headers.get('link') || response.url !== url || response.headers.get('www-authenticate')){
         throw new Error(messages.BAD_FETCH);
       }
 
@@ -251,7 +245,7 @@ const fetchFile = (url) => {
 
         //These aren't supported tar compression types in the implementation, so just return what file details were grabbed and
         //push into the source. Throw an error telling them these aren't supported, might change this later to just index with no content.
-      } else if(((details.content[0] === 0x1f && details.content[1] === 0x9d)) || (details.contentType === '.tlz' || details.contentType === '.lzma') || ((details.content[0] === 0xfd && details.content[1] === 0x37 && details.content[2] === 0x7a && details.content[3] === 0x58 && details.content[4] === 0x5a && details.content[5] === 0x00))){
+      } else if(((details.content[0] === 0x1f && details.content[1] === 0x9d)) || (details.contentType === '.tlz') || ((details.content[0] === 0xfd && details.content[1] === 0x37 && details.content[2] === 0x7a && details.content[3] === 0x58 && details.content[4] === 0x5a && details.content[5] === 0x00))){
         
         throw new Error(messages.UNSUPPORTED);
 

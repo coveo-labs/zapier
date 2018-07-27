@@ -48,7 +48,7 @@ const processBatchPush = (z, bundle, result) => {
 
   //Send request to Coveo
   const promise = z.request({
-    url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result.fileId}`,
+    url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result}`,
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -80,6 +80,8 @@ const processBatchPush = (z, bundle, result) => {
 //this will not upload any valuable content.
 const processPush = (z, bundle) => {
 
+  //Check for any HTML tags in the data if it exists, and change the fileExtension to
+  //.html so it is indexed properly
   if(/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(bundle.inputData.data) == true){
     bundle.inputData.fileExtension = '.html';
   }
@@ -105,6 +107,7 @@ const processPush = (z, bundle) => {
       throw new Error('Error occured sending push request to Coveo: ' + z.JSON.parse(response.content).message +  ' Error Code: ' + response.status);
     }
 
+    //Don't need this for output info, so remove it
     delete bundle.inputData.fileExtension;
 
     //send to responseContent handler
@@ -217,6 +220,9 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   //will still work even if it isn't in the index (intended?).
   if(firstBatchItem.data == '' || firstBatchItem.data == undefined || firstBatchItem.data == null){
     batchContent.addOrUpdate.splice(0, 1);
+
+    //Check for any HTML tags in the data if it exists, and change the fileExtension to
+    //.html so it is indexed properly
   } else if(/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(firstBatchItem.data) == true){
     firstBatchItem.fileExtension = '.html';
   }
@@ -240,18 +246,12 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
       throw new Error('Error uploading file contents to container: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
 
-    //Get result and return it, should be an empty object
-    const result = z.JSON.stringify(response.content);
-    return result;
+    //The container file ID is needed for the next stage of pushing the container
+    //and the batch contents aren't needed as they've been uploaded to the container.
+    //So, just return the file ID.
+    return result.fileId;
 
   })
-    //After successful upload
-    .then(() => {
-      //The file container ID is needed for the next stage of pushign the container
-      //and its contents to Coveo, so append it to the batchContent for reference and return.
-      batchContent.fileId = result.fileId;
-      return batchContent;
-    })
     .catch(handleError);
 };
 
@@ -283,11 +283,15 @@ const uploadToContainer = (z, bundle, result) => {
 
       batchUpload = uploadBatchToContainer(z, bundle, fileContents, result);
 
-    //single item to push handle
+    //Single item to push handle and also handles
+    //plain text with a single item
     } else {
 
       let contentNumber = 0;
 
+      //This only needs to iterate twice, but manually coding out each component of the push
+      //would look and be ugly. So, better to just have a two loop iteration to handle it
+      //similar to the one in the uploadBatch function
       while(contentNumber != 2){
 
         let uploadContent = {};
@@ -312,10 +316,25 @@ const uploadToContainer = (z, bundle, result) => {
           uploadContent.title = bundle.inputData.title + ' file: ' + fileContents.filename;
           uploadContent.fileExtension = fileContents.contentType;
           uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
-          uploadContent.compressionType = 'UNCOMPRESSED';
           uploadContent.parentId = upload.addOrUpdate[contentNumber - 1].documentId;
           uploadContent.uri = bundle.inputData.uri + '/file1';
           uploadContent.documentId = bundle.inputData.documentId + '/file1';
+
+          //A single file sent can have a different compression type than just UNCOMPRESSED depending what the user
+          //inputs into this field. So, check for it and change accordingly. Default will be UNCOMPRESSED though, as
+          //almost all files that get to this point are UNCOMPRESSED
+          //See: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
+          if (fileContents.content[0] === 0x1f && fileContents.content[1] === 0x8b && fileContents.content[2] === 0x08){
+            uploadContent.compressionType = 'GZIP';
+          } else if (((fileContents.content[0] * 256) + fileContents.content[1]) % 31 == 0){
+            uploadContent.compressionType = 'ZLIB';
+          } else if((fileContents.content[0] === 0x50 && fileContents.content[1] === 0x4b && fileContents.content[2] === 0x03 && fileContents.content[3] === 0x04 && fileContents.content[fileContents.content.length] === 0x06 && (fileContents.content[fileContents.content.length - 1] === 0x06 || fileContents.content[fileContents.content.length - 1] === 0x05))){
+            uploadContent.compressionType = 'DEFLATE';  
+          } else if (fileContents.contentType === '.lzma'){
+            uploadContent.compressionType = 'LZMA';
+          } else {
+            uploadContent.compressionType = 'UNCOMPRESSED';
+          }
 
         }
         
@@ -329,13 +348,16 @@ const uploadToContainer = (z, bundle, result) => {
         throw new Error(messages.BIG_FILE);
       }
 
-      //If the document has zip file supplied and no plain text, the first
+      //If the document has file supplied and no plain text, the first
       //item in the batch is useless, as it will contain no data or file content.
-      //No point in keeping this, so remove it. Note: deleting from this components document ID
+      //No point in keeping this, so remove it. Note: deleting from this component's document ID
       //will still work even if it isn't in the index (intended?).
       if(upload.addOrUpdate[0].data == '' || upload.addOrUpdate[0].data == undefined || upload.addOrUpdate[0].data == null){
         upload.addOrUpdate[1].title = fileContents.filename;
         upload.addOrUpdate.splice(0, 1);
+
+        //Check for any HTML tags in the data if it exists, and change the fileExtension to
+        //.html so it is indexed properly
       } else if(/<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(upload.addOrUpdate[0].data) == true){
         upload.addOrUpdate[0].fileExtension = '.html';
       }
@@ -358,8 +380,11 @@ const uploadToContainer = (z, bundle, result) => {
         }
 
         //Get the content and return it, should be an empty object.
+        //Just need to return something in order to continue on to the next
+        //step where what this function returns as a whole.
         const result = z.JSON.stringify(response.content);
         return result;
+
       })
         .catch(handleError);
     }
@@ -368,13 +393,12 @@ const uploadToContainer = (z, bundle, result) => {
     .then(() => {
       //If the batchUpload object has anything in it, then a zip/tar file
       //batch push was used instead of a single item push. If this is the case,
-      //return that object. Return the details gathered for a single, non-archive push
-      //otherwise.
+      //return that object. Only need the file id of the container in order
+      //to continue from here, so just return that.
       if(Object.keys(batchUpload).length !== 0){
         return batchUpload;
       } else {
-        upload.fileId = result.fileId;
-        return upload;
+        return result.fileId;
       }
     })
     .catch(handleError);
