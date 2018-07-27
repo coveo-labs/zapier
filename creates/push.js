@@ -65,7 +65,7 @@ module.exports = {
         type: 'string',
         label: 'Document ID',
         helpText:
-          'The main URL to your document or page you wish to push. This MUST be a url. If no urls are provided, most apps provide and ID or some other sort of identifier. You can do something like this: gmail://EMAIL_ID.',
+          'The ID of the document you want to use in the index. This MUST be in a url form. You can use the original url or create your own identifier like this: gmail://EMAIL_ID.',
       },
       {
         key: 'title',
