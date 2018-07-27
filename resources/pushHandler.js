@@ -251,7 +251,7 @@ const uploadToContainer = (z, bundle, result) => {
         //will have a length greater than 0 in them. If that is the case, use the empty
         //object from earlier to store the result from the function handling batch uploading.
         //Skip the rest of the function from here.
-        if (fileContents.length > 0) {
+        if (fileContents.length) {
           batchUpload = uploadBatchToContainer(z, bundle, fileContents, result);
         }
         // Single item to push handle and also handles plain text with a single item
@@ -348,7 +348,7 @@ const uploadToContainer = (z, bundle, result) => {
         //batch push was used instead of a single item push. If this is the case,
         //return that object. Only need the file id of the container in order
         //to continue from here, so just return that.
-        if (Object.keys(batchUpload).length !== 0) {
+        if (Object.keys(batchUpload).length) {
           return batchUpload;
         }
 
