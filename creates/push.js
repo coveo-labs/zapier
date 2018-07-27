@@ -1,6 +1,5 @@
 'use strict';
 
-const messages = require('../messages');
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
 const _ = require('lodash');
@@ -9,7 +8,6 @@ const _ = require('lodash');
 //a handoff to the pushHandler file to handle the creation of a push request, sending it
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
-
   //Set the field names as properties and the values of these new properties
   //to what the user put as the content for these fields. Not sure if there's a better
   //way of doing this.
@@ -25,7 +23,6 @@ const createNewPush = (z, bundle) => {
 
   //Move on to handling the push process
   return pushHandler.handlePushCreation(z, bundle);
-
 };
 
 // We recommend writing your creates separate like this and rolling them
@@ -67,7 +64,8 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The main URL to your document or page you wish to push. This MUST be a url. If no urls are provided, most apps provide and ID or some other sort of identifier. You can do something like this: gmail://EMAIL_ID.',
+        helpText:
+          'The main URL to your document or page you wish to push. This MUST be a url. If no urls are provided, most apps provide and ID or some other sort of identifier. You can do something like this: gmail://EMAIL_ID.',
       },
       {
         key: 'title',
@@ -81,14 +79,16 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 are supported. The files in the archive file will be extracted and pushed to the source.', 
+        helpText:
+          'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 are supported. The files in the archive file will be extracted and pushed to the source.',
       },
       {
         key: 'data',
         required: false,
         type: 'string',
         label: 'Plain Text',
-        helpText: 'The main content you want extracted into the source as plain text. This can be text of the file, free text, or a mix of both. Use this if no files or urls for the File field are supplied and you want content to be extracted with your push source. Will only be extracted if File field fails or is not supplied. If niether this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed as a batch.', 
+        helpText:
+          'The main content you want extracted into the source as plain text. This can be text of the file, free text, or a mix of both. Use this if no files or urls for the File field are supplied and you want content to be extracted with your push source. Will only be extracted if File field fails or is not supplied. If niether this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed as a batch.',
       },
       {
         key: 'field1',
@@ -149,6 +149,5 @@ module.exports = {
     // outputFields: () => { return []; }
     // Alternatively, a static field definition should be provided, to specify labels for the fields
     outputFields: pushResource.outputFields,
-
   },
 };
