@@ -7,6 +7,9 @@ const platform = require('../config').PLATFORM;
 //when they want to use information from Coveo actions on other apps on Zapier.
 //Since we do not return anything useful other than the input information in our
 //responses...manually construct the response content with other calls to Coveo.
+//Putting the details of the file could be beneficial here if they pushed some file,
+//but this could create huge output if they sent 50 files (the maximum number),
+//so perhaps the base file only in the output?
 const getOrgInfoForOutput = (z, bundle) => {
 
   //Make bytes more readable and understandable
@@ -15,11 +18,12 @@ const getOrgInfoForOutput = (z, bundle) => {
   //On top of the input information the user supplied being returned as output
   //of the action on Zapier, these are the custom ones constructed. The source type,
   //the name of the source, the owner of the source, the number of documents in the source,
-  //the total memory used in the source, the org owners, as well as the org name. 
+  //the total memory used in the source, the org owners, as well as the org name.
   const outputInfo = {
     sourceType: '',
     sourceName: '',
     sourceOwner: '',
+    numFields: 0,
     numDocs: '',
     docSize: '',
     orgName: '',
@@ -28,16 +32,8 @@ const getOrgInfoForOutput = (z, bundle) => {
 
   //Start promise to get org information from Coveo
   const orgInfoPromise = z.request({
-
     url : `https://${platform}/rest/organizations/${bundle.inputData.orgId}`,
     method: 'GET',
-    body: {
-      organizationId: bundle.inputData.orgId,
-    },
-    params: {
-      organizationId: bundle.inputData.orgId,
-    },
-
   });
 
   //Handle request response from Coveo
@@ -58,17 +54,8 @@ const getOrgInfoForOutput = (z, bundle) => {
 
       //Get the source information the user pushed to from Coveo
       const orgSourcesPromise = z.request({
-
         url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
         method: 'GET',
-        body: {
-          organizationId: bundle.inputData.orgId,
-          sourceId: bundle.inputData.sourceId,
-        },
-        params: {
-          organizationId: bundle.inputData.orgId,
-          sourceId: bundle.inputData.sourceId,
-        },
       });
 
       //Handle response from request
@@ -92,8 +79,14 @@ const getOrgInfoForOutput = (z, bundle) => {
 
         //Fields of the source
         result.mappings.forEach((mapping, idx) => {
-          let filedNum = 'Field #' + (idx + 1);
-          outputInfo[filedNum] = mapping.fieldName;
+
+          let fieldNum = 'Field #' + (idx + 1) + ' Used By the Source';
+          outputInfo[fieldNum] = mapping.fieldName;
+
+          if(outputInfo[fieldNum] != '' || outputInfo[fieldNum] != null || outputInfo[fieldNum] != undefined){
+            outputInfo.numFields++;
+          }
+
         });
 
         return outputInfo;

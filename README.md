@@ -73,8 +73,8 @@ zapier env <coveo-app-version> CLIENT_SECRET <coveo-client-secret>
 ```
 
 To ensure the environment was setup correctly, run `zapier env <coveo-app-version>`. If the credentials match up, you've finished setting up the app.
-Note: you should probably set up a `.env` file to store these credentials. This isn't required, but it is very helpful for Zapier and let's you have access to credentials at any time.
-Create a `.env` file, ensure it is ignored in `.gitignore`, and store the credentials like this:
+You should now set up a `.env` file to store these credentials. This isn't required, but it is very helpful for Zapier and let's you have access to credentials at any time.
+Create a `.env` file, ensure it is ignored in `.gitignore` if you are pushing to a repo, and store the credentials like this:
 
 ```bash
 CLIENT_ID = <coveo-client-id>
@@ -88,26 +88,25 @@ At any point if you want to see the available zapier commands and what they do, 
 
 You can locally test the app from the command line with the `zapier test` command. Before you do that though, there are a few things you must do beforehand.
 
-First, you need to navigate to the `test/creates` folder. Once, there you'll see two test files, `push.js` and `delete.js`. DO NOT replace anything in these files besides
-the following:
-
- 1. `const orgId`
- 1. `const sourceId`
- 1.  The values of the keys within the `inputData` in the `bundle`
-
-Replace the `const orgId` and `const sourceId` values with the corresponding source and organization IDs you wish to push to.
-The values of the `inputData` can be anything you wish, but do not change the keys unless absolutely necessary.
-
-Now, you'll have to give authentication to the local test. This requires an access token to your source. Since we cannot generate access tokens in
-these files, we must do the following commands on the command line:
+First, navigate to your `.env` file once more and you'll need to enter the following:
 
 ```bash
-export ACCESS_TOKEN=<coveo-source-api-key>
-export REFRESH_TOKEN=<coveo-source-api-key>
+TEST_ORG_ID = <coveo-org-id>
+TEST_SOURCE_ID = <coveo-source-id>
+ACCESS_TOKEN = <coveo-source-api-key>
 ```
+These values will allow you to test to the specified source in the desired organization anytime locally. Within the `test/creates` file, you can replace the
+contents of the `bundle.inputData` with whatever you wish, as long as the required input fields are there. The `test/authentication` file shouldn't need anything
+changed unless you desire.
 
 This gives access to your source in your organization. Now, you can begin to test with any values you put into the `inputData` fields with the `zapier test` command.
 You should replace all of the `inputData` fields, since the ones in the repo will most likely not work anymore.
+
+If for any reason you are getting authentication errors about your `ACCESS_TOKEN` being invalid, simply run this command and it should resolve the issue:
+
+```bash
+export ACCESS_TOKEN=<coveo-source-api-key>
+```
 
 Note: if you receive a timeout error, do not panic. The first run of the day will almost always timeout, and sometimes the network connections for the
 app aren't very strong. Also, sometimes fetching content can take awhile ontop of pushing or deleting, so a timeout error will occur but the test will keep running.
