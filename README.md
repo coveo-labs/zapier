@@ -2,7 +2,8 @@
 
 This is the code for the integration of the Coveo Zap app on Zapier. It is capable of extracting the content
 of files or urls, then indexing that content into a specified push source on the Coveo Cloud Platform as either a
-single item push, or a batch. The batch push is currently limited to zip/tar files only along with optional plain text.
+single item push, or a batch. The batch push is currently limited to zip/tar files only along with optional plain text
+for any number of files sent, archive or not.
 
 ## Setting Up The App
 
@@ -56,19 +57,19 @@ Now you'll have to update any information that is specific to the Coveo App. Fir
 {
  "PLATFORM": "platform.cloud.coveo.com",
  "PUSH": "push.cloud.coveo.com",
- "REDIRECT_URI": "https://zapier.com/dashboard/auth/oauth/return/APP-ID/"
+ "REDIRECT_URI": "https://zapier.com/dashboard/auth/oauth/return/APP-IDCLIAPI/"
 }
 ``` 
 
 Now, you will need to replace the `REDIRECT_URI` with the correct one. Run `zapier describe` on the command line to get the correct `REDIRECT_URI`.
 It will be located in the `Authentication` section of the output. Copy paste the url into the `REDIRECT_URI`
-in `config.json`. The following should be the content of `config.json`:
+in `config.json`. Note: you must have a registered app on Zapier and have pushed it at least once to get the `REDIRECT_URI`. The following should be the final content of `config.json`:
 
 ```json
 {
  "PLATFORM": "platform.cloud.coveo.com",
  "PUSH": "push.cloud.coveo.com",
- "REDIRECT_URI": "https://zapier.com/dashboard/auth/oauth/return/APP-IDCLIAPI/"
+ "REDIRECT_URI": "https://zapier.com/dashboard/auth/oauth/return/AppID#CLIAPI/"
 }
 ```
 

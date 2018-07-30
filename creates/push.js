@@ -72,14 +72,14 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Title of Submission',
-        helpText: 'The title of the content to be displayed within the source content browser.',
+        helpText: 'The title of the main submission to be displayed within the source content browser.',
       },
       {
         key: 'content',
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz (.tgz), and .tar.bz2 (.tbz2) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise no content will be extracted.', 
+        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it is supplied, the content extraction does not fail, or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz (.tgz), and .tar.bz2 (.tbz2) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise no content will be extracted.', 
       },
       {
         key: 'data',
