@@ -6,39 +6,44 @@ const messages = require('../messages');
 const { handleError, fetchFile, findCompressionType, getStringByteSize } = require('../utils');
 const _ = require('lodash');
 
+//Regular expression checker for the 'data' property of a push being an html body or not.
+//This is needed to change the fileExtension of a html body supplied so it isn't indexed
+//as text and instead as an html body.
 const RE_IS_HTML = /<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i;
 
-
-//The handler for creating a push request to Coveo. This function can be hard to follow,
-//I'll do my best to explain how it operates.
+//The handler for creating a push request to Coveo. This function can be hard to follow, due
+// to the number of calls to other functions.
 const handlePushCreation = (z, bundle) => {
   //There is no content in the File input field, no file given, so there is no reason to fetch
-  //content from a url that doesn't exist. Indicate to the user that they didn't
-  //put anything in the field, and continue with the push.
+  //content from a url that doesn't exist.
   if (!bundle.inputData.content) {
     //There is no file in the bundle given, so remove the property and continue the process of
-    //sending a single item push request to Coveo.
+    //sending a single item push request to Coveo. Removing from the bundle just simplifies to response
+    //generation later on and less tedious.
     delete bundle.inputData.content;
     return processPush(z, bundle);
   }
   //Something was input into the File input field, so move on.
   else {
     //Creation of a container on amazon to store file contents. This function
-    //creates the container as well as uploads to it.
+    //creates the container as well as uploads to it. Depending on what kind of file
+    //is detected when uploading, the process changes fom here. It can either upload all the contents
+    //of a supplied archive file type, or just one file. The 'data' property will also be indexed in the batch
+    //if supplied.
     const containerInfo = createContainer(z, bundle);
 
     //return the creation and upload to amazon
     return containerInfo
       .then(result => {
-        //Push file container into the source.
+        //Push file container into the source. this indexes the file contents.
         return processBatchPush(z, bundle, result);
       })
       .catch(handleError);
   }
 };
 
-//The function for sending a file container push to Coveo. Used for pushes with more than 1 file
-// or a file along with plain text as a batch push.
+//The function for sending a file container push to Coveo. Used for pushes that have file contents extracted from them
+//or a file along with plain text as a batch push.
 const processBatchPush = (z, bundle, result) => {
   //Send request to Coveo
   const promise = z.request({
@@ -54,7 +59,7 @@ const processBatchPush = (z, bundle, result) => {
   return promise
     .then(response => {
       if (response.status !== 202) {
-        throw new Error('Error occured sending batch push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        throw new Error('Error occurred sending batch push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
       }
 
       ///Send to responseContent handler. Could be more detailed
@@ -67,7 +72,7 @@ const processBatchPush = (z, bundle, result) => {
 };
 
 //Function to send single item push to Coveo with no File input field.
-//Will upload plain text content and if niether plain text nor a file is supplied,
+//Will upload plain text content and if neither plain text nor a file is supplied,
 //this will not upload any valuable content.
 const processPush = (z, bundle) => {
   //Check for any HTML tags in the data if it exists, and change the fileExtension to
@@ -76,7 +81,8 @@ const processPush = (z, bundle) => {
     bundle.inputData.fileExtension = '.html';
   }
 
-  //Send request to Coveo
+  //Send request to Coveo, exclude the documentId, orgId, and sourceId from the body
+  //since these are only needed for the request url.
   const promise = z.request({
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'PUT',
@@ -94,13 +100,13 @@ const processPush = (z, bundle) => {
   return promise
     .then(response => {
       if (response.status !== 202) {
-        throw new Error('Error occured sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        throw new Error('Error occurred sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
       }
 
       //Don't need this for output info, so remove it
       delete bundle.inputData.fileExtension;
 
-      //send to responseContent handler
+      //Send to responseContent handler
       return getOutputInfo(z, bundle);
     })
     .catch(handleError);
@@ -174,7 +180,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     //first one is.
     if (batchContent.addOrUpdate.length >= 1) {
       delete batchItem.data;
-      batchItem.title = bundle.inputData.title + ' file #' + (i + 1) + ': ' + fileContent.filename;
+      batchItem.title = fileContent.filename;
       batchItem.fileExtension = fileContent.contentType;
       batchItem.compressedBinaryData = Buffer.from(fileContent.content).toString('base64');
       batchItem.compressionType = fileContent.compressionType;
@@ -285,11 +291,11 @@ const uploadToContainer = (z, bundle, result) => {
             if (upload.addOrUpdate.length >= 1) {
 
               delete uploadContent.data;
-              uploadContent.title = bundle.inputData.title + ' file: ' + fileContents.filename;
+              uploadContent.title = fileContents.filename;
               uploadContent.fileExtension = fileContents.contentType;
               uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
               uploadContent.parentId = upload.addOrUpdate[contentNumber - 1].documentId;
-              uploadContent.documentId = bundle.inputData.documentId + '/file';
+              uploadContent.documentId = bundle.inputData.documentId + '/file1';
 
               // A single file sent can have a different compression type than just UNCOMPRESSED depending what the user
               // inputs into this field. So, check for it and change accordingly.
@@ -312,7 +318,6 @@ const uploadToContainer = (z, bundle, result) => {
           //No point in keeping this, so remove it. Note: deleting from this component's document ID
           //will still work even if it isn't in the index (intended?).
           if (!upload.addOrUpdate[0].data) {
-            upload.addOrUpdate[1].title = fileContents.filename;
             delete upload.addOrUpdate[1].parentId;
             upload.addOrUpdate[1].documentId = bundle.inputData.documentId;
             upload.addOrUpdate.splice(0, 1);

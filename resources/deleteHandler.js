@@ -6,7 +6,7 @@ const push = require('../config').PUSH;
 
 //This function does as it says, it handles the process of creating a
 //delete request to Coveo and then handles the response content to generate
-//an approprpiate Object for Zapier to handle the output.
+//an appropriate Object for Zapier to handle the output.
 const handleDeleteCreation = (z, bundle) => {
 
   //Send delete request to Coveo with deleteChildren always true.
@@ -16,9 +16,7 @@ const handleDeleteCreation = (z, bundle) => {
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'DELETE',
     body: JSON.stringify({
-      documentId: bundle.inputData.documentId,
       title: bundle.inputData.title,
-      deleteChildren: true,
     }),
     params:{
       documentId: bundle.inputData.documentId,
@@ -34,7 +32,7 @@ const handleDeleteCreation = (z, bundle) => {
   return promise.then((response) => {
 
     if(response.status !== 202){
-      throw new Error('Error occured sending delete request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+      throw new Error('Error occurred sending delete request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
 
     //No point in saving this for the response content the user sees.

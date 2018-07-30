@@ -1,6 +1,6 @@
 'use strict';
 
-//Before any outbound request is made, this function sets the authroization header to the access_token granted by Coveo.
+//Before any outbound request is made, this function sets the authorization header to the access_token granted by Coveo.
 //See below comment for the one exception.
 const includeBearerToken = (request, z, bundle) => {
 

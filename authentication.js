@@ -3,6 +3,7 @@
 const config = require('./config');
 const OAUTH_URL = `https://${config.PLATFORM}/oauth`;
 
+//Basic ouath2 used to get access/refresh tokens
 let basicToken = Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64');
 
 module.exports = {
@@ -17,6 +18,9 @@ module.exports = {
   // https://zapier.github.io/zapier-platform-cli/?utm_source=zapier.com&utm_medium=referral&utm_campaign=zapier#oauth2
 
   oauth2Config: {
+
+    //Construct the authorization url that Coveo uses in order to grant access/refresh
+    //tokens. The individual's redirect_uri must be found before this.
     authorizeUrl: {
       method: 'GET',
       url: `${OAUTH_URL}/authorize`,
@@ -28,6 +32,8 @@ module.exports = {
       },
     },
 
+    //Get the access token from the authorization url and store it for later
+    //to use as the authorization header for any request made to Coveo.
     getAccessToken: {
       method: 'POST',
       url: `${OAUTH_URL}/token`,
@@ -44,6 +50,8 @@ module.exports = {
       },
     },
 
+    //Get the refresh token from the authorization url and store it for later
+    //to use if any authorization runs into a 401 error.
     refreshAccessToken: {
       method: 'POST',
       url: `${OAUTH_URL}/token`,
@@ -65,9 +73,6 @@ module.exports = {
   },
 
   // The test call Zapier makes to ensure an access token is valid
-  // UX TIP: Hit an endpoint that always returns data with valid credentials,
-  // like a /profile or /me endpoint. That way the success/failure is related to
-  // the token and not because the user didn't happen to have a recently created record.
   test: {
     url: `https://${config.PLATFORM}/rest/organizations`,
   },

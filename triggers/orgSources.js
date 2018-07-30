@@ -5,7 +5,7 @@ const platform = require('../config').PLATFORM;
 const message = require('../messages');
 
 //This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
-//without the trigger actual showing up in the app. This allows me to create dynamic dropdowns for the input users
+//without the trigger actual showing up in the app. This allows me to create dynamic drop downs for the input users
 //have to input for fields to push content to. This reduces errors and is a much better user experience. This specific function
 //gets the possible push sources that are in the specified org, puts the source id in the input value, and displays the source name as in readable format.
 const perform = (z, bundle) => {
@@ -21,7 +21,10 @@ const perform = (z, bundle) => {
     .then(response => {
       if (response.status >= 400) {
         throw new Error(
-          'Error getting source choices for dropdown. Please ensure the organization ID has been selected already: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status
+          'Error getting source choices for the drop down. Please ensure the organization ID has been selected already and try again: ' +
+            z.JSON.parse(response.content).message +
+            ' Error Code: ' +
+            response.status
         );
       }
 
@@ -53,7 +56,7 @@ module.exports = {
 
   display: {
     label: 'List of Sources',
-    description: 'Hidden trigger in the app responsible for dynamic dropdown',
+    description: 'Hidden trigger in the app responsible for dynamic drop down',
     hidden: true, //Makes the trigger hidden. Don't remove.
   },
 

@@ -2,7 +2,7 @@
 
 This is the code for the integration of the Coveo Zap app on Zapier. It is capable of extracting the content
 of files or urls, then indexing that content into a specified push source on the Coveo Cloud Platform as either a
-single item push, or a batch. The batch push is currently limited to zip files only.
+single item push, or a batch. The batch push is currently limited to zip/tar files only along with optional plain text.
 
 ## Setting Up The App
 
@@ -35,6 +35,15 @@ sudo npm install zapier-platform-core
 ```
 The basics of setting up the app should be complete at this point. If any problems arose, diagnose them from the errors in the command line
 and resolve them.
+
+Now, you'll want to register your own app on the website. Run the following commands in order to do so:
+
+```bash
+zapier register "app-name"
+zapier push
+```
+`zapier register` registers your app on the Zapier website, and `zapier push` pushes the contents of the app onto the site where your app is. After these two commands are done, you'll be able
+to configure your newly created app to work with Coveo. 
 
 At any point if you want to see the available zapier commands and what they do, run `zapier help` or for more info on specific commands run
 `zapier help [command]`.
@@ -73,13 +82,14 @@ zapier env <coveo-app-version> CLIENT_SECRET <coveo-client-secret>
 ```
 
 To ensure the environment was setup correctly, run `zapier env <coveo-app-version>`. If the credentials match up, you've finished setting up the app.
-You should now set up a `.env` file to store these credentials. This isn't required, but it is very helpful for Zapier and let's you have access to credentials at any time.
+You should now set up a `.env` file to store these credentials and prep for testing. This isn't required, but it is very helpful for Zapier and let's you have access to credentials at any time.
 Create a `.env` file, ensure it is ignored in `.gitignore` if you are pushing to a repo, and store the credentials like this:
 
 ```bash
 CLIENT_ID = <coveo-client-id>
 CLIENT_SECRET = <coveo-client-secret>
 ```
+Now, your app is configured to work with Coveo. From here on, you can start setting up tests for your app and updating the app based on changes you make.
 
 At any point if you want to see the available zapier commands and what they do, run `zapier help` or for more info on specific commands run
 `zapier help [command]`.
@@ -96,8 +106,7 @@ TEST_SOURCE_ID = <coveo-source-id>
 ACCESS_TOKEN = <coveo-source-api-key>
 ```
 These values will allow you to test to the specified source in the desired organization anytime locally. Within the `test/creates` file, you can replace the
-contents of the `bundle.inputData` with whatever you wish, as long as the required input fields are there. The `test/authentication` file shouldn't need anything
-changed unless you desire.
+contents of the `bundle.inputData` with whatever you wish, as long as the required input fields are there (the required fields are in push.js/delete.js in the creates folder). The `test/authentication` file shouldn't need anything changed unless you desire. Lastly, the `test/orgChoices` file shouldn't need anything changed unless you desire.
 
 This gives access to your source in your organization. Now, you can begin to test with any values you put into the `inputData` fields with the `zapier test` command.
 You should replace all of the `inputData` fields, since the ones in the repo will most likely not work anymore.
@@ -109,14 +118,13 @@ export ACCESS_TOKEN=<coveo-source-api-key>
 ```
 
 Note: if you receive a timeout error, do not panic. The first run of the day will almost always timeout, and sometimes the network connections for the
-app aren't very strong. Also, sometimes fetching content can take awhile ontop of pushing or deleting, so a timeout error will occur but the test will keep running.
-Completey wait until the app stops running and you can use the command line again. You should see some content appear in the console if the push/delete truly
+app aren't very strong. Also, sometimes fetching content can take awhile on top of pushing or deleting, so a timeout error will occur but the test will keep running.
+Completely wait until the app stops running and you can use the command line again. You should see some content appear in the console if the push/delete truly
 failed or succeeded.
 
 You can add `z.console.log` commands in the code to log anything that happens in the code and view them with `zapier logs`. Alternatively, you can view your logs and all happenings of the app from the Coveo Zap developers [monitoring section](https://zapier.com/developer/builder/cli-app/APP-ID/monitoring). You should remove these calls before pushing the final version of the app though.
 
-You can also test the app on Zapier's site, you should 100% do this, by heading over to Zapier's [site](https://zapier.com) and creating a Zap with the Coveo Zap app. Please
-read the next section before testing on the site though.
+You can also test the app on Zapier's site, you should 100% do this, by heading over to Zapier's [site](https://zapier.com) and creating a Zap with the Coveo Zap app. You can create a Zap by clicking the `Make a Zap!` button at the top right of the home page. Please read the next section before testing on the site though.
 
 Everything relating to what you can do on the command line as well as practical examples using Zapier can be found [here](https://github.com/zapier/zapier-platform-cli).
 
@@ -126,9 +134,9 @@ At any point if you want to see the available zapier commands and what they do, 
 ## Updating Changes to the App
 
 You can freely add any changes locally and test them locally as well. Once you have done enough local testing and wish to push your changes to the app
-on Zapier for testing, since errors can occur there unqiue to Zapier's site, you can do the following command `zapier push`. 
+on Zapier for testing, since errors can occur there unique to Zapier's site, you can do the following command `zapier push`. 
 
-DO NOT push the changed app as the same version as the live one unless the only changes are simple ones such as text or label changes. So, if the app is in version `1.0.2`, go into the `package.json` file and change the `version` key to a different number like `1.0.3`. If you push the app that still needs more testing that is currently used by users, you can potentially break things for them. 
+DO NOT push the changed app as the same version as the live one, if you have a live app currently being used by users, unless the only changes are simple ones such as text or label changes. So, if the app is in version `1.0.2`, go into the `package.json` file and change the `version` key to a different number like `1.0.3`. If you push the app that still needs more testing that is currently used by users, you can potentially break things for them. 
 
 Once you have changed the version number, run `zapier push`. You can view your app's versions at anytime with `zapier versions`. Make sure to change the `package.json` `version`
 key whenever you want to update versions separate from one another. You can delete app version at anytime with `zapier delete <version-number>`.
@@ -142,16 +150,15 @@ zapier promote <updated-app-version-number>
 zapier migrate <current-live-app-version-number> <updated-app-version-number> [% of users to migrate]
 ```
 
-Sometimes you do not want to migrate all of the users at once, since their Zaps can be in the process of running or the migration load
-may be too heavy. Doing this in intervals of 10-15% is best. Each migration can take 5-10 minutes, so be patient. Run `zapier help migrate` for more info.
+`zapier promote` simply promotes the app version for public access. For `zapier migrate`, sometimes you do not want to migrate all of the users at once, since their Zaps can be in the process of running or the migration load may be too heavy. Doing this in intervals of 10-15% is best. Each migration can take 5-10 minutes, so be patient. Run `zapier help migrate` for more info.
 
-To deprecate the old app, use the following command:
+To deprecate the old app and prevent any users from using broken versions, use the following command:
 
 ```bash
 zapier deprecate <old-app-version-number> <date-to-remove-old-app>
 ```
 
-Run `zapier help deprecate` on what exactly occurs when you deprecate an app and when it's best to use it. All the other commands for `zapier` are ones concerned with collaboration and inviting users, which can all be done from within Zapier's [site](https://zapier.com/developer/builder), so it's easier to deal with them there. You can still utilize them if you'd like.
+You may need to run `zapier migrate` a few times in advance before your app is deprecated. Some user's won't select the current app version, so you'll need to migrate them over before the old app version gets removed. Run `zapier help deprecate` on what exactly occurs when you deprecate an app and when it's best to use it. All the other commands for `zapier` are ones concerned with collaboration and inviting users, which can all be done from within Zapier's [site](https://zapier.com/developer/builder), so it's easier to deal with them there. You can still utilize them if you'd like.
 
 At any point if you want to see the available zapier commands and what they do, run `zapier help` or for more info on specific commands run
 `zapier help [command]`.

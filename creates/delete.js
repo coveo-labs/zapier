@@ -34,7 +34,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Organization ID',
-        dynamic: 'orgChoices.id.displayName', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
+        dynamic: 'orgChoices.id.displayName', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The ID of the organization within your platform.',
       },
       {
@@ -42,7 +42,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Source ID',
-        dynamic: 'orgSources.id.name', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
+        dynamic: 'orgSources.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The ID of the source inside of your organization. Must be chosen after the organization ID.',
       },
       {
@@ -57,7 +57,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Title of Document',
-        helpText: 'The title of the document being deleted. Only needed if you want more detailed output of this action.',
+        helpText: 'The title of the document ID being deleted. Only needed if you want more detailed output of this action.',
       },
     ],
     //Action function

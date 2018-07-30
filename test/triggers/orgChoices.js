@@ -59,14 +59,13 @@ describe('GET organizations', () => {
   });
 
 
-  it('Testing GET /organizations/[org]/sources/[source]/fields', function(done) {
+  it('Testing GET /organizations/[org]/indexes/page/fields', function(done) {
     const bundle = {
       authData: {
         access_token: process.env.ACCESS_TOKEN,
       },
       inputData: {
         orgId: process.env.TEST_ORG_ID,
-        sourceId: process.env.TEST_SOURCE_ID,
       },
     };
 

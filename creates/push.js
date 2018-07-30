@@ -48,7 +48,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Organization',
-        dynamic: 'orgChoices.id.displayName', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
+        dynamic: 'orgChoices.id.displayName', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The ID of the organization where your source is located.',
       },
       {
@@ -56,7 +56,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Source',
-        dynamic: 'orgSources.id.name', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
+        dynamic: 'orgSources.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The ID of the source in the organization you wish to push to. This can only be chosen after the organization ID.',
       },
       {
@@ -79,7 +79,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz (.tgz), and .tar.bz2 (.tbz2) are supported. The files in these archive files will be extracted and pushed to the source. Other archive file types besides these will have no content extracted. Only supply one url or file here, otherwise no content will be extracted.', 
+        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz (.tgz), and .tar.bz2 (.tbz2) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise no content will be extracted.', 
       },
       {
         key: 'data',
@@ -93,7 +93,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Field 1',
-        dynamic: 'sourceFields.id.name',
+        dynamic: 'sourceFields.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
       },
       {
@@ -108,7 +108,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Field 2',
-        dynamic: 'sourceFields.id.name',
+        dynamic: 'sourceFields.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
       },
       {
@@ -123,7 +123,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Field 3',
-        dynamic: 'sourceFields.id.name',
+        dynamic: 'sourceFields.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
       },
       {
