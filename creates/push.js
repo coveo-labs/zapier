@@ -14,7 +14,11 @@ const createNewPush = (z, bundle) => {
   bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
   bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
   bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
-  bundle.inputData['clickableuri'] = bundle.inputData.documentId;
+
+  if(!bundle.inputData.clickableuri){
+    bundle.inputData['clickableuri'] = bundle.inputData.documentId;
+  }
+
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   //Don't need these components of the bundle anymore after assigning the content of each field
@@ -65,7 +69,7 @@ module.exports = {
         type: 'string',
         label: 'Document ID',
         helpText:
-          'The ID of the document you want to use in the index. This MUST be in a url form. You can use the original url or create your own identifier like this: gmail://EMAIL_ID.',
+          'The ID of the document you want to use in the index. This MUST be in a url form. You can use the original url or create your own identifier like this: app-name://ID.',
       },
       {
         key: 'title',
@@ -73,6 +77,13 @@ module.exports = {
         type: 'string',
         label: 'Title of Submission',
         helpText: 'The title of the main submission to be displayed within the source content browser.',
+      },
+      {
+        key: 'clickableuri',
+        required: false,
+        type: 'string',
+        label: 'Url of the Document',
+        helpText: 'A url to the document. This is different from the document ID in that you can click it and it will always take you to the document from the url. If nothing is put here, the default url you can click will be the document ID.',
       },
       {
         key: 'content',

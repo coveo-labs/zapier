@@ -11,9 +11,11 @@ Before starting anything Zapier related, it will probably be helpful to brush up
 Head [here](https://platform.cloud.coveo.com/docs?api=Platform) for a refresher or to get antiquated with 
 Coveo API, as many different calls using the API are used within this project.
 
+You should also ensure you have the latest version of Node.js installed (this app was created with `v8.11.3`). If you don't have the most recent version of Node.js, go to the [main node.js site](https://nodejs.org/en/download/) to download the latest version. If you have some method to update locally on your command line, feel free, otherwise just download the correct package from the site.
+
 For general information regarding Zapier, follow this [link](https://zapier.com/developer/documentation/v2/) to their main
 documentation page. Since this is part of their CLI Interface, you may also find it useful to have [this](https://www.npmjs.com/package/zapier-platform-cli) or
-[this](https://zapier.github.io/zapier-platform-cli/cli.html) on hand.
+[this](https://zapier.github.io/zapier-platform-cli/cli.html) on hand. The main zapier [github](https://github.com/zapier/zapier-platform-cli) also has a very good description of all the components of the CLI as ell as example apps you can look at.
 
 In order to get a better grasp of the requirements for the CLI as well as how it functions, follow the first section, the setup portion, of this [tutorial](https://zapier.com/developer/start/introduction).
 You can follow the entire tutorial if you wish, but do not clone the Coveo app if you do, clone their example app instead.
@@ -27,12 +29,12 @@ git clone https://github.com/coveo-labs/zapier.git
 cd zapier
 npm install
 ```
-Now, you should have the app and all of it's dependencies installed in the directory. If the app failed to update on it's own, run the following commands to
+Now, you should have the app and all of it's dependencies installed in the directory. If the app failed to update or fully install on it's own, run the following commands to
 ensure the app is updated:
 
 ```bash
-sudo npm install zapier-platform-cli
-sudo npm install zapier-platform-core
+sudo npm install -g zapier-platform-cli
+sudo npm install -g zapier-platform-core
 ```
 The basics of setting up the app should be complete at this point. If any problems arose, diagnose them from the errors in the command line
 and resolve them.
@@ -43,8 +45,8 @@ Now, you'll want to register your own app on the website. Run the following comm
 zapier register "app-name"
 zapier push
 ```
-`zapier register` registers your app on the Zapier website, and `zapier push` pushes the contents of the app onto the site where your app is. After these two commands are done, you'll be able
-to configure your newly created app to work with Coveo. 
+`zapier register` registers your app on the Zapier website, and `zapier push` pushes the contents of the app onto the site where your app is. you can use the `zapier apps` command at anytime to see the apps you have registered with your account. After these two commands are done, you'll be able to configure your newly created app to work with Coveo. 
+DO NOT input the `zapier init .` command unless you want to completely erase the Coveo app content. Only do this when you're starting an app completely from scratch. If you wish to change the app in which your directory is linked to, you can run `zapier link` to get a list of apps you can link your current directory to. 
 
 At any point if you want to see the available zapier commands and what they do, run `zapier help` or for more info on specific commands run
 `zapier help [command]`.
@@ -116,6 +118,8 @@ If for any reason you are getting authentication errors about your `ACCESS_TOKEN
 
 ```bash
 export ACCESS_TOKEN=<coveo-source-api-key>
+export TEST_ORG_ID=<coveo-org-id>
+export TEST_SOURCE_ID=<coveo-source-id>
 ```
 
 Note: if you receive a timeout error, do not panic. The first run of the day will almost always timeout, and sometimes the network connections for the

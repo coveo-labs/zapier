@@ -27,12 +27,12 @@ const convertToZip = details => {
   //Will work for any tar archive file type with any compression type applied
   //This can be expanded upon in the future, but having all tar and zip files
   //available for all the content to be uploaded is a good start
-  const decompress = require('decompress');
+  const decompress = require('decompress'); //Look for alternative for getting all of the contents of all tar file types, as of now there are no good tar readers from a buffer, only local files
   const zip = require('node-native-zip'); //Consider swapping to this in the future: https://github.com/archiverjs/node-archiver
 
   //Create new zip archive, and decompress the contents
-  //of the supplied tar archive. This will fail if the tar isn't
-  //.gz, .bz2, or .tar.
+  //of the supplied tar archive. This will fail if the tar header is corrupt or not present.
+  //Supports .bz2, .gz, and .tar (decompress module doesn't support .Z and .xz/.lzma is bugged).
   let newArchive = new zip();
   const toConvert = decompress(archiveFile.content, {
     inputFile: archiveFile.content,

@@ -8,7 +8,6 @@ const deleteHandler = require('../resources/deleteHandler');
 //to Coveo, then handling the appropriate response content.
 const createDelete = (z, bundle) => {
 
-  bundle.inputData['clickableuri'] = bundle.inputData.documentId;
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   return deleteHandler.handleDeleteCreation(z, bundle);
