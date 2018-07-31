@@ -97,7 +97,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Plain Text',
-        helpText: 'The main content you want extracted into the source as plain text. This can be text of a file, some free text you input, an HTML body, or a mix of any of these. Use this if no files or urls for the File field are supplied and you want content to be extracted into your push source. If niether this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed into the source.', 
+        helpText: 'The main content you want extracted into the source as plain text. This can be text of a file, some free text you input, an HTML body, or a mix of any of these. Use this if no files or urls for the File field are supplied and you want content to be extracted into your push source. If neither this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed into the source.', 
       },
       {
         key: 'field1',
