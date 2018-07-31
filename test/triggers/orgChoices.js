@@ -77,7 +77,7 @@ describe('GET organizations', () => {
       let first = response[0];
       should.equal(Object.keys(first).length, 2);
       should.ok(first.id);
-      should.ok(first.fieldName);
+      should.ok(first.name);
 
       done();
     });

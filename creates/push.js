@@ -8,12 +8,6 @@ const _ = require('lodash');
 //a handoff to the pushHandler file to handle the creation of a push request, sending it
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
-  //Set the field names as properties and the values of these new properties
-  //to what the user put as the content for these fields. Not sure if there's a better
-  //way of doing this.
-  bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
-  bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
-  bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
 
   if(!bundle.inputData.clickableuri){
     bundle.inputData['clickableuri'] = bundle.inputData.documentId;
@@ -21,10 +15,17 @@ const createNewPush = (z, bundle) => {
 
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
+  //Set the field names as properties and the values of these new properties
+  //to what the user put as the content for these fields. Not sure if there's a better
+  //way of doing this.
+  bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
+  bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
+  bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
+
   //Don't need these components of the bundle anymore after assigning the content of each field
   //to the field name in the bundle, so remove them from the bundle and carry on.
   bundle.inputData = _.omit(bundle.inputData, ['field1', 'field2', 'field3', 'field1Content', 'field2Content', 'field3Content']);
-  
+
   //Move on to handling the push process
   return pushHandler.handlePushCreation(z, bundle);
 };
@@ -90,7 +91,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it is supplied, the content extraction does not fail, or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz (.tgz), and .tar.bz2 (.tbz2) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise no content will be extracted.', 
+        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it is supplied, the content extraction does not fail, or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz (.tgz), and .tar.bz2 (.tbz2) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise no content will be extracted.',
       },
       {
         key: 'data',
