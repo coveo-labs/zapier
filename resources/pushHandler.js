@@ -4,11 +4,10 @@ const push = require('../config').PUSH;
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
 const messages = require('../messages');
 const { handleError, fetchFile, findCompressionType, getStringByteSize } = require('../utils');
-const _ = require('lodash');
 
 //Regular expression checker for the 'data' property of a push being an html body or not.
 //This is needed to change the fileExtension of a html body supplied so it isn't indexed
-//as text and instead as an html body.
+//as text and instead as html.
 const RE_IS_HTML = /<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i;
 
 //The handler for creating a push request to Coveo. This function can be hard to follow, due
@@ -86,7 +85,7 @@ const processPush = (z, bundle) => {
   const promise = z.request({
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'PUT',
-    body: JSON.stringify(_.omit(bundle.inputData, ['documentId', 'orgId', 'sourceId'])),
+    body: JSON.stringify(bundle.inputData),
     params: {
       documentId: bundle.inputData.documentId,
     },
@@ -157,7 +156,6 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   //have been added to the batch.
   let firstBatchItem = {};
   Object.assign(firstBatchItem, bundle.inputData);
-  firstBatchItem = _.omit(firstBatchItem, 'orgId', 'sourceId');
   batchContent.addOrUpdate.push(firstBatchItem);
 
   fileContents.forEach((fileContent, i) => {
@@ -169,10 +167,6 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     //will be included for each item pushed (should always be this since
     //the first item pushed may be deleted if it has no valuable content).
     Object.assign(batchItem, bundle.inputData);
-
-    //No reason to keep the org and source id for the meta data,
-    //so remove them from the batch component.
-    batchItem = _.omit(batchItem, 'orgId', 'sourceId');
 
     //The first item of the batch hasn't been processed yet, only do these after
     //the first item is created. This is because these items require parent ID's
@@ -279,10 +273,6 @@ const uploadToContainer = (z, bundle, result) => {
             //will be included for each item pushed (should always be this since
             //the first item pushed may be deleted if it has no valuable content).
             Object.assign(uploadContent, bundle.inputData);
-
-            //No reason to keep the org and source id for the meta data,
-            //so remove them from the batch component.
-            uploadContent = _.omit(uploadContent, 'orgId', 'sourceId');
 
             //The first item of the batch hasn't been processed yet, only do these after
             //the first item is created. This is because these items require parent ID's

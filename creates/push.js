@@ -2,12 +2,13 @@
 
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
-const _ = require('lodash');
 
 //This creates needs to perform something when executed on the app. This functions is
 //a handoff to the pushHandler file to handle the creation of a push request, sending it
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
+
+  const _ = require('lodash');
 
   if(!bundle.inputData.clickableuri){
     bundle.inputData['clickableuri'] = bundle.inputData.documentId;
@@ -84,14 +85,14 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Url of the Document',
-        helpText: 'A url to the document. This is different from the document ID in that you can click it and it will always take you to the document from the url. If nothing is put here, the default url you can click will be the document ID.',
+        helpText: 'A url to the document. This is different from the document ID in that you can click it and it will always take you to the document from the url. You should use this field if you manually constructed the document ID. If nothing is put here, the default url you can click will be the content in the Document ID input field.',
       },
       {
         key: 'content',
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it is supplied, the content extraction does not fail, or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz (.tgz), and .tar.bz2 (.tbz2) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise no content will be extracted.',
+        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it is supplied, the content extraction does not fail, or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise extraction will fail.',
       },
       {
         key: 'data',

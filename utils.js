@@ -2,6 +2,7 @@
 
 const messages = require('./messages');
 const path = require('path');
+const lzma = require('lzma-native');
 
 //Simple function to handle an error occurring in a function that I didn't catch.
 //For instance, an error in grabbing the index of an array out of bounds would be caught by this.
@@ -11,6 +12,20 @@ const handleError = error => {
   }
 
   throw error;
+};
+
+const convertLZMA = details => {
+
+  const toConvert = lzma.decompress(details.content);
+
+  return toConvert.then((result) => {
+
+    details.content = result;
+
+    return convertToZip(details);
+
+  });
+
 };
 
 //This function is to allow for a few more types of archive files to be
@@ -172,6 +187,7 @@ const handleZip = details => {
       }
     });
 
+    console.log(addOrUpdate);
     return addOrUpdate;
   });
 };
@@ -240,22 +256,24 @@ const fetchFile = url => {
 
       //Zip file, send to handleZip to get content. The content type being zip or the bytes at the beginning being that of a zip will make sure a zip file is currently being processed.
       //This helps me detect compression/file types based upon bytes in the data buffer for the following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
-      if (type === '.zip' || (c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05))) {
+      if ((c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05))) {
         return handleZip(details);
 
         //These aren't supported tar compression types in the implementation. Throw an error telling them these aren't supported, 
-        //might change this later to just index with no content. For now, better to tell the user what they're trying to do is wrong and won't do anything valuable for them.
-      } else if(((c[0] === 0x1f && c[1] === 0x9d) || type.indexOf('.tar') > 0 && type === '.Z') || ((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00) || (type.indexOf('xz') > 0 && type === '.txz')) || ((type.indexOf('.tar') > 0 && type == '.lzma') || type === '.tlz')){
-        
+        //For now, better to tell the user what they're trying to do is wrong and won't do anything valuable for them.
+      } else if(c[0] === 0x1f && c[1] === 0x9d){
         throw new Error(messages.UNSUPPORTED_TAR);
 
         //This looks at bytes in the beginning of the buffers as well as the content type of the other supported tar archive files.
         //This tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar that are supported include: gzip, bz2, and no compression.
         //As far as I can tell, there's no good way of detecting tar compression types other than this, since sometimes the content type provided from the fetch will be an octet stream or object (which aren't helpful)
         //Don't want to look at content types here in terms of file extensions, since someone can easily name a file .tgz but it uses Z compression. No good way of detecting a .tar file from the buffer, since each one is unique depedning on the file contents.
-      } else if ((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68) || details.contentType === '.tar') {
+      } else if (((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00)) || lzma.decompress(c)){
+        return convertLZMA(details);
+
+      } else if ((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68) || type === '.tar') {
         return convertToZip(details);
-      }
+      } 
 
       //If neither the zip or tar cases picked up anything, this is some single file
       //type, like pdf, or a archive file type that isn't supported (in which no valuable content will be extracted in the source).
