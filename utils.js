@@ -105,10 +105,10 @@ const findCompressionType = (zipContent, uncompressedSize) => {
     compressionType = 'ZLIB';
   } else if (c[0] === 0x78 && (c[1] === 1 || c[1] === 0x9c || c[1] === 0xda)){
     compressionType = 'DEFLATE';
-  } else if (zipContent.contentType === '.lzma') {
-    compressionType = 'LZMA';
   } else if (zipContent.size === uncompressedSize) {
     compressionType = 'UNCOMPRESSED';
+  } else if (lzma.decompress(c)) {
+    compressionType = 'LZMA';
   }
 
   return compressionType;
