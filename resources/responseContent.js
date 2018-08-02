@@ -23,7 +23,6 @@ const getOrgInfoForOutput = (z, bundle) => {
     sourceType: '',
     sourceName: '',
     sourceOwner: '',
-    numFields: 0,
     numDocs: '',
     docSize: '',
     orgName: '',
@@ -76,18 +75,6 @@ const getOrgInfoForOutput = (z, bundle) => {
         outputInfo.numDocs = result.information.numberOfDocuments;
         //Make the bytes turn into something more appropriate (KB, MB ,etc.)
         outputInfo.docSize = pretty(result.information.documentsTotalSize);
-
-        //Fields of the source
-        result.mappings.forEach((mapping, idx) => {
-
-          let fieldNum = 'Field #' + (idx + 1) + ' Used as a Mapping in the Source';
-          outputInfo[fieldNum] = mapping.fieldName;
-
-          if(outputInfo[fieldNum] != '' || outputInfo[fieldNum] != null || outputInfo[fieldNum] != undefined){
-            outputInfo.numFields++;
-          }
-
-        });
 
         return outputInfo;
 

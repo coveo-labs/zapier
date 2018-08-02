@@ -8,24 +8,14 @@ const pushHandler = require('../resources/pushHandler');
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
 
-  const _ = require('lodash');
+  Object.assign(bundle.inputData, bundle.inputData.fields);
+  delete bundle.inputData.fields;
 
   if(!bundle.inputData.clickableuri){
     bundle.inputData['clickableuri'] = bundle.inputData.documentId;
   }
 
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
-
-  //Set the field names as properties and the values of these new properties
-  //to what the user put as the content for these fields. Not sure if there's a better
-  //way of doing this.
-  bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
-  bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
-  bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
-
-  //Don't need these components of the bundle anymore after assigning the content of each field
-  //to the field name in the bundle, so remove them from the bundle and carry on.
-  bundle.inputData = _.omit(bundle.inputData, ['field1', 'field2', 'field3', 'field1Content', 'field2Content', 'field3Content']);
 
   //Move on to handling the push process
   return pushHandler.handlePushCreation(z, bundle);
@@ -85,7 +75,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Url of the Document',
-        helpText: 'A url to the document. This is different from the document ID in that you can click it and it will always take you to the document from the url. You should use this field if you manually constructed the document ID. If nothing is put here, the default url you can click will be the content in the Document ID input field.',
+        helpText: 'A url to the document. This is different from the document ID as this field provides you a url to the file you can click and it will always take you to the document from the url. You should use this field if you manually constructed the document ID and you have urls available as input options. If nothing is put here, the default url you can click will be whatever you put in the Document ID input field.',
       },
       {
         key: 'content',
@@ -102,49 +92,11 @@ module.exports = {
         helpText: 'The main content you want extracted into the source as plain text. This can be text of a file, some free text you input, an HTML body, or a mix of any of these. Use this if no files or urls for the File field are supplied and you want content to be extracted into your push source. If neither this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed into the source.', 
       },
       {
-        key: 'field1',
+        key: 'fields',
         required: false,
-        type: 'string',
-        label: 'Field 1',
-        dynamic: 'sourceFields.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
-      },
-      {
-        key: 'field1Content',
-        required: false,
-        type: 'string',
-        label: 'Field 1 Content',
-        helpText: 'Any content you wish to assign to Field 1 when the push is made to the source.',
-      },
-      {
-        key: 'field2',
-        required: false,
-        type: 'string',
-        label: 'Field 2',
-        dynamic: 'sourceFields.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
-      },
-      {
-        key: 'field2Content',
-        required: false,
-        type: 'string',
-        label: 'Field 2 Content',
-        helpText: 'Any content you wish to assign to Field 1 when the push is made to the source.',
-      },
-      {
-        key: 'field3',
-        required: false,
-        type: 'string',
-        label: 'Field 3',
-        dynamic: 'sourceFields.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
-      },
-      {
-        key: 'field3Content',
-        required: false,
-        type: 'string',
-        label: 'Field 3 Content',
-        helpText: 'Any content you wish to assign to Field 1 when the push is made to the source.',
+        dict: true,
+        label: 'Fields',
+        helpText: 'Any fields you wish to map content to in your source. Put the name of the field in the smaller box on the left, then the content of that field you want mapped in the larger box on the right. Be careful when typing the field names, as the spelling must be exact and fields are case sensitive.',
       },
     ],
     //Action function

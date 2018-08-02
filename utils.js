@@ -2,7 +2,7 @@
 
 const messages = require('./messages');
 const path = require('path');
-const lzma = require('lzma-native');
+const isTar = require('is-tar'); //Found a way to determine tar file: https://github.com/kevva/is-tar
 
 //Simple function to handle an error occurring in a function that I didn't catch.
 //For instance, an error in grabbing the index of an array out of bounds would be caught by this.
@@ -14,20 +14,6 @@ const handleError = error => {
   throw error;
 };
 
-const convertLZMA = details => {
-
-  const toConvert = lzma.decompress(details.content);
-
-  return toConvert.then((result) => {
-
-    details.content = result;
-
-    return convertToZip(details);
-
-  });
-
-};
-
 //This function is to allow for a few more types of archive files to be
 //used instead of just a zip file. Includes tar and the tar extensions .tar.gz or .tar.bz2 (and their short hands).
 //This function takes the contents and transforms them into a zip file buffer, then
@@ -35,6 +21,12 @@ const convertLZMA = details => {
 //zipHandler method, since it uses JSZip which is very fast and useful for specific content extraction. This can be expanded upon in the future, but encompassing all archive
 //file types would be very labor intensive.
 const convertToZip = details => {
+
+  //Check if the tar header is good or exists then proceed
+  if(isTar(details.content) == false){
+    throw new Error(messages.BAD_TAR);
+  }
+
   let archiveFile = details;
 
   //This is all for decompressing the contents of the files
@@ -107,7 +99,7 @@ const findCompressionType = (zipContent, uncompressedSize) => {
     compressionType = 'DEFLATE';
   } else if (zipContent.size === uncompressedSize) {
     compressionType = 'UNCOMPRESSED';
-  } else if (lzma.decompress(c)) {
+  } else if (zipContent.filename.indexOf('.lzma') > 0 || zipContent.contentType === '.lzma') {
     compressionType = 'LZMA';
   }
 
@@ -187,7 +179,6 @@ const handleZip = details => {
       }
     });
 
-    console.log(addOrUpdate);
     return addOrUpdate;
   });
 };
@@ -251,7 +242,6 @@ const fetchFile = url => {
 
       // Using short names like 'c' and 'len' to improve readability in this case.
       const c = details.content;
-      const type = details.contentType;
       const len = c.length;
 
       //Zip file, send to handleZip to get content. The content type being zip or the bytes at the beginning being that of a zip will make sure a zip file is currently being processed.
@@ -260,20 +250,16 @@ const fetchFile = url => {
         return handleZip(details);
 
         //These aren't supported tar compression types in the implementation. Throw an error telling them these aren't supported, 
-        //For now, better to tell the user what they're trying to do is wrong and won't do anything valuable for them.
-      } else if(c[0] === 0x1f && c[1] === 0x9d){
+        //For now, better to tell the user what they're trying to do is wrong and won't do anything valuable for them. LZMA detection
+        //is difficult and currently no modules that do it work with Zapier
+      } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (details.contentType === '.txz' || details.filename.indexOf('.tar') > 0)) || (c[0] === 0x1f && c[1] === 0x9d && isTar(c)) || ((details.filename.indexOf('.tar') > 0 && details.contentType === '.lzma') || details.contentType === '.tlz')){
         throw new Error(messages.UNSUPPORTED_TAR);
 
-        //This looks at bytes in the beginning of the buffers as well as the content type of the other supported tar archive files.
+        //This looks at bytes in the beginning of the buffers as well as if it is a tar file.
         //This tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar that are supported include: gzip, bz2, and no compression.
-        //As far as I can tell, there's no good way of detecting tar compression types other than this, since sometimes the content type provided from the fetch will be an octet stream or object (which aren't helpful)
-        //Don't want to look at content types here in terms of file extensions, since someone can easily name a file .tgz but it uses Z compression. No good way of detecting a .tar file from the buffer, since each one is unique depedning on the file contents.
-      } else if (((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00)) || lzma.decompress(c)){
-        return convertLZMA(details);
-
-      } else if ((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68) || type === '.tar') {
+      } else if ((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08 && isTar(c)) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && isTar(c)) || isTar(c)) {
         return convertToZip(details);
-      } 
+      }
 
       //If neither the zip or tar cases picked up anything, this is some single file
       //type, like pdf, or a archive file type that isn't supported (in which no valuable content will be extracted in the source).
