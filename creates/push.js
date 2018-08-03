@@ -7,14 +7,14 @@ const pushHandler = require('../resources/pushHandler');
 //a handoff to the pushHandler file to handle the creation of a push request, sending it
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
-
   Object.assign(bundle.inputData, bundle.inputData.fields);
   delete bundle.inputData.fields;
 
-  if(!bundle.inputData.clickableuri){
-    bundle.inputData['clickableuri'] = bundle.inputData.documentId;
+  if (!bundle.inputData.clickableuri) {
+    // keep original url in clickableuri (if clickableuri isn't set already)
+    bundle.inputData.clickableuri = bundle.inputData.documentId;
   }
-
+  // sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   //Move on to handling the push process
@@ -60,8 +60,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText:
-          'The ID of the document you want to use in the index. This MUST be in a url form. You can use the original url or create your own identifier like this: app-name://ID.',
+        helpText: 'The ID of the document you want to use in the index. This MUST be in a url form. You can use the original url or create your own identifier like this: app-name://ID.',
       },
       {
         key: 'title',
@@ -75,28 +74,32 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Url of the Document',
-        helpText: 'A url to the document. This is different from the document ID as this field provides you a url to the file you can click and it will always take you to the document from the url. You should use this field if you manually constructed the document ID and you have urls available as input options. If nothing is put here, the default url you can click will be whatever you put in the Document ID input field.',
+        helpText:
+          'A url to the document. This is different from the document ID as this field provides you a url to the file you can click and it will always take you to the document from the url. You should use this field if you manually constructed the document ID and you have urls available as input options. If nothing is put here, the default url you can click will be whatever you put in the Document ID input field.',
       },
       {
         key: 'content',
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it is supplied, the content extraction does not fail, or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise extraction will fail.',
+        helpText:
+          'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it is supplied, the content extraction does not fail, or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise extraction will fail.',
       },
       {
         key: 'data',
         required: false,
         type: 'string',
         label: 'Plain Text',
-        helpText: 'The main content you want extracted into the source as plain text. This can be text of a file, some free text you input, an HTML body, or a mix of any of these. Use this if no files or urls for the File field are supplied and you want content to be extracted into your push source. If neither this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed into the source.', 
+        helpText:
+          'The main content you want extracted into the source as plain text. This can be text of a file, some free text you input, an HTML body, or a mix of any of these. Use this if no files or urls for the File field are supplied and you want content to be extracted into your push source. If neither this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed into the source.',
       },
       {
         key: 'fields',
         required: false,
         dict: true,
         label: 'Fields',
-        helpText: 'Any fields you wish to map content to in your source. Put the name of the field in the smaller box on the left, then the content of that field you want mapped in the larger box on the right. Be careful when typing the field names, as the spelling must be exact and fields are case sensitive.',
+        helpText:
+          'Any fields you wish to map content to in your source. Put the name of the field in the smaller box on the left, then the content of that field you want mapped in the larger box on the right. Be careful when typing the field names, as the spelling must be exact and fields are case sensitive.',
       },
     ],
     //Action function
