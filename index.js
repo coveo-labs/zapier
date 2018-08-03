@@ -37,7 +37,6 @@ const App = {
   triggers: {
     [orgChoices.key]: orgChoices,
     [orgSources.key]: orgSources,
-    [sourceFields.key]: sourceFields,
   },
 
   // If you want your searches to show up, you better include it here!

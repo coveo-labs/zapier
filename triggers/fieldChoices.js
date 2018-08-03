@@ -1,5 +1,8 @@
 'use strict';
 
+//Currently not needed, but is Zapier one day allows for drop down lists alongside of the dict property in
+//their input field declarations, this would make the app very simple to use.
+
 const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
 const message = require('../messages');

@@ -218,6 +218,7 @@ const fetchFile = url => {
         throw new Error(messages.BIG_FILE);
       }
 
+      //If disposition exists, makes getting this file info very easy/possible like this
       if (disposition) {
         details.filename = contentDisposition.parse(disposition).parameters.filename;
         details.contentType = path.extname(details.filename);
@@ -225,7 +226,7 @@ const fetchFile = url => {
 
       //The url Zapier supplies for files sometimes leaves the contentType blank or undefined. Not sure if
       //null is possible, so I put it in just to be safe.
-      if (details.contentType === 'undefined' || details.contentType === 'null' || details.contentType === '') {
+      if (details.contentType == undefined || details.contentType == null || details.contentType === '') {
         details.contentType =
           '.' +
           response.headers
@@ -233,8 +234,8 @@ const fetchFile = url => {
             .split('/')[1]
             .split(';')[0];
       }
-      //This is returning a promise, so the promise must be executed before filling
-      //the content of the file details with the file buffer.
+
+      //Return the promise/buffer of the file
       return response.buffer();
     })
     .then(content => {
@@ -244,25 +245,24 @@ const fetchFile = url => {
       const c = details.content;
       const len = c.length;
 
-      //Zip file, send to handleZip to get content. The content type being zip or the bytes at the beginning being that of a zip will make sure a zip file is currently being processed.
-      //This helps me detect compression/file types based upon bytes in the data buffer for the following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
+      //Zip file, send to handleZip to get content. This helps me detect compression/file types based upon bytes in the data buffer for the 
+      //following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
       if ((c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05))) {
         return handleZip(details);
 
-        //These aren't supported tar compression types in the implementation. Throw an error telling them these aren't supported, 
-        //For now, better to tell the user what they're trying to do is wrong and won't do anything valuable for them. LZMA detection
-        //is difficult and currently no modules that do it work with Zapier
+        //These aren't supported tar compression types in the implementation. Throw an error telling them these aren't supported, the file must have the compression and be tar. 
+        //No point in trying to index content that isn't valuable/possible. LZMA detection is difficult and currently no modules that do it work with Zapier
       } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (details.contentType === '.txz' || details.filename.indexOf('.tar') > 0)) || (c[0] === 0x1f && c[1] === 0x9d && isTar(c)) || ((details.filename.indexOf('.tar') > 0 && details.contentType === '.lzma') || details.contentType === '.tlz')){
         throw new Error(messages.UNSUPPORTED_TAR);
 
         //This looks at bytes in the beginning of the buffers as well as if it is a tar file.
-        //This tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar that are supported include: gzip, bz2, and no compression.
+        //This tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar that are supported include: gzip, bz2, and .tar.
       } else if ((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08 && isTar(c)) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && isTar(c)) || isTar(c)) {
         return convertToZip(details);
       }
 
       //If neither the zip or tar cases picked up anything, this is some single file
-      //type, like pdf, or a archive file type that isn't supported (in which no valuable content will be extracted in the source).
+      //type, like pdf, or a file type that isn't supported (in which no valuable content will be extracted in the source).
       return details;
     });
 };

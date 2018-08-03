@@ -58,28 +58,29 @@ describe('GET organizations', () => {
     });
   });
 
+  //Not needed for now, may delete
 
-  it('Testing GET /organizations/[org]/indexes/page/fields', function(done) {
-    const bundle = {
-      authData: {
-        access_token: process.env.ACCESS_TOKEN,
-      },
-      inputData: {
-        orgId: process.env.TEST_ORG_ID,
-      },
-    };
+  // it('Testing GET /organizations/[org]/indexes/page/fields', function(done) {
+  //   const bundle = {
+  //     authData: {
+  //       access_token: process.env.ACCESS_TOKEN,
+  //     },
+  //     inputData: {
+  //       orgId: process.env.TEST_ORG_ID,
+  //     },
+  //   };
 
-    appTester(App.triggers.sourceFields.operation.perform, bundle).then(response => {
-      should.ok(response);
-      should.ok(response.length > 0);
+  //   appTester(App.triggers.sourceFields.operation.perform, bundle).then(response => {
+  //     should.ok(response);
+  //     should.ok(response.length > 0);
 
-      // first object
-      let first = response[0];
-      should.equal(Object.keys(first).length, 2);
-      should.ok(first.id);
-      should.ok(first.name);
+  //     // first object
+  //     let first = response[0];
+  //     should.equal(Object.keys(first).length, 2);
+  //     should.ok(first.id);
+  //     should.ok(first.name);
 
-      done();
-    });
-  });
+  //     done();
+  //   });
+  // });
 });

@@ -26,10 +26,11 @@ describe('pushes', function() {
       },
       // Change this content to match your source and what you want to push when testing
       inputData: {
-        documentId: 'https://drive.google.com/a/uconn.edu/file/d/1gPn6hl5z8EJRYK_McgxgrmiDxsO7IS3-/preview?usp=drivesdk',
+        documentId: 'https://drive.google.com/a/uconn.edu/file/d/14Q_Ylp7ZnWX8ecObK6ipoDN0C2fDZLMM/preview?usp=drivesdk',
         title: 'Push Test',
-        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kDtvgzAUhf-Lh0whgG2MjRR1aYe26kPt1AkRczEEYxPb5Kn894LUtXc659OnO5wb6owPlZFQdjUqaCJwzkW-Rk0Hui5NNQAq5qIBrZFsQfZlDxdUpAxnmJKZWRPAhDJcxsV8n7X-VDnlUXFDk9Mza0MYfRHHtZVRwiOWRHPyG2Wt0jB5cH8_NtIOi-RjD3Jy4GXc9R7wftrTBJgaYRRjvtNE1H0DB-vMMc6O3LjjYb_bVQltOe4n2ViRZVql2lJ7jNOMEEwwT5aLU8IIpRwTmgkuklTwnP0D1adhrc6u_Onl6-e1fJPqrNzQPZ79R_78TaKHdpvSlKU5w4JxhhNCGaXZCra1PRltq3ql6m1w07JcY91QhXmL83VuoQt6GWuYdOgaq2twAXzYhMptZuF-_wXa5oAj:1flI08:meFBUA_5jXRNk7yFQXojXEDayxI/',
-        fields: {key: 'author', name: 'Bryan Arnold'},
+        // content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kD1PwzAURf-Lh05tYseu8yFVDFRICFqEhAR0iVL7JXXi2sF2WkrV_04isfKme4-O3nCvSBkfKiOgVBIVDOdJmuXpHNUKtCxNdQRUjEUDmiNxANGVHVxQQXiyTBgdmTUBTCjDpZ_M7ah158o1HhVXNDg9skMIvS_iWFqxIHjB8WJMPmqsbTQMHtzfj0jY4yT52IMYHHgRq85D0g4tw8CbHvq8T_ea5rKr4cs6c4q5oC1rRN10qqND2wwVObFUMa91xxmRMVlSSjHL8HQxoZwyliWULfMsxyTPUv4PZK_lp-7TnXn_yEC87J-46u16i--Ter173mzuDivCCCcpT3Ke8QRTxhlbzmAl7dloW8lZI1fBDdNytXXHKoxbfP-MLaigp7EerJbgHs1O9W_gQxQqF43C7fYLbUB-5Q:1flajI:ly-JRl7aWD1Jjn9ArM7HgRBNHUQ/',
+        fields: {author: 'Bryan Arnold', site: 'https://coveo.com/'},
+        data: 'testing',
         orgId: process.env.TEST_ORG_ID,
         sourceId: process.env.TEST_SOURCE_ID,
       },
