@@ -1,21 +1,15 @@
 # Coveo Zapier Integration
 
-This is the code for the integration of the Coveo Zap app on Zapier. It is capable of extracting the content
-of files or urls, then indexing that content into a specified push source on the Coveo Cloud Platform as either a
-single item push, or a batch. The batch push is currently limited to zip/tar files only along with optional plain text
-for any number of files sent, archive or not.
+This is the code for the integration of the Coveo Zap app on Zapier. It is capable of extracting the content of files or urls, then indexing that content into a specified push source on the Coveo Cloud Platform as either a single item push, or a batch. The batch push is currently limited to zip/tar files only along with optional plain text for any number of files sent, archive or not.
 
 ## Setting Up The App
 
-Before starting anything Zapier related, it will probably be helpful to brush up on some of Coveo's API. 
-Head [here](https://platform.cloud.coveo.com/docs?api=Platform) for a refresher or to get antiquated with 
-Coveo API, as many different calls using the API are used within this project.
+Before starting anything Zapier related, it will probably be helpful to brush up on some of Coveo's API.
+Head [here](https://platform.cloud.coveo.com/docs?api=Platform) for a refresher or to get antiquated with Coveo API, as many different calls using the API are used within this project.
 
 You should also ensure you have the latest version of Node.js installed (this app was created with `v8.11.3`). If you don't have the most recent version of Node.js, go to the [main node.js site](https://nodejs.org/en/download/) to download the latest version. If you have some method to update locally on your command line, feel free, otherwise just download the correct package from the site.
 
-For general information regarding Zapier, follow this [link](https://zapier.com/developer/documentation/v2/) to their main
-documentation page. Since this is part of their CLI Interface, you may also find it useful to have [this](https://www.npmjs.com/package/zapier-platform-cli) or
-[this](https://zapier.github.io/zapier-platform-cli/cli.html) on hand. The main zapier [github](https://github.com/zapier/zapier-platform-cli) also has a very good description of all the components of the CLI as ell as example apps you can look at.
+For general information regarding Zapier, follow this [link](https://zapier.com/developer/documentation/v2/) to their main documentation page. Since this is part of their CLI Interface, you may also find it useful to have [this](https://www.npmjs.com/package/zapier-platform-cli) or [this](https://zapier.github.io/zapier-platform-cli/cli.html) on hand. The main zapier [github](https://github.com/zapier/zapier-platform-cli) also has a very good description of all the components of the CLI as ell as example apps you can look at.
 
 In order to get a better grasp of the requirements for the CLI as well as how it functions, follow the first section, the setup portion, of this [tutorial](https://zapier.com/developer/start/introduction).
 You can follow the entire tutorial if you wish, but do not clone the Coveo app if you do, clone their example app instead.
@@ -29,15 +23,12 @@ git clone https://github.com/coveo-labs/zapier.git
 cd zapier
 npm install
 ```
-Now, you should have the app and all of it's dependencies installed in the directory. If the app failed to update or fully install on it's own, run the following commands to
-ensure the app is updated:
+Now, you should have the app and all of it's dependencies installed in the directory. If the app failed to update or fully install on it's own, run the following commands to ensure the app is updated:
 
 ```bash
 sudo npm install -g zapier-platform-cli
-sudo npm install -g zapier-platform-core
 ```
-The basics of setting up the app should be complete at this point. If any problems arose, diagnose them from the errors in the command line
-and resolve them.
+The basics of setting up the app should be complete at this point. If any problems arose, diagnose them from the errors in the command line and resolve them.
 
 Now, you'll want to register your own app on the website. Run the following commands in order to do so:
 
@@ -45,8 +36,8 @@ Now, you'll want to register your own app on the website. Run the following comm
 zapier register "app-name"
 zapier push
 ```
-`zapier register` registers your app on the Zapier website, and `zapier push` pushes the contents of the app onto the site where your app is. you can use the `zapier apps` command at anytime to see the apps you have registered with your account. After these two commands are done, you'll be able to configure your newly created app to work with Coveo. 
-DO NOT input the `zapier init .` command unless you want to completely erase the Coveo app content. Only do this when you're starting an app completely from scratch. If you wish to change the app in which your directory is linked to, you can run `zapier link` to get a list of apps you can link your current directory to. 
+`zapier register` registers your app on the Zapier website, and `zapier push` pushes the contents of the app onto the site where your app is. you can use the `zapier apps` command at anytime to see the apps you have registered with your account. After these two commands are done, you'll be able to configure your newly created app to work with Coveo.
+DO NOT input the `zapier init .` command unless you want to completely erase the Coveo app content. Only do this when you're starting an app completely from scratch. If you wish to change the app in which your directory is linked to, you can run `zapier link` to get a list of apps you can link your current directory to.
 
 At any point if you want to see the available zapier commands and what they do, run `zapier help` or for more info on specific commands run
 `zapier help [command]`.
@@ -61,7 +52,7 @@ Now you'll have to update any information that is specific to the Coveo App. Fir
  "PUSH": "push.cloud.coveo.com",
  "REDIRECT_URI": "https://zapier.com/dashboard/auth/oauth/return/APP-IDCLIAPI/"
 }
-``` 
+```
 
 Now, you will need to replace the `REDIRECT_URI` with the correct one. Run `zapier describe` on the command line to get the correct `REDIRECT_URI`.
 It will be located in the `Authentication` section of the output. Copy paste the url into the `REDIRECT_URI`
@@ -75,7 +66,7 @@ in `config.json`. Note: you must have a registered app on Zapier and have pushed
 }
 ```
 
-Finally, you'll want to tell Zapier what `CLIENT_ID` and `CLIENT_SECRET` to use when authenticating with Coveo. You will 
+Finally, you'll want to tell Zapier what `CLIENT_ID` and `CLIENT_SECRET` to use when authenticating with Coveo. You will
 also need the version number of the app. You can get the app version by running `zapier versions` on the command line. Get these client credentials
 and enter the following commands:
 
@@ -138,10 +129,9 @@ At any point if you want to see the available zapier commands and what they do, 
 
 ## Updating Changes to the App
 
-You can freely add any changes locally and test them locally as well. Once you have done enough local testing and wish to push your changes to the app
-on Zapier for testing, since errors can occur there unique to Zapier's site, you can do the following command `zapier push`. 
+You can freely add any changes locally and test them locally as well. Once you have done enough local testing and wish to push your changes to the app on Zapier for testing, since errors can occur there unique to Zapier's site, you can do the following command `zapier push`.
 
-DO NOT push the changed app as the same version as the live one, if you have a live app currently being used by users, unless the only changes are simple ones such as text or label changes. So, if the app is in version `1.0.2`, go into the `package.json` file and change the `version` key to a different number like `1.0.3`. If you push the app that still needs more testing that is currently used by users, you can potentially break things for them. 
+DO NOT push the changed app as the same version as the live one, if you have a live app currently being used by users, unless the only changes are simple ones such as text or label changes. So, if the app is in version `1.0.2`, go into the `package.json` file and change the `version` key to a different number like `1.0.3`. If you push the app that still needs more testing that is currently used by users, you can potentially break things for them.
 
 Once you have changed the version number, run `zapier push`. You can view your app's versions at anytime with `zapier versions`. Make sure to change the `package.json` `version`
 key whenever you want to update versions separate from one another. You can delete app version at anytime with `zapier delete <version-number>`.

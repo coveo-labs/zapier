@@ -182,7 +182,7 @@ const fetchFile = (z, url) => {
     contentType: '',
   };
 
-  
+
   return fetch(url)
     .then(response => {
 
@@ -227,12 +227,12 @@ const fetchFile = (z, url) => {
       const type = details.contentType;
       const name = details.filename;
 
-      //Zip file, send to handleZip to get content. This helps me detect compression/file types based upon bytes in the data buffer for the 
+      //Zip file, send to handleZip to get content. This helps me detect compression/file types based upon bytes in the data buffer for the
       //following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
       if ((c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) || type === '.zip') {
         return handleZip(details);
 
-        //These aren't supported tar compression types in the implementation. Throw an error telling them these aren't supported, the file must have the compression and be tar. 
+        //These aren't supported tar compression types in the implementation. Throw an error telling them these aren't supported, the file must have the compression and be tar.
         //No point in trying to index content that isn't valuable/possible. LZMA detection is difficult and currently no modules that do it work with Zapier
       } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (name.indexOf('.txz') > 0 || type === '.tar')) || (c[0] === 0x1f && c[1] === 0x9d && (type === '.tar' || name.indexOf('.Z') > 0)) || ((name.indexOf('.lzma') > 0 && type === '.tar') || (name.indexOf('.tlz') > 0 && type === '.tar'))){
         throw new Error(messages.UNSUPPORTED_TAR);
