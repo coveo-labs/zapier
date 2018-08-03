@@ -3,7 +3,7 @@
 const config = require('./config');
 const OAUTH_URL = `https://${config.PLATFORM}/oauth`;
 
-//Basic ouath2 used to get access/refresh tokens
+//Basic oauth2 used to get access/refresh tokens
 let basicToken = Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64');
 
 module.exports = {
@@ -18,7 +18,6 @@ module.exports = {
   // https://zapier.github.io/zapier-platform-cli/?utm_source=zapier.com&utm_medium=referral&utm_campaign=zapier#oauth2
 
   oauth2Config: {
-
     //Construct the authorization url that Coveo uses in order to grant access/refresh
     //tokens. The individual's redirect_uri must be found before this.
     authorizeUrl: {
@@ -56,10 +55,7 @@ module.exports = {
       method: 'POST',
       url: `${OAUTH_URL}/token`,
       body: {
-        code: '{{bundle.inputData.code}}',
-        client_id: process.env.CLIENT_ID,
-        client_secret: process.env.CLIENT_SECRET,
-        redirect_uri: config.REDIRECT_URI,
+        refresh_token: '{{bundle.authData.refresh_token}}',
         grant_type: 'refresh_token',
       },
       headers: {
