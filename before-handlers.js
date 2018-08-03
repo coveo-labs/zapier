@@ -8,11 +8,7 @@ const includeBearerToken = (request, z, bundle) => {
   //which never occurs in Coveo requests and always does in the AWS request called, the authorization header won't be made in the AWS request.
   if(bundle.authData.access_token && z.JSON.stringify(request.headers).includes('x-amz-server-side-encryption') === false){
 
-    //Avoid conflicts with authentication requests that require Basic auth
-    if(!request.headers.Authorization){
       request.headers.Authorization = `Bearer ${bundle.authData.access_token}`;
-    }
-
 
   }
 
