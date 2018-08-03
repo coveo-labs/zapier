@@ -7,7 +7,7 @@ const includeBearerToken = (request, z, bundle) => {
   // Zapier outbound requests (z.request) will always use this authorization. With Coveo, we always use Bearer, but using
   // AWS creates an error with an authorization header. So, whenever a request is made that includes 'x-amz-server-side-encryption',
   // which never occurs in Coveo requests and always does in the AWS request called, the authorization header won't be made in the AWS request.
-  if (!request.headers.Authorization && bundle.authData && bundle.authData.access_token && z.JSON.stringify(request.headers).includes('x-amz-server-side-encryption') === false) {
+  if (!request.headers.Authorization && bundle.authData && bundle.authData.access_token && !z.JSON.stringify(request.headers).includes('x-amz-server-side-encryption')) {
     request.headers.Authorization = `Bearer ${bundle.authData.access_token}`;
   }
 
