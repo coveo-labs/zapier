@@ -3,11 +3,11 @@
 const deleteResource = require('../resources/delete');
 const deleteHandler = require('../resources/deleteHandler');
 
-//This creates needs to perform something when executed on the app. This functions is
-//a handoff to the deleteHandler file to handle the creation of a delete request, sending it
+//This functions is a handoff to the deleteHandler file to handle the creation of a delete request, sending it
 //to Coveo, then handling the appropriate response content.
 const createDelete = (z, bundle) => {
 
+    // sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   return deleteHandler.handleDeleteCreation(z, bundle);

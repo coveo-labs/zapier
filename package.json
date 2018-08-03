@@ -24,6 +24,7 @@
     "is-tar": "^1.0.0",
     "jszip": "3.1.5",
     "lodash": "^4.17.10",
+    "mime-types": "^2.1.19",
     "node-native-zip": "^1.1.0",
     "prettysize": "^1.1.0",
     "zapier-platform-cli": "^7.1.0",

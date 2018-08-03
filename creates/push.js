@@ -3,10 +3,12 @@
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
 
-//This creates needs to perform something when executed on the app. This functions is
-//a handoff to the pushHandler file to handle the creation of a push request, sending it
+//This functions is a handoff to the pushHandler file to handle the creation of a push request, sending it
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
+  //Take the fields and put them into the bundle input data, then delete
+  //the fields key, since its content is in the bundle now there's no need to keep it
+  //as it's own object in the bundle.
   Object.assign(bundle.inputData, bundle.inputData.fields);
   delete bundle.inputData.fields;
 
@@ -96,7 +98,7 @@ module.exports = {
       {
         key: 'fields',
         required: false,
-        dict: true,
+        dict: true, //Creates input boxes for key value pairs, required for fields
         label: 'Fields',
         helpText:
           'Any fields you wish to map content to in your source. Put the name of the field in the smaller box on the left, then the content of that field you want mapped in the larger box on the right. Be careful when typing the field names, as the spelling must be exact and fields are case sensitive.',

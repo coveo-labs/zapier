@@ -1,3 +1,4 @@
+//Required files to be included in Zapier
 const DeleteResource = require('./resources/delete');
 const PushResource = require('./resources/push');
 const push = require('./creates/push');
@@ -5,7 +6,6 @@ const deletes = require('./creates/delete');
 const authentication = require('./authentication');
 const orgChoices = require('./triggers/orgChoices');
 const orgSources = require('./triggers/orgSources');
-const sourceFields = require('./triggers/fieldChoices');
 const {includeBearerToken} = require('./before-handlers');
 
 // Now we can roll up all our behaviors in an App.
@@ -23,7 +23,7 @@ const App = {
     includeBearerToken,
   ],
 
-  //Whenever a response from a request is obtained, you can add calls in here (may be useful for responseContent.js later on).
+  //Whenever a response from a request is obtained, you can add calls in here.
   afterResponse: [
   ],
 

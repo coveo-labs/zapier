@@ -4,6 +4,9 @@ const zapier = require('zapier-platform-core');
 const App = require('../../index');
 const appTester = zapier.createAppTester(App);
 
+//Tests for the dynamic drop down lists on the app. As long as these get
+//the info needed, they'll work on Zapier as well.
+
 describe('GET organizations', () => {
   before(function() {
     // Put your test ACCESS_TOKEN in a .env file.

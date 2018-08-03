@@ -6,32 +6,26 @@ const messages = require('../messages');
 const { handleError, fetchFile, findCompressionType, getStringByteSize } = require('../utils');
 
 //Regular expression checker for the 'data' property of a push being an html body or not.
-//This is needed to change the fileExtension of a html body supplied so it isn't indexed
-//as text and instead as html.
+//This is needed to change the fileExtension to html if needed. 
 const RE_IS_HTML = /<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i;
 
-//The handler for creating a push request to Coveo. This function can be hard to follow, due
-// to the number of calls to other functions.
+//The handler for creating a push request to Coveo.
 const handlePushCreation = (z, bundle) => {
-  //There is no content in the File input field, no file given, so there is no reason to fetch
-  //content from a url that doesn't exist.
+  //No file given, so there is no reason to fetch content from a url that doesn't exist.
   if (!bundle.inputData.content) {
     //There is no file in the bundle given, so remove the property and continue the process of
-    //sending a single item push request to Coveo. Removing from the bundle just simplifies to response
-    //generation later on and less tedious.
+    //sending a single item push request to Coveo.
     delete bundle.inputData.content;
     return processPush(z, bundle);
-  }
-  //Something was input into the File input field, so move on.
-  else {
+
+  } else {
     //Creation of a container on amazon to store file contents. This function
     //creates the container as well as uploads to it. Depending on what kind of file
-    //is detected when uploading, the process changes fom here. It can either upload all the contents
-    //of a supplied archive file type, or just one file. The 'data' property will also be indexed in the batch
-    //if supplied.
+    //is detected when fetching content, the uploading method changes slightly.
+    //See the uploading functions on how/why there's a difference
     const containerInfo = createContainer(z, bundle);
 
-    //return the creation and upload to amazon
+    //Return the creation and upload to amazon
     return containerInfo
       .then(result => {
         //Push file container into the source. this indexes the file contents.
@@ -61,10 +55,7 @@ const processBatchPush = (z, bundle, result) => {
         throw new Error('Error occurred sending batch push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
       }
 
-      ///Send to responseContent handler. Could be more detailed
-      //for each file sent, but that could be very overwhelming to the
-      //user and require more condition handlings in the code. Just
-      //giving them the normal response is sufficient enough.
+      ///Send to responseContent handler.
       return getOutputInfo(z, bundle);
     })
     .catch(handleError);
@@ -159,7 +150,6 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   batchContent.addOrUpdate.push(firstBatchItem);
 
   fileContents.forEach((fileContent, i) => {
-    //Empty batch component to be put into the batch
     let batchItem = {};
 
     //Scan through the bundle input information
@@ -194,9 +184,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   });
 
   //If the document has zip file supplied and no plain text, the first
-  //item in the batch is useless, as it will contain no data or file content.
-  //No point in keeping this, so remove it. Note: deleting from this components document ID
-  //will still work even if it isn't in the index (intended?).
+  //item in the batch is useless, as it will contain no data or file content, so remove it.
   if (!firstBatchItem.data) {
     batchContent.addOrUpdate.splice(0, 1);
   }
@@ -205,8 +193,9 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     firstBatchItem.fileExtension = '.html';
   }
 
-  //Amazon doesn't get mad about no content-length headers for this upload for some reason,
-  //very strange. This has potential to break in the future.
+  //Amazon doesn't get mad about no content-length headers for this upload,
+  //very strange. This has potential to break in the future. Don't put the header
+  //if it isn't needed. as the excess headers can also break this.
   let headers = result.requiredHeaders;
 
   //Send upload request to amazon
@@ -233,13 +222,13 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
 };
 
 //Function to handle the uploading of the file contents into
-//the container that was created.
+//the container that was created depending on the type of
+//file that content was fetched.
 const uploadToContainer = (z, bundle, result) => {
   const upload = {
     addOrUpdate: [],
   };
 
-  //Empty object that a batch will be put in if one exists
   let batchUpload = {};
   let file = bundle.inputData.content;
 
@@ -304,9 +293,7 @@ const uploadToContainer = (z, bundle, result) => {
           }
 
           //If the document has file supplied and no plain text, the first
-          //item in the batch is useless, as it will contain no data or file content.
-          //No point in keeping this, so remove it. Note: deleting from this component's document ID
-          //will still work even if it isn't in the index (intended?).
+          //item in the batch is useless, as it will contain no data or file content, so remove it.
           if (!upload.addOrUpdate[0].data) {
             delete upload.addOrUpdate[1].parentId;
             upload.addOrUpdate[1].documentId = bundle.inputData.documentId;
@@ -348,7 +335,7 @@ const uploadToContainer = (z, bundle, result) => {
       .then(() => {
         //If the batchUpload object has anything in it, then a zip/tar file
         //batch push was used instead of a single item push. If this is the case,
-        //return that object. Only need the file id of the container in order
+        //return that object by calling that upload handler. Only need the file id of the container in order
         //to continue from here, so just return that.
         if (Object.keys(batchUpload).length) {
           return batchUpload;
