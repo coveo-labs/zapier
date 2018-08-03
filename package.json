@@ -1,13 +1,13 @@
 {
   "name": "coveo-zap",
   "version": "1.0.1",
-  "description": "Index documents in a push source on your Coveo Cloud V2 Platform.",
+  "description": "Index documents into a push source on your Coveo Cloud V2 Platform.",
   "repository": "coveo-labs/zapier",
   "homepage": "https://coveo.com/",
   "author": "Bryan Arnold <barnold@coveo.com>",
   "contributors": [
-    "Peter McCormick <pmccormick@coveo.com>",
-    "Jerome Devost <jdevost@coveo.com>"
+    "Jerome Devost <jdevost@coveo.com>",
+    "Peter McCormick <pmccormick@coveo.com>"
   ],
   "license": "MIT",
   "main": "index.js",
@@ -15,14 +15,16 @@
     "test": "node node_modules/mocha/bin/mocha --recursive"
   },
   "engines": {
-    "node": "6.10.2",
-    "npm": ">=3.10.10"
+    "node": "8.11.3",
+    "npm": ">=5.6.0"
   },
   "dependencies": {
     "decompress": "^4.2.0",
     "eslint": "^5.2.0",
+    "is-tar": "^1.0.0",
     "jszip": "3.1.5",
     "lodash": "^4.17.10",
+    "mime-types": "^2.1.19",
     "node-native-zip": "^1.1.0",
     "prettysize": "^1.1.0",
     "zapier-platform-cli": "^7.1.0",

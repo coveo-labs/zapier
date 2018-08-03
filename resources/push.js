@@ -19,9 +19,8 @@ const outputFields = () => {
     {key: 'title', label: 'Pushed Document Title'},
     {key: 'content', label: 'File(s) Pushed'},
     {key: 'data', label: 'Plain Text Content'},
-    {key: 'numFields', label: 'Number of Fields the Source Uses as Mappings'},
     {key: 'docSize', label: 'Size of all the Documents in the Source'},
-    {key: 'clickableuri', label: 'Document URI'},
+    {key: 'clickableuri', label: 'Clickable Document URL'},
   ];
 
   return output;

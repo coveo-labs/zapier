@@ -4,41 +4,39 @@ const push = require('../config').PUSH;
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
 const messages = require('../messages');
 const { handleError, fetchFile, findCompressionType, getStringByteSize } = require('../utils');
-const _ = require('lodash');
 
+//Regular expression checker for the 'data' property of a push being an html body or not.
+//This is needed to change the fileExtension to html if needed. 
 const RE_IS_HTML = /<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i;
 
-
-//The handler for creating a push request to Coveo. This function can be hard to follow,
-//I'll do my best to explain how it operates.
+//The handler for creating a push request to Coveo.
 const handlePushCreation = (z, bundle) => {
-  //There is no content in the File input field, no file given, so there is no reason to fetch
-  //content from a url that doesn't exist. Indicate to the user that they didn't
-  //put anything in the field, and continue with the push.
+  //No file given, so there is no reason to fetch content from a url that doesn't exist.
   if (!bundle.inputData.content) {
     //There is no file in the bundle given, so remove the property and continue the process of
     //sending a single item push request to Coveo.
     delete bundle.inputData.content;
     return processPush(z, bundle);
-  }
-  //Something was input into the File input field, so move on.
-  else {
+
+  } else {
     //Creation of a container on amazon to store file contents. This function
-    //creates the container as well as uploads to it.
+    //creates the container as well as uploads to it. Depending on what kind of file
+    //is detected when fetching content, the uploading method changes slightly.
+    //See the uploading functions on how/why there's a difference
     const containerInfo = createContainer(z, bundle);
 
-    //return the creation and upload to amazon
+    //Return the creation and upload to amazon
     return containerInfo
       .then(result => {
-        //Push file container into the source.
+        //Push file container into the source. this indexes the file contents.
         return processBatchPush(z, bundle, result);
       })
       .catch(handleError);
   }
 };
 
-//The function for sending a file container push to Coveo. Used for pushes with more than 1 file
-// or a file along with plain text as a batch push.
+//The function for sending a file container push to Coveo. Used for pushes that have file contents extracted from them
+//or a file along with plain text as a batch push.
 const processBatchPush = (z, bundle, result) => {
   //Send request to Coveo
   const promise = z.request({
@@ -54,20 +52,17 @@ const processBatchPush = (z, bundle, result) => {
   return promise
     .then(response => {
       if (response.status !== 202) {
-        throw new Error('Error occured sending batch push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        throw new Error('Error occurred sending batch push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
       }
 
-      ///Send to responseContent handler. Could be more detailed
-      //for each file sent, but that could be very overwhelming to the
-      //user and require more condition handlings in the code. Just
-      //giving them the normal response is sufficient enough.
+      ///Send to responseContent handler.
       return getOutputInfo(z, bundle);
     })
     .catch(handleError);
 };
 
 //Function to send single item push to Coveo with no File input field.
-//Will upload plain text content and if niether plain text nor a file is supplied,
+//Will upload plain text content and if neither plain text nor a file is supplied,
 //this will not upload any valuable content.
 const processPush = (z, bundle) => {
   //Check for any HTML tags in the data if it exists, and change the fileExtension to
@@ -76,11 +71,12 @@ const processPush = (z, bundle) => {
     bundle.inputData.fileExtension = '.html';
   }
 
-  //Send request to Coveo
+  //Send request to Coveo, exclude the documentId, orgId, and sourceId from the body
+  //since these are only needed for the request url.
   const promise = z.request({
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'PUT',
-    body: JSON.stringify(_.omit(bundle.inputData, ['documentId', 'orgId', 'sourceId'])),
+    body: JSON.stringify(bundle.inputData),
     params: {
       documentId: bundle.inputData.documentId,
     },
@@ -94,13 +90,13 @@ const processPush = (z, bundle) => {
   return promise
     .then(response => {
       if (response.status !== 202) {
-        throw new Error('Error occured sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        throw new Error('Error occurred sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
       }
 
       //Don't need this for output info, so remove it
       delete bundle.inputData.fileExtension;
 
-      //send to responseContent handler
+      //Send to responseContent handler
       return getOutputInfo(z, bundle);
     })
     .catch(handleError);
@@ -151,11 +147,9 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   //have been added to the batch.
   let firstBatchItem = {};
   Object.assign(firstBatchItem, bundle.inputData);
-  firstBatchItem = _.omit(firstBatchItem, 'orgId', 'sourceId');
   batchContent.addOrUpdate.push(firstBatchItem);
 
   fileContents.forEach((fileContent, i) => {
-    //Empty batch component to be put into the batch
     let batchItem = {};
 
     //Scan through the bundle input information
@@ -164,17 +158,13 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     //the first item pushed may be deleted if it has no valuable content).
     Object.assign(batchItem, bundle.inputData);
 
-    //No reason to keep the org and source id for the meta data,
-    //so remove them from the batch component.
-    batchItem = _.omit(batchItem, 'orgId', 'sourceId');
-
     //The first item of the batch hasn't been processed yet, only do these after
     //the first item is created. This is because these items require parent ID's
     //and doc ID's dependent on the first item, so they cannot be made until the
     //first one is.
     if (batchContent.addOrUpdate.length >= 1) {
       delete batchItem.data;
-      batchItem.title = bundle.inputData.title + ' file #' + (i + 1) + ': ' + fileContent.filename;
+      batchItem.title = fileContent.filename;
       batchItem.fileExtension = fileContent.contentType;
       batchItem.compressedBinaryData = Buffer.from(fileContent.content).toString('base64');
       batchItem.compressionType = fileContent.compressionType;
@@ -194,9 +184,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   });
 
   //If the document has zip file supplied and no plain text, the first
-  //item in the batch is useless, as it will contain no data or file content.
-  //No point in keeping this, so remove it. Note: deleting from this components document ID
-  //will still work even if it isn't in the index (intended?).
+  //item in the batch is useless, as it will contain no data or file content, so remove it.
   if (!firstBatchItem.data) {
     batchContent.addOrUpdate.splice(0, 1);
   }
@@ -205,8 +193,9 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     firstBatchItem.fileExtension = '.html';
   }
 
-  //Amazon doesn't get mad about no content-length headers for this upload for some reason,
-  //very strange. This has potential to break in the future.
+  //Amazon doesn't get mad about no content-length headers for this upload,
+  //very strange. This has potential to break in the future. Don't put the header
+  //if it isn't needed. as the excess headers can also break this.
   let headers = result.requiredHeaders;
 
   //Send upload request to amazon
@@ -233,13 +222,13 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
 };
 
 //Function to handle the uploading of the file contents into
-//the container that was created.
+//the container that was created depending on the type of
+//file that content was fetched.
 const uploadToContainer = (z, bundle, result) => {
   const upload = {
     addOrUpdate: [],
   };
 
-  //Empty object that a batch will be put in if one exists
   let batchUpload = {};
   let file = bundle.inputData.content;
 
@@ -274,10 +263,6 @@ const uploadToContainer = (z, bundle, result) => {
             //the first item pushed may be deleted if it has no valuable content).
             Object.assign(uploadContent, bundle.inputData);
 
-            //No reason to keep the org and source id for the meta data,
-            //so remove them from the batch component.
-            uploadContent = _.omit(uploadContent, 'orgId', 'sourceId');
-
             //The first item of the batch hasn't been processed yet, only do these after
             //the first item is created. This is because these items require parent ID's
             //and doc ID's dependent on the first item, so they cannot be made until the
@@ -285,11 +270,11 @@ const uploadToContainer = (z, bundle, result) => {
             if (upload.addOrUpdate.length >= 1) {
 
               delete uploadContent.data;
-              uploadContent.title = bundle.inputData.title + ' file: ' + fileContents.filename;
+              uploadContent.title = fileContents.filename;
               uploadContent.fileExtension = fileContents.contentType;
               uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
               uploadContent.parentId = upload.addOrUpdate[contentNumber - 1].documentId;
-              uploadContent.documentId = bundle.inputData.documentId + '/file';
+              uploadContent.documentId = bundle.inputData.documentId + '/file1';
 
               // A single file sent can have a different compression type than just UNCOMPRESSED depending what the user
               // inputs into this field. So, check for it and change accordingly.
@@ -308,11 +293,8 @@ const uploadToContainer = (z, bundle, result) => {
           }
 
           //If the document has file supplied and no plain text, the first
-          //item in the batch is useless, as it will contain no data or file content.
-          //No point in keeping this, so remove it. Note: deleting from this component's document ID
-          //will still work even if it isn't in the index (intended?).
+          //item in the batch is useless, as it will contain no data or file content, so remove it.
           if (!upload.addOrUpdate[0].data) {
-            upload.addOrUpdate[1].title = fileContents.filename;
             delete upload.addOrUpdate[1].parentId;
             upload.addOrUpdate[1].documentId = bundle.inputData.documentId;
             upload.addOrUpdate.splice(0, 1);
@@ -353,7 +335,7 @@ const uploadToContainer = (z, bundle, result) => {
       .then(() => {
         //If the batchUpload object has anything in it, then a zip/tar file
         //batch push was used instead of a single item push. If this is the case,
-        //return that object. Only need the file id of the container in order
+        //return that object by calling that upload handler. Only need the file id of the container in order
         //to continue from here, so just return that.
         if (Object.keys(batchUpload).length) {
           return batchUpload;

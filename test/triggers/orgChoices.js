@@ -4,6 +4,9 @@ const zapier = require('zapier-platform-core');
 const App = require('../../index');
 const appTester = zapier.createAppTester(App);
 
+//Tests for the dynamic drop down lists on the app. As long as these get
+//the info needed, they'll work on Zapier as well.
+
 describe('GET organizations', () => {
   before(function() {
     // Put your test ACCESS_TOKEN in a .env file.
@@ -58,29 +61,29 @@ describe('GET organizations', () => {
     });
   });
 
+  //Not needed for now, may delete
 
-  it('Testing GET /organizations/[org]/sources/[source]/fields', function(done) {
-    const bundle = {
-      authData: {
-        access_token: process.env.ACCESS_TOKEN,
-      },
-      inputData: {
-        orgId: process.env.TEST_ORG_ID,
-        sourceId: process.env.TEST_SOURCE_ID,
-      },
-    };
+  // it('Testing GET /organizations/[org]/indexes/page/fields', function(done) {
+  //   const bundle = {
+  //     authData: {
+  //       access_token: process.env.ACCESS_TOKEN,
+  //     },
+  //     inputData: {
+  //       orgId: process.env.TEST_ORG_ID,
+  //     },
+  //   };
 
-    appTester(App.triggers.sourceFields.operation.perform, bundle).then(response => {
-      should.ok(response);
-      should.ok(response.length > 0);
+  //   appTester(App.triggers.sourceFields.operation.perform, bundle).then(response => {
+  //     should.ok(response);
+  //     should.ok(response.length > 0);
 
-      // first object
-      let first = response[0];
-      should.equal(Object.keys(first).length, 2);
-      should.ok(first.id);
-      should.ok(first.fieldName);
+  //     // first object
+  //     let first = response[0];
+  //     should.equal(Object.keys(first).length, 2);
+  //     should.ok(first.id);
+  //     should.ok(first.name);
 
-      done();
-    });
-  });
+  //     done();
+  //   });
+  // });
 });

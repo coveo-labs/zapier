@@ -1,12 +1,15 @@
 'use strict';
 
+//Currently not needed, but if Zapier one day allows for drop down lists alongside of the dict property in
+//their input field declarations, this would make the app very simple to use.
+
 const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
 const message = require('../messages');
 
 //This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
-//without the trigger actual showing up in the app. This allows me to create dynamic dropdowns for the input users
-//have to input for fields to push content to. This reduces errors and is a much better user experience. This specific function
+//without the trigger actual showing up in the app. This allows me to create dynamic drop downs for the input users
+//can use to get choices instead of manually inputting some information. This specific function
 //gets the fields used by a specific source, fills the input value with the field name, and displays the field name in a readable format.
 const perform = (z, bundle) => {
 
@@ -22,7 +25,7 @@ const perform = (z, bundle) => {
     .then(response => {
       if (response.status >= 400) {
         throw new Error(
-          'Error getting field choices for dropdown. Please ensure the source and organization IDs have been selected already: ' +
+          'Error getting field choices for the drop down. Please ensure the source and organization IDs have been selected already: ' +
             z.JSON.parse(response.content).message +
             ' Error Code: ' +
             response.status
@@ -36,11 +39,10 @@ const perform = (z, bundle) => {
         results = [];
       }
 
-      //Only want the ids and names of the fields from this call. If the field has
-      //already been selected in another input box, ignore it, otherwise grab it.
+      //Only want the ids and names of the fields from this call.
       results = results.map(r => ({ id: r.name, name: r.name }));
 
-      //Check to make sure that fields exist in the source as mappings,
+      //Check to make sure that fields exist in the source,
       //if not throw an error to the user.
       if (!results.length) {
         throw new Error(message.NO_FIELDS);
@@ -57,7 +59,7 @@ module.exports = {
 
   display: {
     label: 'List of Fields in source',
-    description: 'Hidden trigger in the app responsible for dynamic dropdown',
+    description: 'Hidden trigger in the app responsible for dynamic drop down',
     hidden: true, //Makes the trigger hidden. Don't remove.
   },
 

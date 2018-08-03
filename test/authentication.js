@@ -4,6 +4,9 @@ const zapier = require('zapier-platform-core');
 const App = require('../index');
 const appTester = zapier.createAppTester(App);
 
+//Tests for making sure the authentication process is working. Tests getting
+//an access_token, using it, and get a refresh token.
+
 describe('basic authentication', () => {
   before(function() {
     // Put your test ACCESS_TOKEN in a .env file.

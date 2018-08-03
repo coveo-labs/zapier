@@ -7,9 +7,6 @@ const platform = require('../config').PLATFORM;
 //when they want to use information from Coveo actions on other apps on Zapier.
 //Since we do not return anything useful other than the input information in our
 //responses...manually construct the response content with other calls to Coveo.
-//Putting the details of the file could be beneficial here if they pushed some file,
-//but this could create huge output if they sent 50 files (the maximum number),
-//so perhaps the base file only in the output?
 const getOrgInfoForOutput = (z, bundle) => {
 
   //Make bytes more readable and understandable
@@ -23,7 +20,6 @@ const getOrgInfoForOutput = (z, bundle) => {
     sourceType: '',
     sourceName: '',
     sourceOwner: '',
-    numFields: 0,
     numDocs: '',
     docSize: '',
     orgName: '',
@@ -76,18 +72,6 @@ const getOrgInfoForOutput = (z, bundle) => {
         outputInfo.numDocs = result.information.numberOfDocuments;
         //Make the bytes turn into something more appropriate (KB, MB ,etc.)
         outputInfo.docSize = pretty(result.information.documentsTotalSize);
-
-        //Fields of the source
-        result.mappings.forEach((mapping, idx) => {
-
-          let fieldNum = 'Field #' + (idx + 1) + ' Used By the Source';
-          outputInfo[fieldNum] = mapping.fieldName;
-
-          if(outputInfo[fieldNum] != '' || outputInfo[fieldNum] != null || outputInfo[fieldNum] != undefined){
-            outputInfo.numFields++;
-          }
-
-        });
 
         return outputInfo;
 

@@ -2,25 +2,23 @@
 
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
-const _ = require('lodash');
 
-//This creates needs to perform something when executed on the app. This functions is
-//a handoff to the pushHandler file to handle the creation of a push request, sending it
+//This functions is a handoff to the pushHandler file to handle the creation of a push request, sending it
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
-  //Set the field names as properties and the values of these new properties
-  //to what the user put as the content for these fields. Not sure if there's a better
-  //way of doing this.
-  bundle.inputData[bundle.inputData.field1] = bundle.inputData.field1Content;
-  bundle.inputData[bundle.inputData.field2] = bundle.inputData.field2Content;
-  bundle.inputData[bundle.inputData.field3] = bundle.inputData.field3Content;
-  bundle.inputData['clickableuri'] = bundle.inputData.documentId;
+  //Take the fields and put them into the bundle input data, then delete
+  //the fields key, since its content is in the bundle now there's no need to keep it
+  //as it's own object in the bundle.
+  Object.assign(bundle.inputData, bundle.inputData.fields);
+  delete bundle.inputData.fields;
+
+  if (!bundle.inputData.clickableuri) {
+    // keep original url in clickableuri (if clickableuri isn't set already)
+    bundle.inputData.clickableuri = bundle.inputData.documentId;
+  }
+  // sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
-  //Don't need these components of the bundle anymore after assigning the content of each field
-  //to the field name in the bundle, so remove them from the bundle and carry on.
-  bundle.inputData = _.omit(bundle.inputData, ['field1', 'field2', 'field3', 'field1Content', 'field2Content', 'field3Content']);
-  
   //Move on to handling the push process
   return pushHandler.handlePushCreation(z, bundle);
 };
@@ -48,7 +46,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Organization',
-        dynamic: 'orgChoices.id.displayName', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
+        dynamic: 'orgChoices.id.displayName', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The ID of the organization where your source is located.',
       },
       {
@@ -56,7 +54,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Source',
-        dynamic: 'orgSources.id.name', //For user input and dynamic dropdown. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
+        dynamic: 'orgSources.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
         helpText: 'The ID of the source in the organization you wish to push to. This can only be chosen after the organization ID.',
       },
       {
@@ -64,74 +62,46 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText:
-          'The ID of the document you want to use in the index. This MUST be in a url form. You can use the original url or create your own identifier like this: gmail://EMAIL_ID.',
+        helpText: 'The ID of the document you want to use in the index. This MUST be in a url form. You can use the original url or create your own identifier like this: app-name://ID.',
       },
       {
         key: 'title',
         required: true,
         type: 'string',
         label: 'Title of Submission',
-        helpText: 'The title of the content to be displayed within the source content browser.',
+        helpText: 'The title of the main submission to be displayed within the source content browser.',
+      },
+      {
+        key: 'clickableuri',
+        required: false,
+        type: 'string',
+        label: 'Url of the Document',
+        helpText:
+          'A url to the document. This is different from the document ID as this field provides you a url to the file you can click and it will always take you to the document from the url. You should use this field if you manually constructed the document ID and you have urls available as input options. If nothing is put here, the default url you can click will be whatever you put in the Document ID input field.',
       },
       {
         key: 'content',
         required: false,
         type: 'string',
         label: 'File',
-        helpText: 'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it does not fail or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz (.tgz), and .tar.bz2 (.tbz2) are supported. The files in these archive files will be extracted and pushed to the source. Other archive file types besides these will have no content extracted. Only supply one url or file here, otherwise no content will be extracted.', 
+        helpText:
+          'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it is supplied, the content extraction does not fail, or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise extraction will fail.',
       },
       {
         key: 'data',
         required: false,
         type: 'string',
         label: 'Plain Text',
-        helpText: 'The main content you want extracted into the source as plain text. This can be text of a file, some free text you input, an HTML body, or a mix of any of these. Use this if no files or urls for the File field are supplied and you want content to be extracted into your push source. If niether this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed into the source.', 
+        helpText:
+          'The main content you want extracted into the source as plain text. This can be text of a file, some free text you input, an HTML body, or a mix of any of these. Use this if no files or urls for the File field are supplied and you want content to be extracted into your push source. If neither this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed into the source.',
       },
       {
-        key: 'field1',
+        key: 'fields',
         required: false,
-        type: 'string',
-        label: 'Field 1',
-        dynamic: 'sourceFields.id.name',
-        helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
-      },
-      {
-        key: 'field1Content',
-        required: false,
-        type: 'string',
-        label: 'Field 1 Content',
-        helpText: 'Any content you wish to assign to Field 1 when the push is made to the source.',
-      },
-      {
-        key: 'field2',
-        required: false,
-        type: 'string',
-        label: 'Field 2',
-        dynamic: 'sourceFields.id.name',
-        helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
-      },
-      {
-        key: 'field2Content',
-        required: false,
-        type: 'string',
-        label: 'Field 2 Content',
-        helpText: 'Any content you wish to assign to Field 1 when the push is made to the source.',
-      },
-      {
-        key: 'field3',
-        required: false,
-        type: 'string',
-        label: 'Field 3',
-        dynamic: 'sourceFields.id.name',
-        helpText: 'The name of a field that is present in your organization. You must choose the source ID and organization ID first to see these options.',
-      },
-      {
-        key: 'field3Content',
-        required: false,
-        type: 'string',
-        label: 'Field 3 Content',
-        helpText: 'Any content you wish to assign to Field 1 when the push is made to the source.',
+        dict: true, //Creates input boxes for key value pairs, required for fields
+        label: 'Fields',
+        helpText:
+          'Any fields you wish to map content to in your source. Put the name of the field in the smaller box on the left, then the content of that field you want mapped in the larger box on the right. Be careful when typing the field names, as the spelling must be exact and fields are case sensitive.',
       },
     ],
     //Action function

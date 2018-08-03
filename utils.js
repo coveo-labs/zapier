@@ -2,36 +2,36 @@
 
 const messages = require('./messages');
 const path = require('path');
+const isTar = require('is-tar');
 
-//Simple function to handle an error occuring in a function that I didn't catch.
-//For instance, an error in grabbing the index of an array out of bounds would be caught by this.
+//Simple function to handle an error occurring in a function that I didn't explicitly catch.
 const handleError = error => {
   if (typeof error === 'string') {
-    throw new Error('Error occured during processing: ' + error);
+    throw new Error('Error occurred during processing: ' + error);
   }
 
   throw error;
 };
 
-//This function is to allow for a few more types of archive files to be
-//used instead of just a zip file. Includes tar and the tar extensions .tar.gz or .tar.bz2 (and their short hands).
-//This function takes the contents and transforms them into a zip file buffer, then
-//sends off to the zip file handler to process. It'd be a waste to completely erase the
-//zipHandler method, since it uses JSZip which is very fast and useful for specific content extraction. This can be expanded upon in the future, but encompassing all archive
-//file types would be very labor intensive.
+//This function is to allow for a few more types of archive files to be used instead of just a zip file. Includes tar and the tar extensions .tar.gz or .tar.bz2 (and their short hands).
+//This function takes the contents and transforms them into a zip file buffer, then sends off to the zip file handler to process. It'd be a waste to completely erase the
+//zipHandler method, since it uses JSZip which is very fast and useful. This can be expanded upon in the future, but encompassing all archive file types would be very labor intensive.
 const convertToZip = details => {
+
+  //Check if the tar header is good or exists then proceed
+  if( !isTar(details.content) ){
+    throw new Error(messages.BAD_TAR);
+  }
+
   let archiveFile = details;
 
-  //This is all for decompressing the contents of the files
-  //See: https://www.npmjs.com/package/decompress
-  //Will work for any tar archive file type with any compression type applied
-  //This can be expanded upon in the future, but having all tar and zip files
-  //available for all the content to be uploaded is a good start
-  const decompress = require('decompress');
+  //This is all for decompressing the contents of the files See: https://www.npmjs.com/package/decompress
+  const decompress = require('decompress'); //Look for alternative for getting all of the contents of all tar file types, as of now there are no good tar readers from a buffer, only local files
   const zip = require('node-native-zip'); //Consider swapping to this in the future: https://github.com/archiverjs/node-archiver
 
-  //Create new zip archive, and decompress the contents. The plugins are
-  //checkers that alter the function depending on the archive file type.
+  //Create new zip archive, and decompress the contents
+  //of the supplied tar archive. This will fail if the tar header is corrupt or not present.
+  //Supports .bz2, .gz, and .tar (decompress module doesn't support .Z and .xz/.lzma is bugged).
   let newArchive = new zip();
   const toConvert = decompress(archiveFile.content, {
     inputFile: archiveFile.content,
@@ -63,46 +63,50 @@ const convertToZip = details => {
   });
 };
 
+//This is a function to determine the type of compression used on a file. If none of these are detected, it will be indexed with whichever default it gets.
+// If the data is in a zip but not compressed, give it the uncompressed data compression, otherwise it is deflate for zip. Check the first few bits to see if other algorithms used
+//otherwise default to either uncompressed or deflate. If no uncompressedSize is provided in the parameters, a zip file content is being looked at, so default to deflate, otherwise default uncompressed.
+// Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe for compression detecting
 const findCompressionType = (zipContent, uncompressedSize) => {
-  // If the data is in a zip but not compressed, give it the uncompressed data compression,
-  // otherwise it is deflate for zip. Check the first few bits to see if other algorithms used
-  //otherwise default to either uncompressed or deflate. If no uncompressedSize is provided in the parameters, a zip file content is being looked at, so default to deflate, otherwise default uncompressed.
-  // Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
-  //Needed as files can be compressed differently within the same zip, depending on how the archive file was made. 
-  //So, if anything, this is a backup case for the files inside.  DEFLATE last as it is the last possible valid compression type Coveo allows wihtin a zip file, throw an error otherwise.
 
+  //Default
   let compressionType = 'UNCOMPRESSED';
 
+  //If coming from a zipHandler, default to deflate instead
   if(uncompressedSize){
     compressionType = 'DEFLATE';
   }
 
   const c = zipContent.content;
 
+  //Check first few bytes of the buffer to get compression, except LZMA
+  //as the structure for these isn't very consistent globally to check for each time
+  //and is very taxing to determine without a handy module.
   if (c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) {
     compressionType = 'GZIP';
   } else if ((c[0] * 256 + c[1]) % 31 === 0) {
     compressionType = 'ZLIB';
   } else if (c[0] === 0x78 && (c[1] === 1 || c[1] === 0x9c || c[1] === 0xda)){
     compressionType = 'DEFLATE';
-  } else if (zipContent.contentType === '.lzma') {
-    compressionType = 'LZMA';
   } else if (zipContent.size === uncompressedSize) {
     compressionType = 'UNCOMPRESSED';
+  } else if (zipContent.filename.indexOf('.lzma') > 0 || zipContent.contentType === '.lzma') {
+    compressionType = 'LZMA';
   }
 
   return compressionType;
 
 };
 
-//This is the handler for extracting all the files within a zip file. Extracts the files important features
-// for pushing to Coveo (sizes, content of files, file types, file names).
+//This is the handler for extracting all the files within a zip file or converted tar file. Extracts the files important features
+//for pushing to Coveo (sizes, content of files, file types, file names).
 const handleZip = details => {
   const addOrUpdate = [];
 
   const JSZIP = require('jszip');
   const zip = new JSZIP();
 
+  //Get the contents of the zip buffer to get the details
   const zipFile = zip.loadAsync(details.content);
 
   return zipFile.then(zip => {
@@ -116,14 +120,15 @@ const handleZip = details => {
     let fileCount = 0;
     let totalFileSize = 0;
 
+    //Iterate through each file in the zip
     names.forEach(name => {
       let zipContent = {};
 
+      // These files are macOS dependent and don't have any valuable content for Coveo to extract, so ignore them.
       if (name.indexOf('__MACOSX/') > -1) {
-        // These files are macOS dependent and don't have any valuable content for Coveo to extract, so ignore them.
-      } else if (zip.files[name].dir) {
         // Also ignore folders within the zip file, just want their contents not the folders themselves, but keep folder names
         // to help alter the file names within it.
+      } else if (zip.files[name].dir) {
         folderNames.unshift(name);
       } else {
         //Extract important details for the files here
@@ -142,7 +147,7 @@ const handleZip = details => {
         fileCount++;
 
         //Set limit on number of documents that a zip file can contain in order to avoid
-        //customers sending hundreds of files at once and crashing services. Currently set at 50.
+        //customers sending tons of files at once. Currently set at 50.
         if (fileCount > 50) {
           throw new Error(messages.TOO_MANY_FILES);
         }
@@ -156,14 +161,10 @@ const handleZip = details => {
           }
         });
 
-        //Sometimes extensions for files can be screwed up by how Zapier handles zip files. Not sure if
-        //null is possible, so I put it in just to be safe.
-        if (zipContent.contentType === 'undefined' || zipContent.contentType === 'null' || zipContent.contentType === '') {
-          zipContent.contentType = '.' + name.split('/')[1].split(';')[0];
-        }
-
+        //Get the compression type of the individual file in the zip file
         zipContent.compressionType = findCompressionType(zipContent, zip.files[name]._data.uncompressedSize);
 
+        //Push the file information into the array to be handled later
         addOrUpdate.push(zipContent);
       }
     });
@@ -173,12 +174,13 @@ const handleZip = details => {
 };
 
 //Default method to extract content sent from Zapier. Will extract the file content using fetch (since everything
-//Zapier sends is in the form of a url). If a bad fetch occurs, fails or incorrect url, a flag will indicate for later functions to handle.
+//Zapier sends is in the form of a url for files, or urls in general).
 //Returns the file content as a buffer, file name, file type, and file size if all goes well. If zip file sent, see handleZip for how it
-//is dealt with.
+//is dealt with. See convertToZip on how the supported tar files are handled.
 const fetchFile = url => {
   const fetch = require('node-fetch');
   const contentDisposition = require('content-disposition');
+  const mime = require('mime-types');
 
   const details = {
     filename: '',
@@ -187,15 +189,18 @@ const fetchFile = url => {
     contentType: '',
   };
 
+
   return fetch(url)
     .then(response => {
-      //If the url given is redirected to another place, doesn;t match the given url, or contains link, the given file url
+
+      //If the url given is redirected to another place, doesn't match the given url, or contains link, the given file url
       //wasn't the url content was extracted from. So, throw the bad fetch error.
-      if ((response.headers.get('link') || response.url !== url || response.headers.get('www-authenticate'))) {
+      if ((response.headers.get('link') || response.url != url || response.headers.get('www-authenticate'))) {
         throw new Error(messages.BAD_FETCH);
       }
 
       details.size = response.headers.get('content-length');
+      details.contentType = '.' + mime.extension(response.headers.get('content-type'));
       const disposition = response.headers.get('content-disposition');
 
       //The file is too big (100 MB for now), throw an error telling
@@ -204,23 +209,18 @@ const fetchFile = url => {
         throw new Error(messages.BIG_FILE);
       }
 
+      //If disposition exists, makes getting this file info very easy/possible like this
       if (disposition) {
         details.filename = contentDisposition.parse(disposition).parameters.filename;
-        details.contentType = path.extname(details.filename);
       }
 
       //The url Zapier supplies for files sometimes leaves the contentType blank or undefined. Not sure if
       //null is possible, so I put it in just to be safe.
-      if (details.contentType === 'undefined' || details.contentType === 'null' || details.contentType === '') {
-        details.contentType =
-          '.' +
-          response.headers
-            .get('content-type')
-            .split('/')[1]
-            .split(';')[0];
+      if (details.contentType == undefined || details.contentType == null || details.contentType === '') {
+        details.contentType = '.' + path.extname(details.filename);
       }
-      //This is returning a promise, so the promise must be executed before filling
-      //the content of the file details with the file buffer.
+
+      //Return the promise/buffer of the file
       return response.buffer();
     })
     .then(content => {
@@ -228,34 +228,31 @@ const fetchFile = url => {
 
       // Using short names like 'c' and 'len' to improve readability in this case.
       const c = details.content;
-      const type = details.contentType;
       const len = c.length;
 
-      //Zip file, send to handleZip to get content. The content type being zip or the bytes at the beginning being that of a zip will make sure a zip file is currently being processed.
-      //This helps me detect compression/file types based upon bytes in the data buffer: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
-      if (type === '.zip' || (c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05))) {
+      //Zip file, send to handleZip to get content. This helps me detect compression/file types based upon bytes in the data buffer for the
+      //following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
+      if ((c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) || details.contentType === '.zip') {
         return handleZip(details);
 
-        //These aren't supported tar compression types in the implementation, so just return what file details were grabbed and
-        //push into the source. Throw an error telling them these aren't supported, might change this later to just index with no content.
-      } else if(((c[0] === 0x1f && c[1] === 0x9d) && type.indexOf('.tar') > 0) || ((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00) && (type.indexOf('xz') > 0 || type === '.txz')) || ((type.indexOf('.tar') > 0 && type == '.lzma') || type === '.tlz')){
-        
+        //These aren't supported tar compression types in the implementation. Throw an error telling them these aren't supported, the file must have the compression and be tar.
+        //No point in trying to index content that isn't valuable/possible. LZMA detection is difficult and currently no modules that do it work with Zapier
+      } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (details.contentType === '.txz' || details.filename.indexOf('.tar') > 0)) || (c[0] === 0x1f && c[1] === 0x9d && isTar(c)) || ((details.filename.indexOf('.tar') > 0 && details.contentType === '.lzma') || details.contentType === '.tlz')){
         throw new Error(messages.UNSUPPORTED_TAR);
 
-        //This looks at bytes in the beginning of the buffers as well as the content type of the other supported archive files.
-        //This tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar that are supported include: gzip, bz2, and no compression.
-        //As far as I can tell, there's no good way of detecting tar compression types other than this, since sometimes the content type provided from the fetch will be an octet stream or object (which aren't helpful)
-      } else if ((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68) || details.contentType === '.tar') {
+        //This looks at bytes in the beginning of the buffers as well as if it is a tar file.
+        //This tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar that are supported include: gzip, bz2, and .tar.
+      } else if ((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08 && isTar(c)) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && isTar(c)) || isTar(c)) {
         return convertToZip(details);
       }
 
-      //If nither the zip or tar cases picked up anything, this is some single file
-      //type, like pdf, or a archive file type that isn't supported (in which no valuable content will be extracted in the source).
+      //If neither the zip or tar cases picked up anything, this is some single file
+      //type, like pdf, or a file type that isn't supported (in which no valuable content will be extracted in the source).
       return details;
     });
 };
 
-//Get the size of a buffer if a size wasn't given in the fiel description
+//Get the size of a buffer if a size wasn't given in the file description
 const getStringByteSize = string => Buffer.byteLength(string, 'utf8');
 
 module.exports = {
