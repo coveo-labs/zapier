@@ -10,6 +10,8 @@ const createNewPush = (z, bundle) => {
   //the fields key, since its content is in the bundle now there's no need to keep it
   //as it's own object in the bundle.
   Object.assign(bundle.inputData, bundle.inputData.fields);
+  let datetime = new Date();
+  bundle.inputData['date'] = datetime;
   delete bundle.inputData.fields;
 
   if (!bundle.inputData.clickableuri) {
@@ -82,7 +84,7 @@ module.exports = {
       {
         key: 'content',
         required: false,
-        type: 'string',
+        type: 'file',
         label: 'File',
         helpText:
           'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it is supplied, the content extraction does not fail, or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise extraction will fail.',

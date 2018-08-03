@@ -233,7 +233,7 @@ const uploadToContainer = (z, bundle, result) => {
   let file = bundle.inputData.content;
 
   //Fetch the contents of the file given in the File field.
-  const fileDetails = fetchFile(file);
+  const fileDetails = fetchFile(z, file);
 
   //Returned the file contents successfully, now handle them
   return (
