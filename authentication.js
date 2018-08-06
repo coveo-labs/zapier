@@ -12,7 +12,6 @@ module.exports = {
   // oauth2Config data structure is how Zapier determines what to call when managing the oauth. The authorization url construction is
   // called when needed in authorizeUrl, whenever a access/refresh token is needed it calls getAccessToken, and whenever a 401 error occurs
   // it knows to call autoRefresh (which calls refreshAccessToken).
-
   // See the following:
   // https://zapier.com/developer/documentation/v2/oauth-v2/
   // https://zapier.github.io/zapier-platform-cli/?utm_source=zapier.com&utm_medium=referral&utm_campaign=zapier#oauth2

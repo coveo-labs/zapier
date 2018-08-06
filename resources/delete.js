@@ -38,10 +38,10 @@ module.exports = {
     orgId: 'coveo-organization-id',
   },
 
-  // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
-  // field definitions. The result will be used to augment the sample.
-  // outputFields: () => { return []; }
-  // Alternatively, a static field definition should be provided, to specify labels for the fields
+  //If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
+  //field definitions. The result will be used to augment the sample.
+  //outputFields: () => { return []; }
+  //Alternatively, a static field definition should be provided, to specify labels for the fields
   outputFields: outputFields(),
 
 };

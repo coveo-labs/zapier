@@ -4,13 +4,15 @@ const zapier = require('zapier-platform-core');
 const App = require('../../index');
 const appTester = zapier.createAppTester(App);
 
-// Tests for pushing a document in a push source. Change the inputData to match the credentials
-// of the source you're testing.
+//Tests for pushing a document in a push source. Change the inputData to match the credentials
+//of the source you're testing.
 
 describe('pushes', function() {
   before(function() {
-    // This must be included in any test file before bundle, as it extracts the
-    // authentication data that was exported from the command line.
+    //This must be included in any test file before bundle, as it extracts the
+    //authentication data that was exported from the command line.
+    //Put test ACCESS_TOKEN in a .env file as well as the org/source information.
+    //The inject method will load them and make them available to use in tests.
     zapier.tools.env.inject();
 
     should.ok(process.env.TEST_ORG_ID, 'missing TEST_ORG_ID=some-id in .env');
@@ -19,16 +21,16 @@ describe('pushes', function() {
   });
 
   it('Push Test', function() {
-    this.timeout(10000); // set timeout to 10 seconds
+    this.timeout(10000); //Set timeout to 10 seconds
     const bundle = {
       authData: {
         access_token: process.env.ACCESS_TOKEN,
       },
-      // Change this content to match your source and what you want to push when testing
+      //Change this content for your testing
       inputData: {
-        documentId: 'https://drive.google.com/a/uconn.edu/file/d/1eCzjVefCNxa7luy0fKT7pjGHyQm48lnA/preview?usp=drivesdk',
+        documentId: 'https://drive.google.com/a/uconn.edu/file/d/1NBiGDbTcdfKlTyvjBS5VhnWR82WO8Ww_/view?usp=drivesdk',
         title: 'Push Test',
-        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kMFugzAQRP_Fh5ySYGxjMFJUVTm0UqVIlapeI4oXAhgb8LopifLvBanX7mnnzWgOcyeN9VjYEs6NJrmgiqWZSrekasDosy16IPkiDJAtKS9QducOZpLHkiVM8IU5i2DxjPOwJk9LrLsWU-1JfidhMgu7IA4-jyLtyh31O0l3y-f3tXO1geBh-uvYl65fQz7yUIYJfBk1nQfWhlZQkPUAgxrSL8OV7ioY3WS_o1FRjSPj0LpguFD1KGg7LKWF1wNiFsUJ55xJQdeLYi65EBnjIlGZorHKUvkPhOOt_YTqePopUhNmWr19pEP78jq_9yIz9vnpcohFLONUMiUzySgXUohkAwftrta4Qm9qfcAprMtVbuoLXLZAc1skNmjWtfpgsKmc0TAheNyv7uPxC3hvgFs:1flh8G:GV8kObwrcKM99r8nE0g0T1EHQVs/',
+        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kMtqwzAQRX-laJFVEutl-QGhtLSFbkobSiHeGFsaP2JbciS5IQ3599rQbWc198xlFueKWu18oSXkrUIpxwmN4iRao6qFXuW6GAClc-gBrZFsQHZ5BxeUEkFDytnMjPagfe4v49J8m2vdubC1Q-kVTbafWeP96NIgUEZucLwReDNvblsbU_cwObB_P7bSDEvJBQ7kZMHJoO0c0ON05BhEPcKYjFHZs0R1FZyM1d_BcOrIpOJCehgoCwvJja26yRWlLp1ucEBCxsKIULxMQJhgnMeU8TCJE0ySOBL_wExent_VY-ahVaWwPq-m_cP-65DVH_JJnA_3zY5wIkgkaCJiQTHjgvNwBTtlzro3hVrVaufttJirjB0KP7v4acc5-tb3i60X0yuwrzprx09w_o5vl_vt9guN7YCB:1fmiyT:g-8V-hzO3_PpOHzH_dhVLkYZwWE/',
         fields: {author: 'Bryan Arnold', site: 'https://coveo.com/'},
         data: 'testing',
         orgId: process.env.TEST_ORG_ID,

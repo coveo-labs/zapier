@@ -5,7 +5,7 @@ const platform = require('../config').PLATFORM;
 const message = require('../messages');
 
 //This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
-//without the trigger actual showing up in the app. This allows me to create dynamic drop downs for the input users
+//without the trigger actually showing up in the app. This allows the creation of dynamic drop downs for the input users
 //can use to get choices instead of manually inputting some information. This specific function
 //gets the possible push sources that are in the specified org, puts the source id in the input value, and displays the source name as in readable format.
 const perform = (z, bundle) => {

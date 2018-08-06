@@ -28,7 +28,7 @@ const handlePushCreation = (z, bundle) => {
     //Return the creation and upload to amazon
     return containerInfo
       .then(result => {
-        //Push file container into the source. this indexes the file contents.
+        //Push file container into the source. this indexes the content of the submission.
         return processBatchPush(z, bundle, result);
       })
       .catch(handleError);
@@ -71,8 +71,7 @@ const processPush = (z, bundle) => {
     bundle.inputData.fileExtension = '.html';
   }
 
-  //Send request to Coveo, exclude the documentId, orgId, and sourceId from the body
-  //since these are only needed for the request url.
+  //Send request to Coveo.
   const promise = z.request({
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
     method: 'PUT',
@@ -233,7 +232,7 @@ const uploadToContainer = (z, bundle, result) => {
   let file = bundle.inputData.content;
 
   //Fetch the contents of the file given in the File field.
-  const fileDetails = fetchFile(z, file);
+  const fileDetails = fetchFile(file);
 
   //Returned the file contents successfully, now handle them
   return (
@@ -276,9 +275,9 @@ const uploadToContainer = (z, bundle, result) => {
               uploadContent.parentId = upload.addOrUpdate[contentNumber - 1].documentId;
               uploadContent.documentId = bundle.inputData.documentId + '/file1';
 
-              // A single file sent can have a different compression type than just UNCOMPRESSED depending what the user
-              // inputs into this field. So, check for it and change accordingly.
-              // Almost all files that get to this point are UNCOMPRESSED
+              //A single file sent can have a different compression type than just UNCOMPRESSED depending what the user
+              //inputs into this field. So, check for it and change accordingly.
+              //Almost all files that get to this point are UNCOMPRESSED
               uploadContent.compressionType = findCompressionType(fileContents);
             }
 
