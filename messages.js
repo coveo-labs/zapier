@@ -8,7 +8,7 @@ const messages = {
   BAD_FETCH: 'Fetching the file content failed or a bad url was given in the File input field. Please check your File field input and try again.',
   NO_ORGS: 'You do not have access to any organizations in this account. Please gain access to an organization and try again.',
   NO_PUSH_SOURCES: 'You do not have any PUSH sources in the organization you have selected. Please create a PUSH source first and try again.',
-  NO_FIELDS: 'Your organization has no fields on it. Please create at least one field in your organization and try again.',
+  NO_FIELDS: 'Your organization has no fields on it. Please create at least one field in your organization and try again.', //Not used, but can be in the future, so keep it
 };
 
 module.exports =  messages;

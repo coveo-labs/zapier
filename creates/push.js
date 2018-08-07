@@ -7,6 +7,11 @@ const pushHandler = require('../resources/pushHandler');
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
 
+  //Take the fields the user submitted and put them into the input data
+  //to be sent in the push.
+  Object.assign(bundle.inputData, bundle.inputData.fields);
+  delete bundle.inputData.fields;
+
   if (!bundle.inputData.clickableuri) {
     //Keep original url in clickableuri (if clickableuri isn't set already)
     bundle.inputData.clickableuri = bundle.inputData.documentId;
@@ -71,7 +76,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Date',
-        helpText: 'The date of the of the content you are pushing into your source. If there are no available date options, you can manually construct it. This is required, but highly recommended to make the content of the index more descriptive.',
+        helpText: 'The date of the of the content you are pushing into your source. If there are no available date options, you can manually construct it. This is not required, but highly recommended to make the content of the submission in the index more descriptive.',
       },
       {
         key: 'clickableuri',
@@ -103,7 +108,7 @@ module.exports = {
         dict: true, //Creates input boxes for key value pairs, required for fields
         label: 'Fields',
         helpText:
-          'Any fields you wish to map content to in your source. Put the name of the field in the smaller box on the left, then the content of that field in the larger box on the right. Be careful when typing the field names, as the spelling must be exact and fields are case sensitive.',
+          'Any fields you wish to map content to in your source. Put the name of the field in the smaller box on the left, then the content of that field in the larger box on the right. Be careful when typing the field names, as they are case sensitive and the spelling must be correct.',
       },
     ],
     //Action function

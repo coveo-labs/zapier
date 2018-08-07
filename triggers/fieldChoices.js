@@ -2,7 +2,7 @@
 
 //Currently not needed, but if Zapier one day allows for drop down lists alongside of the dict property in
 //their input field declarations, this would make the app very simple to use. Just make sure to include it in
-//index.js if they allow it one day.
+//index.js if this happens one day.
 
 const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;

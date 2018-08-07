@@ -2,6 +2,8 @@
 
 const messages = require('./messages');
 const path = require('path');
+const fileType = require('file-type');
+const mime = require('mime-types');
 
 //Simple function to handle an error occurring in a function that wasn't explicitly caught.
 const handleError = error => {
@@ -72,11 +74,19 @@ const findCompressionType = (zipContent, uncompressedSize) => {
   }
 
   const c = zipContent.content;
+  let type = fileType(c);
+
+  if(type === null){
+    type = {
+      ext: 'null',
+      mime: 'null',
+    };
+  }
 
   //Check first few bytes of the buffer to get compression, except LZMA
   //as the structure for these isn't very consistent globally to check for each time
   //and is very taxing to determine without a handy module.
-  if (c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) {
+  if (c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08 || type.ext === 'gz' || type.mime === 'application/gzip') {
     compressionType = 'GZIP';
   } else if ((c[0] * 256 + c[1]) % 31 === 0) {
     compressionType = 'ZLIB';
@@ -84,7 +94,7 @@ const findCompressionType = (zipContent, uncompressedSize) => {
     compressionType = 'DEFLATE';
   } else if (zipContent.size === uncompressedSize) {
     compressionType = 'UNCOMPRESSED';
-  } else if (zipContent.filename.indexOf('.lzma') > 0 || zipContent.contentType === '.bin') { //Mime-types checker defaults to this, as no lzma mime exists in it
+  } else if (zipContent.filename.indexOf('.lzma') > 0 || zipContent.filename.indexOf('.lz') > 0 || type.ext === 'lz' || type.mime === 'x-lzip') { //lz shares LZMA compression, so checking for these is the same as lzma
     compressionType = 'LZMA';
   }
 
@@ -174,7 +184,6 @@ const handleZip = details => {
 const fetchFile = url => {
   const fetch = require('node-fetch');
   const contentDisposition = require('content-disposition');
-  const mime = require('mime-types');
 
   const details = {
     filename: '',
@@ -213,6 +222,14 @@ const fetchFile = url => {
         details.contentType = path.extname(details.filename);
       } 
 
+      if(details.contentType === '' || details.contentType == null || details.contentType == undefined){
+
+        if(fileType(details.content) == null){
+        } else {
+          details.contentType = '.' + fileType(details.content).ext;
+        }
+      }
+
       //Return the promise/buffer of the file
       return response.buffer();
     })
@@ -229,11 +246,12 @@ const fetchFile = url => {
       //following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
       if ((c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) || type === '.zip') {
         
-        return handleZip(details);
+        return convertToZip(details);
 
         //These are the bad tar types, throwing errors could break the app if the user doesn't realize the tar types they send are bad. So, instead of throwing an error,
         //do nothing, index the file with no extraction, and let the user look at their log in the platform to see why things aren't being extracted.
-      } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (name.indexOf('.txz') > 0 || type === '.tar')) || (c[0] === 0x1f && c[1] === 0x9d && (type === '.tar' || name.indexOf('.Z') > 0)) || (((name.indexOf('.lzma') > 0 && type === '.tar') || type === '.bin') || ((name.indexOf('.tlz') > 0 && type === '.tar') || type === '.bin'))){
+        //Fetch gets lzma compressions as an octet-stream, which mime-types defaults to .bin. So, check for type .bin as well to avoid trying to index those bad tar types.
+      } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (name.indexOf('.txz') > 0 || type === '.tar')) || (c[0] === 0x1f && c[1] === 0x9d && (type === '.tar' || name.indexOf('.Z') > 0)) || ((name.indexOf('.lzma') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.tlz') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.lz') > 0 && type === '.tar' || type === '.bin'))){
         //This looks at bytes in the beginning of the buffers as well as if it is a tar file. Tar files using compression outside these will not be indexed.
         //This tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar that are supported include: gzip, bz2, and .tar.
       } else if (((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) && (type === '.tar' || name.indexOf('.tgz') > 0)) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && (name.indexOf('.tbz2') > 0 || name.indexOf('.tbz') > 0 || name.indexOf('.tb2') > 0 || type === '.tar')) || type === '.tar'){
