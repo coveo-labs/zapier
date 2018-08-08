@@ -38,7 +38,7 @@ const setSourceStatus = (z, bundle, status) => {
       if (response.status !== 201) {
         throw new Error('Error occurred updating the source status: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
       }
-  });
+    });
 };
 
 //This function is to allow for types of archive files to be used for batch like push. Includes .zip, .tar, .tar.gz, or .tar.bz2 (and their short hands).

@@ -88,39 +88,39 @@ const processPush = (z, bundle) => {
   return setStatusBefore.then(() => {
 
   //Send request to Coveo.
-  const promise = z.request({
-    url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
-    method: 'PUT',
-    body: JSON.stringify(bundle.inputData),
-    params: {
-      documentId: bundle.inputData.documentId,
-    },
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-  });
+    const promise = z.request({
+      url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
+      method: 'PUT',
+      body: JSON.stringify(bundle.inputData),
+      params: {
+        documentId: bundle.inputData.documentId,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
 
-  //Handle request response
-  return promise
-    .then(response => {
-      if (response.status !== 202) {
-        throw new Error('Error occurred sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
-      }
+    //Handle request response
+    return promise
+      .then(response => {
+        if (response.status !== 202) {
+          throw new Error('Error occurred sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        }
 
-      //Set the status of the source back once the push has succeeded
-      return setSourceStatus(z, bundle, 'IDLE');
-    })
-    .then(() => {
+        //Set the status of the source back once the push has succeeded
+        return setSourceStatus(z, bundle, 'IDLE');
+      })
+      .then(() => {
       //Don't need this for output info, so remove it
-      delete bundle.inputData.fileExtension;
+        delete bundle.inputData.fileExtension;
 
-      //Send to responseContent handler
-      return getOutputInfo(z, bundle);
-    })
-    .catch(handleError);
+        //Send to responseContent handler
+        return getOutputInfo(z, bundle);
+      })
+      .catch(handleError);
   })
-  .catch(handleError);
+    .catch(handleError);
 };
 
 //The creation of a container to amazon.
