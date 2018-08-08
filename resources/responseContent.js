@@ -5,7 +5,7 @@ const platform = require('../config').PLATFORM;
 
 //Function to construct an object appropriate for the user to see
 //when they want to use information from Coveo actions on other apps on Zapier.
-//Since Coveo requests don't return anything useful other than the input information in our
+//Since Coveo requests don't return anything useful other than the input information in the
 //responses...manually construct the response content with other calls to Coveo.
 const getOrgInfoForOutput = (z, bundle) => {
 

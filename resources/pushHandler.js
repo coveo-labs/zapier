@@ -150,7 +150,7 @@ const createContainer = (z, bundle) => {
     .catch(handleError);
 };
 
-//The function to handle a batch upload to amazon when a zip file
+//The function to handle a batch upload to amazon when a supported archive file
 //is supplied in the File input field.
 const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   //Object to hold the addOrUpdate batch that will
@@ -208,7 +208,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     }
   });
 
-  //If the document has zip file supplied and no plain text, the first
+  //If the document has a supported archive file supplied and no plain text, the first
   //item in the batch is useless, as it will contain no data or file content, so remove it.
   if (!firstBatchItem.data) {
     batchContent.addOrUpdate.splice(0, 1);
@@ -220,7 +220,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
 
   //Amazon doesn't get mad about no content-length headers for this upload,
   //very strange. This has potential to break in the future. Don't put the header
-  //if it isn't needed. as the excess headers can also break this.
+  //if it isn't needed, as the excess headers can also break this.
   let headers = result.requiredHeaders;
 
   //Send upload request to amazon

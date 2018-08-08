@@ -15,8 +15,8 @@ const handleError = error => {
   throw error;
 };
 
-//this sends a request to update the status of the source in the organization. This helps show when content is updated/changed
-//within the source.
+//This function sends a request to update the status of the source in the organization
+//before and after a push/delete request is made.
 const setSourceStatus = (z, bundle, status) => {
 
   //Send request to Coveo
@@ -41,33 +41,36 @@ const setSourceStatus = (z, bundle, status) => {
   });
 };
 
-//This function is to allow for a few more types of archive files to be used instead of just a zip file. Includes .tar, .tar.gz, or .tar.bz2 (and their short hands).
-//This function takes the contents and transforms them into a zip file buffer, then sends off to the zip file handler to process. It'd be a waste to completely erase the
-//zipHandler method, since it uses JSZip which is very useful for getting file details. This can be expanded upon in the future, but encompassing all archive file types would be very labor intensive.
+//This function is to allow for types of archive files to be used for batch like push. Includes .zip, .tar, .tar.gz, or .tar.bz2 (and their short hands).
+//This can be expanded upon in the future, but encompassing all archive file types would be very labor intensive.
 const decompressBatch = details => {
   let addOrUpdate = [];
 
   //This is all for decompressing the contents of the files See: https://www.npmjs.com/package/decompress
-  const decompress = require('decompress'); //Look for alternative for getting all of the contents of all tar file types and zip file, as of now there are no good decompressors from a buffer, only local files
+  const decompress = require('decompress'); //Look for alternative for getting all of the contents of all tar file types and zip file, as of now there are no good decompression modules from a buffer, only local files
 
-  //Create new zip archive, and decompress the contents
-  //of the supplied tar archive. This will fail if the tar header is corrupt or not present.
-  //Supports .bz2, .gz, and .tar (decompress module doesn't support .Z/.lz and .xz/.lzma is bugged).
+  //Decompress and get the contents of the supported archive file.
+  //This will fail if a tar header is corrupt or not present and zip will always succeed unless corrupt.
+  //Supports .zip, .bz2, .gz, and .tar (decompress module for tar files doesn't support .Z and .xz/.lzma/.lz is currently bugged).
   const toConvert = decompress(details.content, {
     inputFile: details.content,
   });
 
   return toConvert.then(files => {
+    //Keep track of the total files and size in case they
+    //go over the app limit. Also, set up method for storing
+    //and folder names.
     let fileCount = 0;
     let folderNames = [];
     let totalFileSize = 0;
 
-    //Loop through the file contents and add them to the new zip archive
-    //with the file names and buffers associated with them.
+    //Loop through the file contents and grab the important
+    //file components.
     files.forEach(file => {
       let zipContent = {};
 
-      // These files are macOS dependent or hidden files and don't have any valuable content to extract, so ignore them.
+      //These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
+      //Generally better not to expose hidden files in the source as well.
       if (file.path.indexOf('__MACOSX/') > -1 || ((/(^|\/)\.[^\/\.]/g).test(file.path.split('/').pop()))) {
         //Also ignore folders within the archive, just want their contents not the folders themselves, but keep folder names
         //to help alter the file names within them.
@@ -132,16 +135,13 @@ const decompressBatch = details => {
       }
     });
 
-    console.log(addOrUpdate);
     return addOrUpdate;
   });
 };
 
-//This is a function to determine the type of compression used on a file. If none of these are detected, it will be indexed with whichever default it gets.
-//If the data is in a zip but not compressed, give it the uncompressed data compression, otherwise it is deflate for zip. If no uncompressedSize is provided in the parameters, a zip file is not 
-//being looked at, so default to uncompressed.
-//Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe for compression detecting.
-//You can go directly the file format headers for these types of compression to find out the headers.
+//This is a function to determine the type of compression used on a file. If none of these are detected, it will be indexed with the default of UNCOMPRESSED.
+//Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe for compression detecting as
+//well as documents about the file format headers for these types of compressions.
 const findCompressionType = (zipContent, uncompressedSize) => {
 
   //Default
@@ -175,13 +175,12 @@ const findCompressionType = (zipContent, uncompressedSize) => {
   }
 
   return compressionType;
-
 };
 
 //Default method to extract content sent from Zapier. Will extract the file content using fetch (since everything
 //Zapier sends is in the form of a url for files, or urls in general).
-//Returns the file content as a buffer, file name, file type, and file size if all goes well. If zip file sent, see handleZip for how it
-//is dealt with. See convertToZip on how the supported tar files are handled.
+//Returns the file content as a buffer, file name, file type, and file size if all goes well. If a supported archive
+//file is sent for batch pushing, see decompressBatch.
 const fetchFile = url => {
   const fetch = require('node-fetch');
   const contentDisposition = require('content-disposition');
@@ -228,7 +227,6 @@ const fetchFile = url => {
       } 
 
       //If mime-type and file-type fail, last resort is the file name for an extension.
-      //If that fails, default to nothing.
       if(details.contentType === '.false'){
         details.contentType = path.extname(details.filename);
       } 
@@ -258,10 +256,9 @@ const fetchFile = url => {
 
         //These are the bad tar types, throwing errors could break the app if the user doesn't realize the tar types they send are bad. So, instead of throwing an error,
         //do nothing, index the file with no extraction, and let the user look at their logs to see why things are going wrong.
-        //Fetch gets lzma compressions as an octet-stream, which mime-types defaults to .bin. So, check for type .bin as well as the normal extensions to avoid this tars.
+        //Fetch gets lzma compressions as an octet-stream, which mime-types defaults to .bin. So, check for type .bin as well as the normal extensions to avoid that tar.
       } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (name.indexOf('.txz') > 0 || type === '.tar')) || (c[0] === 0x1f && c[1] === 0x9d && (type === '.tar' || name.indexOf('.Z') > 0)) || ((name.indexOf('.lzma') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.tlz') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.lz') > 0 && type === '.tar' || type === '.bin'))){
-        //This looks at bytes in the beginning of the buffers as well as if it is a tar file. Tar files using compression outside these will not be indexed.
-        //This tests to see if tar file sent or any possible tar file compression type was sent. Compressions for tar that are supported include: gzip, bz2, and normal tar.
+        //This tests to see if tar file sent or any possible tar file compression type was sent that are supported. Compressions for tar that are supported include: gzip, bz2, and normal tar.
         //This case is after zip and bad tars to avoid any bad tars from slipping by for the last case of the conditional, is the file just a tar with no compressions, despite this
         //calling the same function as the zip conditional. 
       } else if (((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) && (type === '.tar' || name.indexOf('.tgz') > 0)) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && (name.indexOf('.tbz2') > 0 || name.indexOf('.tbz') > 0 || name.indexOf('.tb2') > 0 || type === '.tar')) || type === '.tar'){
