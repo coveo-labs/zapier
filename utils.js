@@ -67,7 +67,7 @@ const decompressBatch = details => {
     //Loop through the file contents and grab the important
     //file components.
     files.forEach(file => {
-      let zipContent = {};
+      let archiveContent = {};
 
       //These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
       //Generally better not to expose hidden files in the source as well.
@@ -85,18 +85,18 @@ const decompressBatch = details => {
         if(type === null){
 
           let mimeType = mime.lookup(file.path);
-          zipContent.contentType = '.' + mime.extension(mimeType);
+          archiveContent.contentType = '.' + mime.extension(mimeType);
 
         } else {
-          zipContent.contentType = '.' + type.ext;
+          archiveContent.contentType = '.' + type.ext;
         }
 
         //Get important file info from each file in the archive
-        zipContent.size = getStringByteSize(file.data);
-        zipContent.content = file.data;
-        zipContent.filename = file.path;
+        archiveContent.size = getStringByteSize(file.data);
+        archiveContent.content = file.data;
+        archiveContent.filename = file.path;
         fileCount++;
-        totalFileSize += zipContent.size;
+        totalFileSize += archiveContent.size;
 
         //Too many files or the contents of the archive
         //are too big, so catch early and throw an error
@@ -110,27 +110,27 @@ const decompressBatch = details => {
         //as well. This looks at the encountered folders so far and removes
         //the excess folder name out of the file name.
         folderNames.forEach(folderName => {
-          if (zipContent.filename.indexOf(folderName) > -1) {
-            zipContent.filename = file.path.substr(folderName.length, file.path.length);
+          if (archiveContent.filename.indexOf(folderName) > -1) {
+            archiveContent.filename = file.path.substr(folderName.length, file.path.length);
           }
         });
         
         //If both the mime-type checker and file-type checkers failed to get anything from the
         //file, try one last time on the file name if an extension if present.
-        if(zipContent.contentType === '.false'){
-          zipContent.contentType = path.extname(zipContent.filename);
+        if(archiveContent.contentType === '.false'){
+          archiveContent.contentType = path.extname(archiveContent.filename);
         } 
         
         //If no extension or file type is found, and all checkers failed, default to nothing.
-        if (zipContent.contentType === null || zipContent.contentType === undefined || zipContent.contentType === '') {
-          zipContent.contentType = '';
+        if (archiveContent.contentType === null || archiveContent.contentType === undefined || archiveContent.contentType === '') {
+          archiveContent.contentType = '';
         }
 
         //Get the compression type of the individual file in the zip file
-        zipContent.compressionType = findCompressionType(zipContent, zipContent.size);
+        archiveContent.compressionType = findCompressionType(archiveContent, archiveContent.size);
 
         //Push the file information into the array to be handled later
-        addOrUpdate.push(zipContent);
+        addOrUpdate.push(archiveContent);
 
       }
     });
@@ -217,7 +217,7 @@ const fetchFile = url => {
         details.filename = contentDisposition.parse(disposition).parameters.filename;
       }
 
-      //This is a fabricated file extension from fetch if none is provided,
+      //This is a fabricated file extension from fetch if none is found,
       //just get rid of it as it confuses indexing and the title.
       if(details.filename.split('.').pop() === 'obj'){
         details.filename = details.filename.substr(0, details.filename.lastIndexOf('.'));

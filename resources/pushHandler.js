@@ -193,8 +193,8 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
       batchItem.documentId = batchContent.addOrUpdate[0].documentId + '/file' + (i + 1);
       totalSize += fileContent.size;
 
-      if(fileContents.contentType){
-        batchItem.fileExtension = fileContents.contentType;
+      if(fileContent.contentType !== ''){
+        batchItem.fileExtension = fileContent.contentType;
       }
 
     }
@@ -300,7 +300,7 @@ const uploadToContainer = (z, bundle, result) => {
               uploadContent.parentId = upload.addOrUpdate[0].documentId;
               uploadContent.documentId = upload.addOrUpdate[0].documentId + '/file1';
 
-              if(fileContents.contentType){
+              if(fileContents.contentType !== ''){
                 uploadContent.fileExtension = fileContents.contentType;
               }
 
