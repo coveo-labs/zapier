@@ -217,6 +217,12 @@ const fetchFile = url => {
         details.filename = contentDisposition.parse(disposition).parameters.filename;
       }
 
+      //This is a fabricated file extension from fetch if none is provided,
+      //just get rid of it as it confuses indexing and the title.
+      if(details.filename.split('.').pop() === 'obj'){
+        details.filename = details.filename.substr(0, details.filename.lastIndexOf('.'));
+      }
+
       //If mime-type couldn't pick up an extension, try file-type to get it
       //based on the data buffer
       if (details.contentType === '.false') {
@@ -256,8 +262,8 @@ const fetchFile = url => {
 
         //These are the bad tar types, throwing errors could break the app if the user doesn't realize the tar types they send are bad. So, instead of throwing an error,
         //do nothing, index the file with no extraction, and let the user look at their logs to see why things are going wrong.
-        //Fetch gets lzma compressions as an octet-stream, which mime-types defaults to .bin. So, check for type .bin as well as the normal extensions to avoid that tar.
-      } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (name.indexOf('.txz') > 0 || type === '.tar')) || (c[0] === 0x1f && c[1] === 0x9d && (type === '.tar' || name.indexOf('.Z') > 0)) || ((name.indexOf('.lzma') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.tlz') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.lz') > 0 && type === '.tar' || type === '.bin'))){
+        //Fetch gets lzma/xz tar files as an octet-stream, which mime-types defaults to .bin. So, check for type .bin as well as the normal extensions to avoid that tar.
+      } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (name.indexOf('.txz') > 0 || type === '.tar' || type === '.bin')) || (c[0] === 0x1f && c[1] === 0x9d && (type === '.tar' || type === '.Z' || name.indexOf('.Z') > 0)) || ((name.indexOf('.lzma') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.tlz') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.lz') > 0 && type === '.tar' || type === '.bin'))){
         //This tests to see if tar file sent or any possible tar file compression type was sent that are supported. Compressions for tar that are supported include: gzip, bz2, and normal tar.
         //This case is after zip and bad tars to avoid any bad tars from slipping by for the last case of the conditional, is the file just a tar with no compressions, despite this
         //calling the same function as the zip conditional. 

@@ -100,7 +100,7 @@ module.exports = {
         type: 'string',
         label: 'Plain Text',
         helpText:
-          'The main content you want extracted into the source as plain text. This can be the text of a file, any text you input, an HTML body, or a mix of these. Use this if no files or urls are supplied for content extraction. If this and a valid file or url is supplied for extraction, then both will be pushed into the source.',
+          'The main content you want extracted into the source as plain text. This can be the text of a file, any text you input, an HTML body, or a mix of these. Use this if no files or urls are supplied for content extraction. If this and a valid file or url are supplied for extraction, then both will be pushed into the source.',
       },
       {
         key: 'fields',
