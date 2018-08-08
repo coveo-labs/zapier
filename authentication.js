@@ -8,7 +8,7 @@ let basicToken = Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SE
 
 module.exports = {
   type: 'oauth2',
-  connectionLabel: '(your-email-here)',
+  connectionLabel: ' ',
   // oauth2Config data structure is how Zapier determines what to call when managing the oauth. The authorization url construction is
   // called when needed in authorizeUrl, whenever a access/refresh token is needed it calls getAccessToken, and whenever a 401 error occurs
   // it knows to call autoRefresh (which calls refreshAccessToken).

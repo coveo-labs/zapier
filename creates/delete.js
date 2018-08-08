@@ -49,14 +49,14 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The ID of the document you wish to delete. Children of the document ID supplied will also be deleted. Children of the document that are indexed have the same Document ID as the parent but with /file# appended to it. If you wish to delete specific children, simply add /file#. Example: `https://example.com/file2`.',
+        helpText: 'The ID of the document you wish to delete. Children of the Document ID supplied will also be deleted. If you wish to delete a specific child, simply add /file# to the Document ID. Example: `DOC_ID/file2`.',
       },
       {
         key: 'title',
         required: false,
         type: 'string',
         label: 'Title of Document',
-        helpText: 'The title of the document ID being deleted. Only needed if you want more detailed output of this action.',
+        helpText: 'The title of the document ID being deleted. Use this if you want more detailed output of this action.',
       },
     ],
     //Action function

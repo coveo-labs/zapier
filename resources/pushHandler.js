@@ -3,7 +3,7 @@
 const push = require('../config').PUSH;
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
 const messages = require('../messages');
-const { handleError, fetchFile, findCompressionType, getStringByteSize } = require('../utils');
+const { handleError, fetchFile, findCompressionType, getStringByteSize, setSourceStatus } = require('../utils');
 
 //Regular expression checker for the 'data' property of a push being an html body or not.
 //This is needed to change the fileExtension to html if needed. 
@@ -38,26 +38,37 @@ const handlePushCreation = (z, bundle) => {
 //The function for sending a file container push to Coveo. Used for pushes that have file contents extracted from them
 //or a file along with plain text as a batch push.
 const processBatchPush = (z, bundle, result) => {
+  //Set te status of the source before any push is sent to it
+  const setStatusBefore = setSourceStatus(z, bundle, 'INCREMENTAL');
+
+  return setStatusBefore.then(() => {
+
   //Send request to Coveo
-  const promise = z.request({
-    url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result}`,
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-  });
+    const promise = z.request({
+      url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result}`,
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
 
-  //Handle response from Coveo.
-  return promise
-    .then(response => {
-      if (response.status !== 202) {
-        throw new Error('Error occurred sending batch push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
-      }
+    //Handle response from Coveo.
+    return promise
+      .then(response => {
+        if (response.status !== 202) {
+          throw new Error('Error occurred sending batch push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        }
 
+        //Set the status of the source back once the push has succeeded
+        return setSourceStatus(z, bundle, 'IDLE');
+      })
+      .then(() => {
       ///Send to responseContent handler.
-      return getOutputInfo(z, bundle);
-    })
+        return getOutputInfo(z, bundle);
+      })
+      .catch(handleError);
+  })
     .catch(handleError);
 };
 
@@ -65,11 +76,16 @@ const processBatchPush = (z, bundle, result) => {
 //Will upload plain text content and if neither plain text nor a file is supplied,
 //this will not upload any valuable content.
 const processPush = (z, bundle) => {
+  //Set te status of the source before any push is sent to it
+  const setStatusBefore = setSourceStatus(z, bundle, 'INCREMENTAL');
+
   //Check for any HTML tags in the data if it exists, and change the fileExtension to
   //.html so it is indexed properly
   if (RE_IS_HTML.test(bundle.inputData.data)) {
     bundle.inputData.fileExtension = '.html';
   }
+
+  return setStatusBefore.then(() => {
 
   //Send request to Coveo.
   const promise = z.request({
@@ -92,6 +108,10 @@ const processPush = (z, bundle) => {
         throw new Error('Error occurred sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
       }
 
+      //Set the status of the source back once the push has succeeded
+      return setSourceStatus(z, bundle, 'IDLE');
+    })
+    .then(() => {
       //Don't need this for output info, so remove it
       delete bundle.inputData.fileExtension;
 
@@ -99,6 +119,8 @@ const processPush = (z, bundle) => {
       return getOutputInfo(z, bundle);
     })
     .catch(handleError);
+  })
+  .catch(handleError);
 };
 
 //The creation of a container to amazon.
@@ -162,15 +184,19 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     //and doc ID's dependent on the first item, so they cannot be made until the
     //first one is.
     if (batchContent.addOrUpdate.length >= 1) {
+
       delete batchItem.data;
       batchItem.title = fileContent.filename;
-      batchItem.fileExtension = fileContent.contentType;
       batchItem.compressedBinaryData = Buffer.from(fileContent.content).toString('base64');
       batchItem.compressionType = fileContent.compressionType;
-      batchItem.parentId = batchContent.addOrUpdate[i].documentId;
-      batchItem.uri = bundle.inputData.uri + '/file' + (i + 1);
-      batchItem.documentId = bundle.inputData.documentId + '/file' + (i + 1);
+      batchItem.parentId = batchContent.addOrUpdate[0].documentId;
+      batchItem.documentId = batchContent.addOrUpdate[0].documentId + '/file' + (i + 1);
       totalSize += fileContent.size;
+
+      if(fileContents.contentType){
+        batchItem.fileExtension = fileContents.contentType;
+      }
+
     }
 
     //Add batch item to total batch
@@ -270,17 +296,19 @@ const uploadToContainer = (z, bundle, result) => {
 
               delete uploadContent.data;
               uploadContent.title = fileContents.filename;
-              uploadContent.fileExtension = fileContents.contentType;
               uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
-              uploadContent.parentId = upload.addOrUpdate[contentNumber - 1].documentId;
-              uploadContent.documentId = bundle.inputData.documentId + '/file1';
+              uploadContent.parentId = upload.addOrUpdate[0].documentId;
+              uploadContent.documentId = upload.addOrUpdate[0].documentId + '/file1';
 
-              //A single file sent can have a different compression type than just UNCOMPRESSED depending what the user
-              //inputs into this field. So, check for it and change accordingly.
-              //Almost all files that get to this point are UNCOMPRESSED
+              if(fileContents.contentType){
+                uploadContent.fileExtension = fileContents.contentType;
+              }
+
+              //Call compression checker to get the compression type of the file
               uploadContent.compressionType = findCompressionType(fileContents);
             }
 
+            //Push onto the batch
             upload.addOrUpdate.push(uploadContent);
             contentNumber++;
 

@@ -33,7 +33,7 @@ module.exports = {
   noun: 'Push',
   display: {
     label: 'Push or Update Content',
-    description: 'Push/Update Content to a Specified Push Source.',
+    description: 'Push or Update Content to a Specified Push Source.',
     important: true,
   },
 
@@ -62,21 +62,21 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The ID of the document you want to use in the index. This MUST be in a url form. You can use a url or create your own identifier like this: app-name://ID.',
+        helpText: 'The ID of the document you want to use in the index. This MUST be in a url form. You can use a url or create your own url with an identifier like this: app-name://ID.',
       },
       {
         key: 'title',
         required: true,
         type: 'string',
         label: 'Title of Submission',
-        helpText: 'The title of the main submission to be displayed within the source content browser.',
+        helpText: 'The title of the submission to be displayed within the source.',
       },
       {
         key: 'date',
         required: false,
         type: 'string',
         label: 'Date',
-        helpText: 'The date of the of the content you are pushing into your source. If there are no available date options, you can manually construct it. This is not required, but highly recommended to make the content of the submission in the index more descriptive.',
+        helpText: 'The date of the of the content you are pushing into your source. Even though this is not required, it is highly recommended.',
       },
       {
         key: 'clickableuri',
@@ -84,7 +84,7 @@ module.exports = {
         type: 'string',
         label: 'Url of the Document',
         helpText:
-          'A url to the document. This is different from the document ID as this field provides you a url to the file you can click and it will always take you to the document from the url. You should use this field if you manually constructed the document ID and you have urls available as input options. If nothing is put here, the url in the Document ID field will be put here.',
+          'A url to the document. Use this if you manually constructed the Document ID and still want a url to your document, or you want an additional/alternate url to the document in your submission.',
       },
       {
         key: 'content',
@@ -92,7 +92,7 @@ module.exports = {
         type: 'string',
         label: 'File',
         helpText:
-          'The main content you want extracted into the source. This can be a URL or a file, which is displayed as (Exists but not shown). Files or urls that require authorization or are not in the proper format will fail. If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported. Any other tar compressions will not have the content extracted from them.',
+          'The main content you want extracted into the source. Files or urls that require authorization or are not in the proper format will fail. If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported.',
       },
       {
         key: 'data',
@@ -100,7 +100,7 @@ module.exports = {
         type: 'string',
         label: 'Plain Text',
         helpText:
-          'The main content you want extracted into the source as plain text. This can be the text of a file, some free text you input, an HTML body, or a mix of any of these. Use this if no files or urls for the File field are supplied and you want content to be extracted into your push source. If both are supplied, then both will be pushed into the source.',
+          'The main content you want extracted into the source as plain text. This can be the text of a file, any text you input, an HTML body, or a mix of these. Use this if no files or urls are supplied for content extraction. If this and a valid file or url is supplied for extraction, then both will be pushed into the source.',
       },
       {
         key: 'fields',
@@ -108,7 +108,7 @@ module.exports = {
         dict: true, //Creates input boxes for key value pairs, required for fields
         label: 'Fields',
         helpText:
-          'Any fields you wish to map content to in your source. Put the name of the field in the smaller box on the left, then the content of that field in the larger box on the right. Be careful when typing the field names, as they are case sensitive and the spelling must be correct.',
+          'Any fields your organization uses that you wish to map content to in your submission. Put the name of the field in the smaller box on the left, then the content of that field in the larger box on the right.',
       },
     ],
     //Action function
