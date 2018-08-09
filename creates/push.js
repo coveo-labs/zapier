@@ -55,7 +55,7 @@ module.exports = {
         type: 'string',
         label: 'Source',
         dynamic: 'orgSources.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the source in the organization you wish to push to. This can only be chosen after the organization ID.',
+        helpText: 'The ID of the source in the organization you wish to push to. This must be chosen after the organization ID.',
       },
       {
         key: 'documentId',
@@ -69,7 +69,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Title of Submission',
-        helpText: 'The title of the submission to be displayed within the source.',
+        helpText: 'The title of the submission to be displayed within the source. This would be the title of the parent item sent in a push.',
       },
       {
         key: 'date',

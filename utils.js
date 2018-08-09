@@ -213,7 +213,11 @@ const fetchFile = url => {
       }
 
       //If disposition exists, makes getting this file info very easy/possible like this
-      if (disposition) {
+      //If the file extraction is an amazon bucket, .parse() breaks. So, just use split
+      //for the filename if this happens
+      if (disposition && response.headers.get('x-amz-server-side-encryption')) {
+        details.filename = disposition.split("''")[1];
+      } else if (disposition) {
         details.filename = contentDisposition.parse(disposition).parameters.filename;
       }
 
@@ -267,7 +271,7 @@ const fetchFile = url => {
         //This tests to see if tar file sent or any possible tar file compression type was sent that are supported. Compressions for tar that are supported include: gzip, bz2, and normal tar.
         //This case is after zip and bad tars to avoid any bad tars from slipping by for the last case of the conditional, is the file just a tar with no compressions, despite this
         //calling the same function as the zip conditional. 
-      } else if (((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) && (type === '.tar' || name.indexOf('.tgz') > 0)) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && (name.indexOf('.tbz2') > 0 || name.indexOf('.tbz') > 0 || name.indexOf('.tb2') > 0 || type === '.tar')) || type === '.tar'){
+      } else if (((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) && (type === '.tar' || name.indexOf('.tgz') > 0)) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && (name.indexOf('.tbz2') > 0 || name.indexOf('.tbz') > 0 || name.indexOf('.tb2') > 0 || type === '.tar' || type === '.bz2')) || type === '.tar'){
         
         return decompressBatch(details);
 

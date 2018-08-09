@@ -20,7 +20,7 @@ const perform = z => {
     .then(response => {
       if (response.status >= 400) {
         throw new Error(
-          'Error getting organization choices for the drop down. Please ensure you have access to at least one organization: ' +
+          'Error getting organization choices for the drop down: ' +
             z.JSON.parse(response.content).message +
             ' Error Code: ' +
             response.status

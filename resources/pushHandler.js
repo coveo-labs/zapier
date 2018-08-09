@@ -186,7 +186,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     if (batchContent.addOrUpdate.length >= 1) {
 
       delete batchItem.data;
-      batchItem.title = fileContent.filename;
+      batchItem.title = decodeURI(fileContent.filename);
       batchItem.compressedBinaryData = Buffer.from(fileContent.content).toString('base64');
       batchItem.compressionType = fileContent.compressionType;
       batchItem.parentId = batchContent.addOrUpdate[0].documentId;
@@ -295,7 +295,7 @@ const uploadToContainer = (z, bundle, result) => {
             if (upload.addOrUpdate.length >= 1) {
 
               delete uploadContent.data;
-              uploadContent.title = fileContents.filename;
+              uploadContent.title = decodeURI(fileContents.filename);
               uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
               uploadContent.parentId = upload.addOrUpdate[0].documentId;
               uploadContent.documentId = upload.addOrUpdate[0].documentId + '/file1';

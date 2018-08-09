@@ -10,6 +10,11 @@ const message = require('../messages');
 //gets the possible push sources that are in the specified org, puts the source id in the input value, and displays the source name as in readable format.
 const perform = (z, bundle) => {
 
+  //No org ID selected yet, so throw an error
+  if(!bundle.inputData.orgId){
+    throw new Error(message.SELECT_ORG);
+  }
+
   //Request to Coveo
   const orgSourcesPromise = z.request({
     url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources`,
@@ -21,7 +26,7 @@ const perform = (z, bundle) => {
     .then(response => {
       if (response.status >= 400) {
         throw new Error(
-          'Error getting source choices for the drop down. Please ensure the organization ID has been selected already and try again: ' +
+          'Error getting source choices for the drop down: ' +
             z.JSON.parse(response.content).message +
             ' Error Code: ' +
             response.status

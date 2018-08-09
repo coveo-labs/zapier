@@ -14,6 +14,11 @@ const message = require('../messages');
 //gets the fields used by a specific source, fills the input value with the field name, and displays the field name in a readable format.
 const perform = (z, bundle) => {
 
+  //No source/org ID or both chosen yet, so throw an error
+  if(!bundle.inputData.orgId && !bundle.inputData.sourceId){
+    throw new Error(message.SELECT_ORG_AND_SOURCE);
+  }
+
   //Request to Coveo to get fields that specified source uses in it's mappings. Source ID and Org ID must be
   //given by the user beforehand for this to work.
   const sourceFieldsPromise = z.request({
@@ -26,7 +31,7 @@ const perform = (z, bundle) => {
     .then(response => {
       if (response.status >= 400) {
         throw new Error(
-          'Error getting field choices for the drop down. Please ensure the source and organization IDs have been selected already: ' +
+          'Error getting field choices for the drop down: ' +
             z.JSON.parse(response.content).message +
             ' Error Code: ' +
             response.status
