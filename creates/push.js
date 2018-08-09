@@ -69,7 +69,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Title of Submission',
-        helpText: 'The title of the submission to be displayed within the source. This would be the title of the parent item sent in a push.',
+        helpText: 'The title of the submission to be displayed within the source. This would be the title of the parent item sent in the content.',
       },
       {
         key: 'date',
@@ -82,9 +82,9 @@ module.exports = {
         key: 'clickableuri',
         required: false,
         type: 'string',
-        label: 'Url of the Document',
+        label: 'Content Url',
         helpText:
-          'A url to the document. Use this if you manually constructed the Document ID and still want a url to your document, or you want an additional/alternate url to the document in your submission.',
+          'A url to the content you are pushing. Use this if you manually constructed the Document ID and still want a url to your content, or you want an additional/alternate url to the content in your submission.',
       },
       {
         key: 'content',

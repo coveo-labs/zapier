@@ -11,7 +11,6 @@ const handleError = error => {
   if (typeof error === 'string') {
     throw new Error('Error occurred during processing: ' + error);
   }
-
   throw error;
 };
 
@@ -212,8 +211,8 @@ const fetchFile = url => {
         throw new Error(messages.BIG_FILE);
       }
 
-      //If disposition exists, makes getting this file info very easy/possible like this
-      //If the file extraction is an amazon bucket, .parse() breaks. So, just use split
+      //If disposition exists, makes getting this file info very easy/possible like this.
+      //If the file extraction is a temporary amazon bucket, .parse() breaks. So, just use split
       //for the filename if this happens
       if (disposition && response.headers.get('x-amz-server-side-encryption')) {
         details.filename = disposition.split("''")[1];

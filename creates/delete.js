@@ -56,7 +56,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Title of Document',
-        helpText: 'The title of the document ID being deleted. Use this if you want more detailed output of this action.',
+        helpText: 'The title of the content being deleted. Use this if you want more detailed output of this action.',
       },
     ],
     //Action function
