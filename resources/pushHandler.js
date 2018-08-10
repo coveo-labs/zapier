@@ -3,7 +3,7 @@
 const push = require('../config').PUSH;
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
 const messages = require('../messages');
-const { handleError, fetchFile, findCompressionType, getStringByteSize, setSourceStatus } = require('../utils');
+const { handleError, findCompressionType, getStringByteSize, setSourceStatus, fileHandler } = require('../utils');
 
 //Regular expression checker for the 'data' property of a push being an html body or not.
 //This is needed to change the fileExtension to html if needed. 
@@ -191,11 +191,14 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
       batchItem.compressionType = fileContent.compressionType;
       batchItem.parentId = batchContent.addOrUpdate[0].documentId;
       batchItem.documentId = batchContent.addOrUpdate[0].documentId + '/file' + (i + 1);
-      totalSize += fileContent.size;
+      totalSize += parseInt(fileContent.size);
 
       if(fileContent.contentType !== ''){
         batchItem.fileExtension = fileContent.contentType;
       }
+
+      //Call compression checker to get the compression type of the file
+      batchItem.compressionType = findCompressionType(fileContent);
 
     }
 
@@ -215,7 +218,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   }
   //Check for any HTML tags in the data if it exists, and change the fileExtension to .html so it is indexed properly
   else if (RE_IS_HTML.test(firstBatchItem.data)) {
-    firstBatchItem.fileExtension = '.html';
+    batchContent.addOrUpdate[0].fileExtension = '.html';
   }
 
   //Amazon doesn't get mad about no content-length headers for this upload,
@@ -255,23 +258,28 @@ const uploadToContainer = (z, bundle, result) => {
   };
 
   let batchUpload = {};
-  let file = bundle.inputData.content;
+  let files = bundle.inputData.content;
 
   //Fetch the contents of the file given in the File field.
-  const fileDetails = fetchFile(file);
+  const fileDetails = fileHandler(files, bundle);
 
   //Returned the file contents successfully, now handle them
   return (
     fileDetails
       .then(fileContents => {
+
+        if(fileContents.length > 50){
+          throw new Error(messages.TOO_MANY_FILES);
+        }
+
         //If the returned response was an accepted archive file, this means the returned contents
-        //will have a length greater than 0 in them. If that is the case, use the empty
+        //will have a length greater than 1 in them. If that is the case, use the empty
         //object from earlier to store the result from the function handling batch uploading.
         //Skip the rest of the function from here.
-        if (fileContents.length) {
+        if (fileContents.length > 1) {
           batchUpload = uploadBatchToContainer(z, bundle, fileContents, result);
         }
-        // Single item to push handle and also handles plain text with a single item
+        // Single file to push handle and also handles plain text with a single file
         else {
           let contentNumber = 0;
 
@@ -295,17 +303,17 @@ const uploadToContainer = (z, bundle, result) => {
             if (upload.addOrUpdate.length >= 1) {
 
               delete uploadContent.data;
-              uploadContent.title = decodeURI(fileContents.filename);
-              uploadContent.compressedBinaryData = Buffer.from(fileContents.content).toString('base64');
+              uploadContent.title = decodeURI(fileContents[0].filename);
+              uploadContent.compressedBinaryData = Buffer.from(fileContents[0].content).toString('base64');
               uploadContent.parentId = upload.addOrUpdate[0].documentId;
               uploadContent.documentId = upload.addOrUpdate[0].documentId + '/file1';
 
               if(fileContents.contentType !== ''){
-                uploadContent.fileExtension = fileContents.contentType;
+                uploadContent.fileExtension = fileContents[0].contentType;
               }
 
               //Call compression checker to get the compression type of the file
-              uploadContent.compressionType = findCompressionType(fileContents);
+              uploadContent.compressionType = findCompressionType(fileContents[0]);
             }
 
             //Push onto the batch
@@ -315,7 +323,7 @@ const uploadToContainer = (z, bundle, result) => {
           }
 
           //This is a backup error checker for the size of the file.
-          if (fileContents.size >= 100 * 1024 * 1024 || getStringByteSize(fileContents.content) >= 100 * 1024 * 1024) {
+          if (fileContents[0].size >= 100 * 1024 * 1024 || getStringByteSize(fileContents[0].content) >= 100 * 1024 * 1024) {
             throw new Error(messages.BIG_FILE);
           }
 

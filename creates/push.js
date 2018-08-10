@@ -2,6 +2,7 @@
 
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
+const _ = require('lodash');
 
 //This functions is a handoff to the pushHandler file to handle the creation of a push request, sending it
 //to Coveo, then handling the appropriate response content.
@@ -18,6 +19,12 @@ const createNewPush = (z, bundle) => {
   }
   //Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
+
+  if(bundle.inputData.content.length > 1){
+
+    bundle.inputData.content = _.uniq(bundle.inputData.content);
+
+  }
 
   //Move on to handling the push process
   return pushHandler.handlePushCreation(z, bundle);
@@ -90,9 +97,10 @@ module.exports = {
         key: 'content',
         required: false,
         type: 'string',
-        label: 'File',
+        label: 'Files',
+        list: true,
         helpText:
-          'The main content you want extracted into the source. Files or urls that require authorization or are not in the proper format will fail. If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported.',
+          'The main content you want extracted into the source. These can only be files or urls to extract content from. Files or urls that require authorization or are not in the proper format will not index the desired content. Duplicate files or urls will only have one of them indexed instead of all the duplicates. If you wish to push an archive file and have the content extracted from it, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported.',
       },
       {
         key: 'data',
@@ -100,7 +108,7 @@ module.exports = {
         type: 'string',
         label: 'Plain Text',
         helpText:
-          'The main content you want extracted into the source as plain text. This can be the text of a file, any text you input, an HTML body, or a mix of these. Use this if no files or urls are supplied for content extraction. If this and a valid file or url are supplied for extraction, then both will be pushed into the source.',
+          'The main content you want extracted into the source as plain text. This can be the text of a file, any text you input, an HTML body, or a mix of these. Use this if no files or urls are supplied for content extraction. If this and at least one valid file or url are supplied for extraction, then both will be pushed into the source.',
       },
       {
         key: 'fields',

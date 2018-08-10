@@ -22,6 +22,7 @@ const outputFields = () => {
     {key: 'docSize', label: 'Size of all the Documents in the Source'},
     {key: 'clickableuri', label: 'Clickable Document URL'},
     {key: 'date', label: 'Date of Document Creation'},
+    {key: 'numFilesPushed', label: 'Number of Files Successfully Pushed'},
   ];
 
   return output;

@@ -24,6 +24,7 @@ const getOrgInfoForOutput = (z, bundle) => {
     docSize: '',
     orgName: '',
     orgOwner: '',
+    numFilesPushed: 0,
   };
 
   //Start promise to get org information from Coveo
@@ -81,6 +82,10 @@ const getOrgInfoForOutput = (z, bundle) => {
           //Put the input data from the bundle the user made into the object where
           //the gathered information is now stored.
           Object.assign(outputInfo, bundle.inputData);
+
+          if(outputInfo.content){
+            outputInfo.numFilesPushed = outputInfo.content.length;
+          }
 
           return outputInfo;
         })

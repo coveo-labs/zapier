@@ -28,9 +28,12 @@ describe('pushes', function() {
       },
       //Change this content for your testing
       inputData: {
-        documentId: 'https://drive.google.com/a/uconn.edu/file/d/18RCvXB3NC97q9sySdKfUyO1NZFTS__Ll/preview?usp=drivesdk',
+        documentId: 'https://drive.google.com/a/uconn.edu/file/d/1Y-ozUehmYIkwPUJ8Y-6JyZS51cZ4aljr/preview?usp=drivesdk',
         title: 'Push Test',
-        content: 'https://zapier.com/engine/hydrate/1625243/.eJx1kM1qwzAQhN9Fh5ySWLJk2TKEQgO9tKTQtFB6MYq1_olly7GkpE7Iu9cuvXZPO98OCzM3VHfWyS6HrFYoZYTiMCF8iYoatMo62QJKJ6EBLVFeQd5kDYwoJTyMQkYnZjoHncvc2M_O3WRrLnIoLUpvyA96YpVzvU2DQJl8hdmK49W02XVpTKnBWxj-fqxz084mG1jI_QA2D-rGQnj0R4aBlz30oo8PmgrVFHAyQ3cO2jOp9MGfTNu3MvKSNEpIegDi-yLurApIRGlCMcPzBIRyylgSUhaJRGAikpj_A5O37fnzke62Ij4JO-7Vc_ExvpLd19P7Pste9EO1IYxwEvNQ8ISHmDLOWLSAjTKXThupFqXauMHPzRVmaKWbupjifU_a1U7PdY3G67qBo7xe17-n-_0HDoB-pQ:1fnnYQ:KORO5chgeam8APN9Cx4lBOLdYLI/',
+        content: ['https://zapier.com/engine/hydrate/1625243/.eJx1kD1rwzAYhP9K0RBaSGJ9WbYMoZQWOjTNVEg248ivP2JZci0pIYT899qla2-6Ox5uuBtqjfOFUZC3Jco44ZhizJaoakGXuSl6QNkUNKAlUg2oLu_gijIiaEz5xClrPBif--swk7sJ6y7FWDuU3VAY9dQ13g8ui6LSqhVOVwKvJufWtbW1huBg_NtYK9vPkIscqDCCU1HbOaCncOIYRD3AIIfkqJksuwq-7WjOUaNaLTvpxxNVIXR1kp4TL4_EiCrx1iURiRmTlONfRYQJxnlKGY9lKjGRaSL-Ka2vv7b5frv7SNnrYb_bv8Vi-6X1-6GuXppP8dxsCCeCJIJKkQqKGRecxwvYlPZitC3KRV1u_Bjm5yo79oVHmQlaL5FvvZ7P6oOeLDhPHh7JE7rffwCdVHvN:1foDL5:L98n4pBwt7nEyz0hOrYHB1XcvMo/',
+        'https://doc-0o-60-docs.googleusercontent.com/docs/securesc/ikse2juj40e6gpep9p7bl39dkfeqornv/m82j2d6luh330v17rve0fh7j3q213m7e/1533916800000/13634482345989019876/13634482345989019876/15JipdK-CBF0gpWVW61Vr6uB6p_voVTuI?h=14161762968620346445&e=download&gd=true',
+        'https://drive.google.com/a/uconn.edu/file/d/1Y-ozUehmYIkwPUJ8Y-6JyZS51cZ4aljr/preview?usp=drivesdk',
+        'https://www.example.com/'],
         fields: {author: 'Bryan Arnold', site: 'https://coveo.com/'},
         data: 'testing',
         orgId: process.env.TEST_ORG_ID,

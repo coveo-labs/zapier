@@ -1,6 +1,7 @@
 'use strict';
 
 const push = require('./config').PUSH;
+const _ = require('lodash');
 const messages = require('./messages');
 const path = require('path');
 const fileType = require('file-type');
@@ -134,6 +135,7 @@ const decompressBatch = details => {
       }
     });
 
+    addOrUpdate.originalFileInfo = details;
     return addOrUpdate;
   });
 };
@@ -176,6 +178,82 @@ const findCompressionType = (zipContent, uncompressedSize) => {
   return compressionType;
 };
 
+
+const fileHandler = (files, bundle) => {
+
+  let promises = [];
+  let fileContents = [];
+  let fileCount = 0;
+  let indexCount = -1;
+
+  files.forEach(file => {
+    promises.push(fetchFile(file));
+  });
+
+  return Promise.all(promises)
+  .then(function(fileContent){
+
+    fileContent.forEach(content => {
+      let filename = decodeURI(content.filename);
+      let fileType = 'A ' + content.contentType;
+      indexCount++;
+
+      if(content.length && !content.fetch){
+
+        filename = 'Contents of ' + decodeURI(content.originalFileInfo.filename);
+        fileType = 'Contents of a ' + content.originalFileInfo.fileType;
+
+        content.forEach(subContent => {
+
+          fileContents.push(subContent);
+          fileCount++;
+
+          if(fileCount > 50){
+            throw new Error(messages.TOO_MANY_FILES);
+          }
+
+        });
+
+      } else if (!content.fetch){
+        fileContents.push(content);
+        fileCount++;
+
+        if(fileCount > 50){
+          throw new Error(messages.TOO_MANY_FILES);
+        }
+
+      }
+      
+      if (content.fetch){
+
+        bundle.inputData.content.splice(indexCount, 1);
+        indexCount--;
+
+      } else if (content.length){
+
+        if(filename !== 'Content of '){
+          bundle.inputData.content[indexCount] = filename;
+        } else if (fileType !== 'Contents of a '){
+          bundle.inputData.content[indexCount] = fileType + ' file';
+        }
+
+      } else {
+
+        if(filename !== ''){
+          bundle.inputData.content[indexCount] = filename;
+        } else if(fileType != 'A '){
+          bundle.inputData.content[indexCount] = fileType + ' file';
+        }
+
+      }
+
+    });
+
+    return fileContents;
+  });
+
+};
+
 //Default method to extract content sent from Zapier. Will extract the file content using fetch (since everything
 //Zapier sends is in the form of a url for files, or urls in general).
 //Returns the file content as a buffer, file name, file type, and file size if all goes well. If a supported archive
@@ -195,21 +273,15 @@ const fetchFile = url => {
   return fetch(url)
     .then(response => {
 
-      //If the url given is redirected to another place, doesn't match the given url, or contains link, the given file url
-      //wasn't the url content was extracted from. So, throw the bad fetch error.
+      // If the url given is redirected to another place, doesn't match the given url, or contains link, the given file url
+      // wasn't the url content was extracted from. So, throw the bad fetch error.
       if ((response.headers.get('link') || response.url != url || response.headers.get('www-authenticate'))) {
-        throw new Error(messages.BAD_FETCH);
+        details.fetch = 'bad fetch';
       }
 
       details.size = response.headers.get('content-length');
       details.contentType = '.' + mime.extension(response.headers.get('content-type'));
       const disposition = response.headers.get('content-disposition');
-
-      //The file is too big (100 MB for now), throw an error telling
-      //the user so and the file size limit.
-      if (details.size >= 100 * 1024 * 1024) {
-        throw new Error(messages.BIG_FILE);
-      }
 
       //If disposition exists, makes getting this file info very easy/possible like this.
       //If the file extraction is a temporary amazon bucket, .parse() breaks. So, just use split
@@ -251,6 +323,16 @@ const fetchFile = url => {
     .then(content => {
       details.content = content;
 
+      if(details.size === 'null'){
+        details.size = getStringByteSize(content);
+      }
+
+      //The file is too big (100 MB for now), throw an error telling
+      //the user so and the file size limit.
+      if (details.size >= 100 * 1024 * 1024) {
+        throw new Error(messages.BIG_FILE);
+      }
+
       // Using short names like 'c' and 'len' to improve readability in this case.
       const c = details.content;
       const len = c.length;
@@ -287,6 +369,7 @@ const fetchFile = url => {
 const getStringByteSize = string => Buffer.byteLength(string, 'utf8');
 
 module.exports = {
+  fileHandler,
   fetchFile,
   findCompressionType,
   handleError,
