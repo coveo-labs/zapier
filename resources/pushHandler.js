@@ -150,8 +150,8 @@ const createContainer = (z, bundle) => {
     .catch(handleError);
 };
 
-//The function to handle a batch upload to amazon when a supported archive file
-//is supplied in the File input field.
+//The function to handle a batch upload to amazon with multiple
+//inputs in the Files input field.
 const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   //Object to hold the addOrUpdate batch that will
   //be pushed to amazon/Coveo.
@@ -186,13 +186,15 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     if (batchContent.addOrUpdate.length >= 1) {
 
       delete batchItem.data;
-      batchItem.title = decodeURI(fileContent.filename);
+      batchItem.title = decodeURI(fileContent.filename); //Some apps encode the title, this gets rid of that
       batchItem.compressedBinaryData = Buffer.from(fileContent.content).toString('base64');
       batchItem.compressionType = fileContent.compressionType;
       batchItem.parentId = batchContent.addOrUpdate[0].documentId;
       batchItem.documentId = batchContent.addOrUpdate[0].documentId + '/file' + (i + 1);
-      totalSize += parseInt(fileContent.size);
+      totalSize += parseInt(fileContent.size); //Some apps set the size toa  string, this converts it to an integer
 
+      //If there is no extension for the file, don't put that property in
+      //the batch push. Let the indexer try and figure it out.
       if(fileContent.contentType !== ''){
         batchItem.fileExtension = fileContent.contentType;
       }
@@ -211,7 +213,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     }
   });
 
-  //If the document has a supported archive file supplied and no plain text, the first
+  //If the parent document has no plain text, the parent document
   //item in the batch is useless, as it will contain no data or file content, so remove it.
   if (!firstBatchItem.data) {
     batchContent.addOrUpdate.splice(0, 1);
@@ -251,7 +253,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
 
 //Function to handle the uploading of the file contents into
 //the container that was created depending on the type of
-//file that content was fetched.
+//file that content was fetched and how many files were requested for fetching.
 const uploadToContainer = (z, bundle, result) => {
   const upload = {
     addOrUpdate: [],
@@ -260,7 +262,7 @@ const uploadToContainer = (z, bundle, result) => {
   let batchUpload = {};
   let files = bundle.inputData.content;
 
-  //Fetch the contents of the file given in the File field.
+  //Fetch the contents of the files given in the File field.
   const fileDetails = fileHandler(files, bundle);
 
   //Returned the file contents successfully, now handle them
@@ -268,11 +270,12 @@ const uploadToContainer = (z, bundle, result) => {
     fileDetails
       .then(fileContents => {
 
+        //Too many files if a batch was set up, throw an error
         if(fileContents.length > 50){
           throw new Error(messages.TOO_MANY_FILES);
         }
 
-        //If the returned response was an accepted archive file, this means the returned contents
+        //If the returned response has more than just 1 file, this means the returned contents
         //will have a length greater than 1 in them. If that is the case, use the empty
         //object from earlier to store the result from the function handling batch uploading.
         //Skip the rest of the function from here.
@@ -308,6 +311,8 @@ const uploadToContainer = (z, bundle, result) => {
               uploadContent.parentId = upload.addOrUpdate[0].documentId;
               uploadContent.documentId = upload.addOrUpdate[0].documentId + '/file1';
 
+              //If no extension is present, don't provide that property in the push. Try
+              //and let the indexer figure it out if it can.
               if(fileContents.contentType !== ''){
                 uploadContent.fileExtension = fileContents[0].contentType;
               }
@@ -327,7 +332,7 @@ const uploadToContainer = (z, bundle, result) => {
             throw new Error(messages.BIG_FILE);
           }
 
-          //If the document has file supplied and no plain text, the first
+          //If the document has a file supplied and no plain text, the first
           //item in the batch is useless, as it will contain no data or file content, so remove it.
           if (!upload.addOrUpdate[0].data) {
             delete upload.addOrUpdate[1].parentId;
@@ -368,14 +373,12 @@ const uploadToContainer = (z, bundle, result) => {
       })
       //After the upload succeeds
       .then(() => {
-        //If the batchUpload object has anything in it, then a zip/tar file
-        //batch push was used instead of a single item push. If this is the case,
+        //If the batchUpload object has content, multiple files were fetched from. If this is the case,
         //return that object by calling that upload handler. Only need the file id of the container in order
         //to continue from here, so just return that.
         if (Object.keys(batchUpload).length) {
           return batchUpload;
         }
-
         return result.fileId;
       })
       .catch(handleError)

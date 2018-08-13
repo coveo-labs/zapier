@@ -41,7 +41,7 @@ const setSourceStatus = (z, bundle, status) => {
     });
 };
 
-//This function is to allow for types of archive files to be used for batch like push. Includes .zip, .tar, .tar.gz, or .tar.bz2 (and their short hands).
+//This function is to allow for types of archive files to be used in a push. Includes .zip, .tar, .tar.gz, or .tar.bz2 (and their short hands).
 //This can be expanded upon in the future, but encompassing all archive file types would be very labor intensive.
 const decompressBatch = details => {
   let addOrUpdate = [];
@@ -152,7 +152,7 @@ const findCompressionType = (zipContent, uncompressedSize) => {
   const c = zipContent.content;
   let type = fileType(c);
 
-  //If can't find the file type, set the contents to null as well, this avoids errors
+  //If can't find the file type, set the contents to null as well just to avoid errors
   if(type === null){
     type = {
       ext: 'null',
@@ -179,78 +179,105 @@ const findCompressionType = (zipContent, uncompressedSize) => {
 };
 
 
+//This function handles the process of fetching all the files provided
+//in the Field input field. All files will have content extracted, if they don't
+//violate absolute url form, and indexed into the source.
 const fileHandler = (files, bundle) => {
 
+  //List of promises, content of all the files, total files, and 
+  //and index tracker for updating the bundle for better response content later on.
   let promises = [];
   let fileContents = [];
   let fileCount = 0;
   let indexCount = -1;
 
+  //Set up promises to fetch each file supplied
   files.forEach(file => {
     promises.push(fetchFile(file));
   });
 
+  //Return all the promises
   return Promise.all(promises)
-  .then(function(fileContent){
+    .then(function(fileContent){
 
-    fileContent.forEach(content => {
-      let filename = decodeURI(content.filename);
-      let fileType = 'A ' + content.contentType;
-      indexCount++;
+      //For each result of the fetch...
+      fileContent.forEach(content => {
+        //Get the file name and type, iterate index once.
+        let filename = decodeURI(content.filename); //Fixes bug where some app encode file names
+        let fileType = 'A ' + content.contentType;
+        indexCount++;
 
-      if(content.length && !content.fetch){
+        //If an archive file was fetched, do this
+        if(content.length && !content.fetch){
 
-        filename = 'Contents of ' + decodeURI(content.originalFileInfo.filename);
-        fileType = 'Contents of a ' + content.originalFileInfo.fileType;
+          //Update the filename and type to be more response friendly for later
+          filename = 'Contents of ' + decodeURI(content.originalFileInfo.filename);
+          fileType = 'Contents of a ' + content.originalFileInfo.fileType;
 
-        content.forEach(subContent => {
+          //For each file in the archive file
+          content.forEach(subContent => {
 
-          fileContents.push(subContent);
+            //Save the file info and iterate the file count 
+            fileContents.push(subContent);
+            fileCount++;
+
+            //Too many files checker
+            if(fileCount > 50){
+              throw new Error(messages.TOO_MANY_FILES);
+            }
+
+          });
+
+        //If a non-archive file is being looked at
+        } else if (!content.fetch){
+
+          //Get the content of the file and iterate the file count
+          fileContents.push(content);
           fileCount++;
 
+          //Too many files checker
           if(fileCount > 50){
             throw new Error(messages.TOO_MANY_FILES);
           }
 
-        });
-
-      } else if (!content.fetch){
-        fileContents.push(content);
-        fileCount++;
-
-        if(fileCount > 50){
-          throw new Error(messages.TOO_MANY_FILES);
         }
-
-      }
       
-      if (content.fetch){
+        //If the content fetched was bad (not the initial desired content)
+        if (content.fetch){
 
-        bundle.inputData.content.splice(indexCount, 1);
-        indexCount--;
+          //Remove the content from the data, as it isn't important or useful
+          bundle.inputData.content.splice(indexCount, 1);
+          indexCount--;
 
-      } else if (content.length){
+          //If a good fetch happened
+        } else if (content.length){
 
-        if(filename !== 'Content of '){
-          bundle.inputData.content[indexCount] = filename;
-        } else if (fileType !== 'Contents of a '){
-          bundle.inputData.content[indexCount] = fileType + ' file';
+          //If the file name existed in the file information, set the
+          //filename to be more response friendly, same for file type.
+          //This is for archive files only.
+          if(filename !== 'Content of '){
+            bundle.inputData.content[indexCount] = filename;
+          } else if (fileType !== 'Contents of a '){
+            bundle.inputData.content[indexCount] = fileType + ' file';
+          }
+
+        } else {
+
+          //If the file name existed in the file information, set the
+          //filename to be more response friendly, same for file type.
+          //This is for non-archive files only.
+          if(filename !== ''){
+            bundle.inputData.content[indexCount] = filename;
+          } else if(fileType != 'A '){
+            bundle.inputData.content[indexCount] = fileType + ' file';
+          }
+
         }
 
-      } else {
+      });
 
-        if(filename !== ''){
-          bundle.inputData.content[indexCount] = filename;
-        } else if(fileType != 'A '){
-          bundle.inputData.content[indexCount] = fileType + ' file';
-        }
-
-      }
-
+      return fileContents;
     });
-
-    return fileContents;
-  });
 
 };
 
@@ -287,7 +314,7 @@ const fetchFile = url => {
       //If the file extraction is a temporary amazon bucket, .parse() breaks. So, just use split
       //for the filename if this happens
       if (disposition && response.headers.get('x-amz-server-side-encryption')) {
-        details.filename = disposition.split("''")[1];
+        details.filename = disposition.split('\'\'')[1];
       } else if (disposition) {
         details.filename = contentDisposition.parse(disposition).parameters.filename;
       }
@@ -370,7 +397,6 @@ const getStringByteSize = string => Buffer.byteLength(string, 'utf8');
 
 module.exports = {
   fileHandler,
-  fetchFile,
   findCompressionType,
   handleError,
   getStringByteSize,

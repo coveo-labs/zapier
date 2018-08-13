@@ -98,7 +98,7 @@ module.exports = {
         required: false,
         type: 'string',
         label: 'Files',
-        list: true,
+        list: true, //Makes an 'infinite' list of input boxes for the user to put in files/urls
         helpText:
           'The main content you want extracted into the source. These can only be files or urls to extract content from. Files or urls that require authorization or are not in the proper format will not index the desired content. Duplicate files or urls will only have one of them indexed instead of all the duplicates. If you wish to push an archive file and have the content extracted from it, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported.',
       },
