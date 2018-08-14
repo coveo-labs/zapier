@@ -279,18 +279,17 @@ const uploadToContainer = (z, bundle, result) => {
         //will have a length greater than 1 in them. If that is the case, use the empty
         //object from earlier to store the result from the function handling batch uploading.
         //Skip the rest of the function from here.
-        if (fileContents.length > 1) {
+        if (Object.keys(fileContents).length > 1) {
           batchUpload = uploadBatchToContainer(z, bundle, fileContents, result);
         }
         // Single file to push handle and also handles plain text with a single file
         else {
           let contentNumber = 0;
-
+          
           //This only needs to iterate twice, but manually coding out each component of the push
           //would look and be ugly. So, better to just have a two loop iteration to handle it
           //similar to the one in the uploadBatch function
           while (contentNumber !== 2) {
-            
             let uploadContent = {};
 
             //Scan through the bundle input information

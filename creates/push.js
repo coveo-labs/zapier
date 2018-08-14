@@ -20,7 +20,7 @@ const createNewPush = (z, bundle) => {
   //Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
-  if(bundle.inputData.content.length > 1){
+  if(bundle.inputData.content && bundle.inputData.content.length > 1){
 
     bundle.inputData.content = _.uniq(bundle.inputData.content);
 
@@ -54,7 +54,7 @@ module.exports = {
         type: 'string',
         label: 'Organization',
         dynamic: 'orgChoices.id.displayName', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the organization where your source is located.',
+        helpText: 'The organization ID of your Coveo Cloud organization.',
       },
       {
         key: 'sourceId',
@@ -62,28 +62,28 @@ module.exports = {
         type: 'string',
         label: 'Source',
         dynamic: 'orgSources.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the source in the organization you wish to push to. This must be chosen after the organization ID.',
+        helpText: 'The source ID where the item should be pushed.',
       },
       {
         key: 'documentId',
         required: true,
         type: 'string',
-        label: 'Document ID',
-        helpText: 'The ID of the document you want to use in the index. This MUST be in a url form. You can use a url or create your own url with an identifier like this: app-name://ID.',
+        label: 'Item ID',
+        helpText: 'The ID you want to give to your item. It must follow a URL format. You can use the original url, or create your own identifier like this: app-name://<ID>.',
       },
       {
         key: 'title',
         required: true,
         type: 'string',
-        label: 'Title of Submission',
-        helpText: 'The title of the submission to be displayed within the source. This would be the title of the parent item sent in the content.',
+        label: 'Title',
+        helpText: 'The title of the pushed item.',
       },
       {
         key: 'date',
         required: false,
         type: 'string',
         label: 'Date',
-        helpText: 'The date of the of the content you are pushing into your source. Even though this is not required, it is highly recommended.',
+        helpText: 'The date of the item you are pushing in the source. You are strongly encouraged to enter a value for this field.',
       },
       {
         key: 'clickableuri',
@@ -91,7 +91,7 @@ module.exports = {
         type: 'string',
         label: 'Content Url',
         helpText:
-          'A url to the content you are pushing. Use this if you manually constructed the Document ID and still want a url to your content, or you want an additional/alternate url to the content in your submission.',
+          'A URL pointing to the original content you are pushing. Use this if you manually constructed the Item ID and still want a url to your content, or you want an additional/alternate URL to the content in your submission.',
       },
       {
         key: 'content',
@@ -100,15 +100,15 @@ module.exports = {
         label: 'Files',
         list: true, //Makes an 'infinite' list of input boxes for the user to put in files/urls
         helpText:
-          'The main content you want extracted into the source. These can only be files or urls to extract content from. Files or urls that require authorization or are not in the proper format will not index the desired content. Duplicate files or urls will only have one of them indexed instead of all the duplicates. If you wish to push an archive file and have the content extracted from it, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported.',
+          'The main content of a file or URL you want extracted into the source. Files or URLs that require authorization or are not in the proper format will fail. If you wish to push multiple files in the form of an archive file, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported.',
       },
       {
         key: 'data',
         required: false,
         type: 'string',
-        label: 'Plain Text',
+        label: 'Item Body',
         helpText:
-          'The main content you want extracted into the source as plain text. This can be the text of a file, any text you input, an HTML body, or a mix of these. Use this if no files or urls are supplied for content extraction. If this and at least one valid file or url are supplied for extraction, then both will be pushed into the source.',
+          'The main content of the item, when not using files. This text is usually interpreted as HTML content. You should use this when no valid files or URLs are supplied for content extraction.',
       },
       {
         key: 'fields',

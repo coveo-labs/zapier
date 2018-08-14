@@ -202,9 +202,10 @@ const fileHandler = (files, bundle) => {
 
       //For each result of the fetch...
       fileContent.forEach(content => {
+
         //Get the file name and type, iterate index once.
         let filename = decodeURI(content.filename); //Fixes bug where some app encode file names
-        let fileType = 'A ' + content.contentType;
+        let fileType = 'A(n) ' + content.contentType;
         indexCount++;
 
         //If an archive file was fetched, do this
@@ -268,7 +269,7 @@ const fileHandler = (files, bundle) => {
           //This is for non-archive files only.
           if(filename !== ''){
             bundle.inputData.content[indexCount] = filename;
-          } else if(fileType != 'A '){
+          } else if(fileType != 'A(n) '){
             bundle.inputData.content[indexCount] = fileType + ' file';
           }
 
@@ -288,6 +289,7 @@ const fileHandler = (files, bundle) => {
 const fetchFile = url => {
   const fetch = require('node-fetch');
   const contentDisposition = require('content-disposition');
+  const lowerCase = require('lower-case');
 
   const details = {
     filename: '',
@@ -302,7 +304,7 @@ const fetchFile = url => {
 
       // If the url given is redirected to another place, doesn't match the given url, or contains link, the given file url
       // wasn't the url content was extracted from. So, throw the bad fetch error.
-      if ((response.headers.get('link') || response.url != url || response.headers.get('www-authenticate'))) {
+      if ((response.headers.get('link') || lowerCase(url) !== lowerCase(response.url) || response.headers.get('www-authenticate'))) {
         details.fetch = 'bad fetch';
       }
 

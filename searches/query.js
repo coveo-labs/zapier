@@ -1,6 +1,5 @@
 const queryResource = require('../resources/query');
-const handleQuery = require('../resources/queryHandler').handleQuery;
-const _ = require('lodash');
+const handleOrgQuery = require('../resources/queryHandler').handleOrgQuery;
 
 //This is a handoff to the queryHandler. This sets up the defaults of some 
 //of the values if none were provided in the input fields. 
@@ -17,7 +16,7 @@ const searchQuery = (z, bundle) => {
   bundle.inputData.sortCriteria = 'Relevancy';
 
   //Send off to the handler
-  return handleQuery(z, bundle);
+  return handleOrgQuery(z, bundle);
 
 };
 
