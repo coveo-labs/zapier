@@ -16,7 +16,6 @@ describe('My App', () => {
       }, 
       inputData: {
         lq: 'What is Coveo for Sitecore?',
-        sortCriteria: 'Relevancy',
         organizationId: 'jdevosttest1miney9wk',
         numberOfResults: '6',
       }, 
