@@ -298,15 +298,28 @@ const fetchFile = url => {
     contentType: '',
   };
 
+  //If the url is not absolute, fetch will fail. Prevent the error here
+  //and from breaking the Zap by just indexing useless content with
+  //a note in the user in the index as to why.
+  if(url.indexOf('http') !== 0 || url.indexOf('https') !== 0){
+    
+    details.filename = 'File given was not an absolute url (must have http or https in the url)';
+    details.content = new Buffer('Bad url: ' , + url);
+    details.contentType = '.txt';
+    details.size = getStringByteSize(details.content);
 
-  return fetch(url)
-    .then(response => {
+    return details;
 
-      // If the url given is redirected to another place, doesn't match the given url, or contains link, the given file url
-      // wasn't the url content was extracted from. So, throw the bad fetch error.
-      if ((response.headers.get('link') || lowerCase(url) !== lowerCase(response.url) || response.headers.get('www-authenticate'))) {
-        details.fetch = 'bad fetch';
-      }
+  } else {
+
+    return fetch(url)
+      .then(response => {
+
+        // If the url given is redirected to another place, doesn't match the given url, or contains link, the given file url
+        // wasn't the url content was extracted from. So, throw the bad fetch error.
+        if ((response.headers.get('link') || lowerCase(url) !== lowerCase(response.url) || response.headers.get('www-authenticate'))) {
+          details.fetch = 'bad fetch';
+        }
 
       details.size = response.headers.get('content-length');
       details.contentType = '.' + mime.extension(response.headers.get('content-type'));
@@ -392,6 +405,9 @@ const fetchFile = url => {
       //and Coveo may or may not delete the submission.
       return details;
     });
+
+  }
+  
 };
 
 //Get the size of a buffer if a size wasn't given in the file description
