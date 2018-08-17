@@ -1,4 +1,3 @@
-const QuerySearch = require('./searches/query');
 //Required files to be included in Zapier
 const DeleteResource = require('./resources/delete');
 const PushResource = require('./resources/push');
@@ -42,7 +41,6 @@ const App = {
 
   // If you want your searches to show up, you better include it here!
   searches: {
-    [QuerySearch.key]: QuerySearch,
   },
 
   // If you want your creates to show up, you better include it here! Push/delete are included here

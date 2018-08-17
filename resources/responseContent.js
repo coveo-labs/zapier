@@ -75,7 +75,6 @@ const getOrgInfoForOutput = (z, bundle) => {
         outputInfo.docSize = pretty(result.information.documentsTotalSize);
 
         return outputInfo;
-
       })
         .then(() => {
 

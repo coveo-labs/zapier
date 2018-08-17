@@ -34,7 +34,7 @@ module.exports = {
         type: 'string',
         label: 'Organization ID',
         dynamic: 'orgChoices.id.displayName', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the organization within your platform.',
+        helpText: 'The organization ID of your Coveo Cloud organization.',
       },
       {
         key: 'sourceId',
@@ -42,14 +42,14 @@ module.exports = {
         type: 'string',
         label: 'Source ID',
         dynamic: 'orgSources.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the source inside of your organization. This must be chosen after the organization ID.',
+        helpText: 'The source ID where the item should be deleted.',
       },
       {
         key: 'documentId',
         required: true,
         type: 'string',
-        label: 'Document ID',
-        helpText: 'The ID of the document you wish to delete. Children of the Document ID supplied will also be deleted. If you wish to delete a specific child, simply add /file# to the Document ID. Example: `DOC_ID/file2`.',
+        label: 'Item ID',
+        helpText: 'The ID of the item you wish to delete. It must follow a URL format. You can use the original url, or create your own identifier like this: app-name://. Children of the item ID supplied will also be deleted. If you wish to delete a specific child, simply add /file# to the item ID. Example: `ITEM_ID/file2`.',
       },
       {
         key: 'title',

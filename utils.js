@@ -1,11 +1,15 @@
 'use strict';
 
 const push = require('./config').PUSH;
-const _ = require('lodash');
 const messages = require('./messages');
 const path = require('path');
 const fileType = require('file-type');
 const mime = require('mime-types');
+
+
+//Get the size of a buffer if a size wasn't given in the file description
+const getStringByteSize = string => Buffer.byteLength(string, 'utf8');
+
 
 //Simple function to handle an error occurring in a function that wasn't explicitly caught.
 const handleError = error => {
@@ -14,6 +18,7 @@ const handleError = error => {
   }
   throw error;
 };
+
 
 //This function sends a request to update the status of the source in the organization
 //before and after a push/delete request is made.
@@ -41,104 +46,6 @@ const setSourceStatus = (z, bundle, status) => {
     });
 };
 
-//This function is to allow for types of archive files to be used in a push. Includes .zip, .tar, .tar.gz, or .tar.bz2 (and their short hands).
-//This can be expanded upon in the future, but encompassing all archive file types would be very labor intensive.
-const decompressBatch = details => {
-  let addOrUpdate = [];
-
-  //This is all for decompressing the contents of the files See: https://www.npmjs.com/package/decompress
-  const decompress = require('decompress'); //Look for alternative for getting all of the contents of all tar file types and zip file, as of now there are no good decompression modules from a buffer, only local files
-
-  //Decompress and get the contents of the supported archive file.
-  //This will fail if a tar header is corrupt or not present and zip will always succeed unless corrupt.
-  //Supports .zip, .bz2, .gz, and .tar (decompress module for tar files doesn't support .Z and .xz/.lzma/.lz is currently bugged).
-  const toConvert = decompress(details.content, {
-    inputFile: details.content,
-  });
-
-  return toConvert.then(files => {
-    //Keep track of the total files and size in case they
-    //go over the app limit. Also, set up method for storing
-    //and folder names.
-    let fileCount = 0;
-    let folderNames = [];
-    let totalFileSize = 0;
-
-    //Loop through the file contents and grab the important
-    //file components.
-    files.forEach(file => {
-      let archiveContent = {};
-
-      //These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
-      //Generally better not to expose hidden files in the source as well.
-      if (file.path.indexOf('__MACOSX/') > -1 || ((/(^|\/)\.[^\/\.]/g).test(file.path.split('/').pop()))) {
-        //Also ignore folders within the archive, just want their contents not the folders themselves, but keep folder names
-        //to help alter the file names within them.
-      } else if (file.type === 'directory') {
-        folderNames.unshift(file.path);
-      } else {
-        let type = fileType(file.data); //To get the extension/file type
-
-        //If the type wasn't found within file-type, try mime-types. If it did
-        //work, the extension can be found. If mime-types succeeded where file-type
-        //failed, get the extension from there. 
-        if(type === null){
-
-          let mimeType = mime.lookup(file.path);
-          archiveContent.contentType = '.' + mime.extension(mimeType);
-
-        } else {
-          archiveContent.contentType = '.' + type.ext;
-        }
-
-        //Get important file info from each file in the archive
-        archiveContent.size = getStringByteSize(file.data);
-        archiveContent.content = file.data;
-        archiveContent.filename = file.path;
-        fileCount++;
-        totalFileSize += archiveContent.size;
-
-        //Too many files or the contents of the archive
-        //are too big, so catch early and throw an error
-        if (fileCount > 50) {
-          throw new Error(messages.TOO_MANY_FILES);
-        } else if (totalFileSize > 100 * 1024 * 1024){
-          throw new Error(messages.BIG_FILE);
-        }
-
-        //If a file is in a folder, the file name includes the folder's name
-        //as well. This looks at the encountered folders so far and removes
-        //the excess folder name out of the file name.
-        folderNames.forEach(folderName => {
-          if (archiveContent.filename.indexOf(folderName) > -1) {
-            archiveContent.filename = file.path.substr(folderName.length, file.path.length);
-          }
-        });
-        
-        //If both the mime-type checker and file-type checkers failed to get anything from the
-        //file, try one last time on the file name if an extension if present.
-        if(archiveContent.contentType === '.false'){
-          archiveContent.contentType = path.extname(archiveContent.filename);
-        } 
-        
-        //If no extension or file type is found, and all checkers failed, default to nothing.
-        if (archiveContent.contentType === null || archiveContent.contentType === undefined || archiveContent.contentType === '') {
-          archiveContent.contentType = '';
-        }
-
-        //Get the compression type of the individual file in the zip file
-        archiveContent.compressionType = findCompressionType(archiveContent, archiveContent.size);
-
-        //Push the file information into the array to be handled later
-        addOrUpdate.push(archiveContent);
-
-      }
-    });
-
-    addOrUpdate.originalFileInfo = details;
-    return addOrUpdate;
-  });
-};
 
 //This is a function to determine the type of compression used on a file. If none of these are detected, it will be indexed with the default of UNCOMPRESSED.
 //Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe for compression detecting as
@@ -181,7 +88,7 @@ const findCompressionType = (zipContent, uncompressedSize) => {
 
 //This function handles the process of fetching all the files provided
 //in the Field input field. All files will have content extracted, if they don't
-//violate absolute url form, and indexed into the source.
+//violate absolute url form or have content, and then indexed into the source.
 const fileHandler = (files, bundle) => {
 
   //List of promises, content of all the files, total files, and 
@@ -204,7 +111,7 @@ const fileHandler = (files, bundle) => {
       fileContent.forEach(content => {
 
         //Get the file name and type, iterate index once.
-        let filename = decodeURI(content.filename); //Fixes bug where some app encode file names
+        let filename = decodeURI(content.filename); //Fixes bug where some apps encode file names
         let fileType = 'A(n) ' + content.contentType;
         indexCount++;
 
@@ -260,6 +167,8 @@ const fileHandler = (files, bundle) => {
             bundle.inputData.content[indexCount] = filename;
           } else if (fileType !== 'Contents of a '){
             bundle.inputData.content[indexCount] = fileType + ' file';
+          } else {
+            bundle.inputData.content[indexCount] = 'A file';
           }
 
         } else {
@@ -271,6 +180,8 @@ const fileHandler = (files, bundle) => {
             bundle.inputData.content[indexCount] = filename;
           } else if(fileType != 'A(n) '){
             bundle.inputData.content[indexCount] = fileType + ' file';
+          } else {
+            bundle.inputData.content[indexCount] = 'A file';
           }
 
         }
@@ -282,10 +193,105 @@ const fileHandler = (files, bundle) => {
 
 };
 
+
+//This function is to allow for types of archive files to be used in a push. Includes .zip, .tar, .tar.gz, or .tar.bz2 (and their short hands).
+//This can be expanded upon in the future, but encompassing all archive file types would be very labor intensive.
+const decompressArchive = details => {
+  let addOrUpdate = [];
+
+  //This is all for decompressing the contents of the supported archive files See: https://www.npmjs.com/package/decompress
+  const decompress = require('decompress'); 
+
+  //Decompress and get the contents of the supported archive file types.
+  //This will fail if a tar header is corrupt or not present and zip will always succeed unless corrupt.
+  const toConvert = decompress(details.content, {
+    inputFile: details.content,
+  });
+
+  return toConvert.then(files => {
+    //Keep track of the total files and size  
+    //Also, set up method for storing and folder names.
+    let fileCount = 0;
+    let folderNames = [];
+    let totalFileSize = 0;
+
+    //Loop through the file contents and grab the important components.
+    files.forEach(file => {
+      let archiveContent = {};
+
+      //These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
+      if (file.path.indexOf('__MACOSX/') > -1 || ((/(^|\/)\.[^\/\.]/g).test(file.path.split('/').pop()))) {
+        //Also ignore folders within the archive, but keep folder names
+        //to help alter the file names within them.
+      } else if (file.type === 'directory') {
+        folderNames.unshift(file.path);
+      } else {
+        let type = fileType(file.data); //To get the extension/file type
+
+        //If file-type didn't find anything, try mime-types.
+        //If mime-types succeeded where file-type failed, get the extension from there. 
+        if(type === null){
+
+          let mimeType = mime.lookup(file.path);
+          archiveContent.contentType = '.' + mime.extension(mimeType);
+
+        } else {
+          archiveContent.contentType = '.' + type.ext;
+        }
+
+        //If both the mime-type checker and file-type checkers failed to get anything from the
+        //file, try one last time on the file name if an extension if present.
+        if(archiveContent.contentType === '.false'){
+          archiveContent.contentType = path.extname(archiveContent.filename);
+        } 
+        //If no extension or file type is found, and all checkers failed, default to nothing.
+        else if (archiveContent.contentType === null || archiveContent.contentType === undefined || archiveContent.contentType === '') {
+          archiveContent.contentType = '';
+        }
+
+        //Get important file info from each file in the archive
+        archiveContent.size = getStringByteSize(file.data);
+        archiveContent.content = file.data;
+        archiveContent.filename = file.path;
+        totalFileSize += archiveContent.size;
+        fileCount++;
+
+        //Too many files or the contents of the archive
+        //are too big, so catch early and throw an error
+        if (fileCount > 50) {
+          throw new Error(messages.TOO_MANY_FILES);
+        } else if (totalFileSize > 100 * 1024 * 1024){
+          throw new Error(messages.BIG_FILE);
+        }
+
+        //If a file is in a folder, the file name includes the folder's name
+        //as well. Remove the excess folder name out of the file name.
+        folderNames.forEach(folderName => {
+          if (archiveContent.filename.indexOf(folderName) > -1) {
+            archiveContent.filename = file.path.substr(folderName.length, file.path.length);
+          }
+        });
+
+        //Get the compression type of the individual file in the zip file
+        archiveContent.compressionType = findCompressionType(archiveContent, archiveContent.size);
+
+        //Push the file information into the array to be handled later
+        addOrUpdate.push(archiveContent);
+
+      }
+    });
+
+    //Save the original file type for the sake of output and return
+    addOrUpdate.originalFileInfo = details;
+    return addOrUpdate;
+  });
+};
+
+
 //Default method to extract content sent from Zapier. Will extract the file content using fetch (since everything
 //Zapier sends is in the form of a url for files, or urls in general).
 //Returns the file content as a buffer, file name, file type, and file size if all goes well. If a supported archive
-//file is sent for batch pushing, see decompressBatch.
+//file is sent for batch pushing, see decompressArchive.
 const fetchFile = url => {
   const fetch = require('node-fetch');
   const contentDisposition = require('content-disposition');
@@ -299,15 +305,10 @@ const fetchFile = url => {
   };
 
   //If the url is not absolute, fetch will fail. Prevent the error here
-  //and from breaking the Zap by just indexing useless content with
-  //a note in the user in the index as to why.
+  //and from breaking the Zap by just not fetching any content from it
   if(url.indexOf('http') !== 0 || url.indexOf('https') !== 0){
     
-    details.filename = 'File given was not an absolute url (must have http or https in the url)';
-    details.content = new Buffer('Bad url: ' , + url);
-    details.contentType = '.txt';
-    details.size = getStringByteSize(details.content);
-
+    details.fetch = 'bad url';
     return details;
 
   } else {
@@ -321,102 +322,98 @@ const fetchFile = url => {
           details.fetch = 'bad fetch';
         }
 
-      details.size = response.headers.get('content-length');
-      details.contentType = '.' + mime.extension(response.headers.get('content-type'));
-      const disposition = response.headers.get('content-disposition');
+        details.size = response.headers.get('content-length');
+        details.contentType = '.' + mime.extension(response.headers.get('content-type'));
+        const disposition = response.headers.get('content-disposition');
 
-      //If disposition exists, makes getting this file info very easy/possible like this.
-      //If the file extraction is a temporary amazon bucket, .parse() breaks. So, just use split
-      //for the filename if this happens
-      if (disposition && response.headers.get('x-amz-server-side-encryption')) {
-        details.filename = disposition.split('\'\'')[1];
-      } else if (disposition) {
-        details.filename = contentDisposition.parse(disposition).parameters.filename;
-      }
-
-      //This is a fabricated file extension from fetch if none is found,
-      //just get rid of it as it confuses indexing and the title.
-      if(details.filename.split('.').pop() === 'obj'){
-        details.filename = details.filename.substr(0, details.filename.lastIndexOf('.'));
-      }
-
-      //If mime-type couldn't pick up an extension, try file-type to get it
-      //based on the data buffer
-      if (details.contentType === '.false') {
-        if(fileType(details.content) === null){ //Bad call, do nothing
-        } else {
-          details.contentType = '.' + fileType(details.content).ext;
+        //If disposition exists, makes getting this file info very easy/possible like this.
+        //If the file extraction is a temporary amazon bucket, .parse() breaks. So, just use split
+        //for the filename if this happens
+        if (disposition && response.headers.get('x-amz-server-side-encryption')) {
+          details.filename = disposition.split('\'\'')[1];
+        } else if (disposition) {
+          details.filename = contentDisposition.parse(disposition).parameters.filename;
         }
-      } 
 
-      //If mime-type and file-type fail, last resort is the file name for an extension.
-      if(details.contentType === '.false'){
-        details.contentType = path.extname(details.filename);
-      } 
+        //This is a fabricated file extension from fetch if none is found,
+        //just get rid of it as it confuses indexing and the title.
+        if(details.filename.split('.').pop() === 'obj'){
+          details.filename = details.filename.substr(0, details.filename.lastIndexOf('.'));
+        }
 
-      //If no extension or file type is found, and all checkers failed, default to nothing.
-      if (details.contentType === null || details.contentType === undefined || details.contentType === '') {
-        details.contentType = '';
-      }
+        //If mime-type couldn't pick up an extension, try file-type to get it
+        //based on the data buffer
+        if (details.contentType === '.false') {
+          if(fileType(details.content) === null){ //Bad call, do nothing
+          } else {
+            details.contentType = '.' + fileType(details.content).ext;
+          }
+        } 
 
-      //Return the promise/buffer of the file
-      return response.buffer();
-    })
-    .then(content => {
-      details.content = content;
+        //If mime-type and file-type fail, last resort is the file name for an extension.
+        if(details.contentType === '.false'){
+          details.contentType = path.extname(details.filename);
+        } 
 
-      if(details.size === 'null'){
-        details.size = getStringByteSize(content);
-      }
+        //If no extension or file type is found, and all checkers failed, default to nothing.
+        if (details.contentType === null || details.contentType === undefined || details.contentType === '') {
+          details.contentType = '';
+        }
 
-      //The file is too big (100 MB for now), throw an error telling
-      //the user so and the file size limit.
-      if (details.size >= 100 * 1024 * 1024) {
-        throw new Error(messages.BIG_FILE);
-      }
+        //Return the promise/buffer of the file
+        return response.buffer();
+      })
+      .then(content => {
+        details.content = content;
 
-      // Using short names like 'c' and 'len' to improve readability in this case.
-      const c = details.content;
-      const len = c.length;
-      const type = details.contentType;
-      const name = details.filename;
+        //Get a size if the response of fetch failed to find it
+        if(details.size === 'null'){
+          details.size = getStringByteSize(content);
+        }
 
-      //Zip file, send to handleZip to get content. This helps to detect compression/file types based upon bytes in the data buffer for the
-      //following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
-      if ((c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) || type === '.zip') {
+        //The file is too big (100 MB for now), throw an error telling
+        //the user so and the file size limit.
+        if (details.size >= 100 * 1024 * 1024) {
+          throw new Error(messages.BIG_FILE);
+        }
+
+        // Using short names like 'c' and 'len' to improve readability in this case.
+        const c = details.content;
+        const len = c.length;
+        const type = details.contentType;
+        const name = details.filename;
+
+        //Zip file, send to handleZip to get content. This helps to detect compression/file types based upon bytes in the data buffer for the
+        //following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
+        if ((c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) || type === '.zip') {
         
-        return decompressBatch(details);
+          return decompressArchive(details);
 
         //These are the bad tar types, throwing errors could break the app if the user doesn't realize the tar types they send are bad. So, instead of throwing an error,
         //do nothing, index the file with no extraction, and let the user look at their logs to see why things are going wrong.
         //Fetch gets lzma/xz tar files as an octet-stream, which mime-types defaults to .bin. So, check for type .bin as well as the normal extensions to avoid that tar.
-      } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (name.indexOf('.txz') > 0 || type === '.tar' || type === '.bin')) || (c[0] === 0x1f && c[1] === 0x9d && (type === '.tar' || type === '.Z' || name.indexOf('.Z') > 0)) || ((name.indexOf('.lzma') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.tlz') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.lz') > 0 && type === '.tar' || type === '.bin'))){
+        } else if((c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (name.indexOf('.txz') > 0 || type === '.tar' || type === '.bin')) || (c[0] === 0x1f && c[1] === 0x9d && (type === '.tar' || type === '.Z' || name.indexOf('.Z') > 0)) || ((name.indexOf('.lzma') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.tlz') > 0 && type === '.tar' || type === '.bin') || (name.indexOf('.lz') > 0 && type === '.tar' || type === '.bin'))){
         //This tests to see if tar file sent or any possible tar file compression type was sent that are supported. Compressions for tar that are supported include: gzip, bz2, and normal tar.
         //This case is after zip and bad tars to avoid any bad tars from slipping by for the last case of the conditional, is the file just a tar with no compressions, despite this
         //calling the same function as the zip conditional. 
-      } else if (((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) && (type === '.tar' || name.indexOf('.tgz') > 0)) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && (name.indexOf('.tbz2') > 0 || name.indexOf('.tbz') > 0 || name.indexOf('.tb2') > 0 || type === '.tar' || type === '.bz2')) || type === '.tar'){
+        } else if (((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) && (type === '.tar' || name.indexOf('.tgz') > 0)) || (c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && (name.indexOf('.tbz2') > 0 || name.indexOf('.tbz') > 0 || name.indexOf('.tb2') > 0 || type === '.tar' || type === '.bz2')) || type === '.tar'){
         
-        return decompressBatch(details);
+          return decompressArchive(details);
 
-      }
+        }
 
-      //If neither the zip or tar cases picked up anything, this is some single file
-      //type, like pdf, or a file type that isn't supported (in which no valuable content will be extracted in the source)
-      //and Coveo may or may not delete the submission.
-      return details;
-    });
-
+        //If neither the zip or tar cases picked up anything, this is some single file
+        //type, like pdf, or a file type that isn't supported (in which no valuable content will be extracted in the source)
+        //and Coveo may or may not delete the submission.
+        return details;
+      });
   }
-  
 };
 
-//Get the size of a buffer if a size wasn't given in the file description
-const getStringByteSize = string => Buffer.byteLength(string, 'utf8');
-
 module.exports = {
-  fileHandler,
-  findCompressionType,
-  handleError,
   getStringByteSize,
+  handleError,
   setSourceStatus,
+  findCompressionType,
+  fileHandler,
 };
