@@ -3,7 +3,8 @@
 const push = require('../config').PUSH;
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
 const messages = require('../messages');
-const { handleError, findCompressionType, getStringByteSize, setSourceStatus, fileHandler } = require('../utils');
+const fileHandler = require('../fileHandler').fileHandler;
+const { handleError, findCompressionType, getStringByteSize, setSourceStatus, fileCountChecker, fileSizeChecker } = require('../utils');
 
 //Regular expression checker for the 'data' property of a push being an html body or not.
 //This is needed to change the fileExtension to html if needed. 
@@ -208,9 +209,8 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     batchContent.addOrUpdate.push(batchItem);
 
     //A backup error checker for the size of the files being too high
-    if (totalSize >= 100 * 1024 * 1024) {
-      throw new Error(messages.BIG_FILE);
-    }
+    fileSizeChecker(totalSize);
+
   });
 
   //If the parent document has no plain text, the parent document
@@ -271,9 +271,7 @@ const uploadToContainer = (z, bundle, result) => {
       .then(fileContents => {
 
         //Too many files if a batch was set up, throw an error
-        if(fileContents.length > 50){
-          throw new Error(messages.TOO_MANY_FILES);
-        }
+        fileCountChecker(fileContents.length);
 
         //If the returned response has more than just 1 file, this means the returned contents
         //will have a length greater than 1 in them. If that is the case, use the empty
@@ -327,9 +325,7 @@ const uploadToContainer = (z, bundle, result) => {
           }
 
           //This is a backup error checker for the size of the file.
-          if (fileContents[0].size >= 100 * 1024 * 1024 || getStringByteSize(fileContents[0].content) >= 100 * 1024 * 1024) {
-            throw new Error(messages.BIG_FILE);
-          }
+          fileSizeChecker(fileContents[1].size || getStringByteSize(fileContents[1].content));
 
           //If the document has a file supplied and no plain text, the first
           //item in the batch is useless, as it will contain no data or file content, so remove it.

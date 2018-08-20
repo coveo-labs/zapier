@@ -21,8 +21,9 @@ describe('deletes', () => {
   });
 
   describe('Delete Test', function() {
-    it('Delete single document', function() {
+    it('Delete Test', function() {
       zapier.tools.env.inject();
+      this.timeout(10000); //Set timeout to 10 seconds
       const bundle = {
         authData: {
           access_token: process.env.ACCESS_TOKEN,
