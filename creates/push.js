@@ -2,42 +2,49 @@
 
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
+const _ = require('lodash');
 
 //This functions is a handoff to the pushHandler file to handle the creation of a push request, sending it
 //to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
-  //Take the fields and put them into the bundle input data, then delete
-  //the fields key, since its content is in the bundle now there's no need to keep it
-  //as it's own object in the bundle.
+
+  //Take the fields the user submitted and put them into the input data
+  //to be sent in the push.
   Object.assign(bundle.inputData, bundle.inputData.fields);
   delete bundle.inputData.fields;
 
   if (!bundle.inputData.clickableuri) {
-    // keep original url in clickableuri (if clickableuri isn't set already)
+    //Keep original url in clickableuri (if clickableuri isn't set already)
     bundle.inputData.clickableuri = bundle.inputData.documentId;
   }
-  // sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
+  //Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
+
+  if(bundle.inputData.content && bundle.inputData.content.length > 1){
+
+    bundle.inputData.content = _.uniq(bundle.inputData.content);
+
+  }
 
   //Move on to handling the push process
   return pushHandler.handlePushCreation(z, bundle);
 };
 
-// We recommend writing your creates separate like this and rolling them
-// into the App definition at the end.
+//We recommend writing your creates separate like this and rolling them
+//into the App definition at the end.
 module.exports = {
   key: 'push',
 
-  // You'll want to provide some helpful display labels and descriptions
-  // for users. Zapier will put them into the UI/UX.
+  //You'll want to provide some helpful display labels and descriptions
+  //for users. Zapier will put them into the UI/UX.
   noun: 'Push',
   display: {
     label: 'Push or Update Content',
-    description: 'Push/Update Content to a Specified Push Source.',
+    description: 'Push or Update Content to a Specified Push Source.',
     important: true,
   },
 
-  // `operation` is where the business logic goes.
+  //`operation` is where the business logic goes.
   operation: {
     //App template input
     inputFields: [
@@ -47,7 +54,7 @@ module.exports = {
         type: 'string',
         label: 'Organization',
         dynamic: 'orgChoices.id.displayName', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the organization where your source is located.',
+        helpText: 'The organization ID of your Coveo Cloud organization.',
       },
       {
         key: 'sourceId',
@@ -55,45 +62,53 @@ module.exports = {
         type: 'string',
         label: 'Source',
         dynamic: 'orgSources.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The ID of the source in the organization you wish to push to. This can only be chosen after the organization ID.',
+        helpText: 'The source ID where the item should be pushed.',
       },
       {
         key: 'documentId',
         required: true,
         type: 'string',
-        label: 'Document ID',
-        helpText: 'The ID of the document you want to use in the index. This MUST be in a url form. You can use the original url or create your own identifier like this: app-name://ID.',
+        label: 'Item ID',
+        helpText: 'The ID you want to give to your item. It must follow a URL format. You can use the original url, or create your own identifier like this: app-name://<ID>.',
       },
       {
         key: 'title',
         required: true,
         type: 'string',
-        label: 'Title of Submission',
-        helpText: 'The title of the main submission to be displayed within the source content browser.',
+        label: 'Title',
+        helpText: 'The title of the pushed item.',
+      },
+      {
+        key: 'date',
+        required: false,
+        type: 'string',
+        label: 'Date',
+        helpText: 'The date of the item you are pushing in the source. You are strongly encouraged to enter a value for this field.',
       },
       {
         key: 'clickableuri',
         required: false,
         type: 'string',
-        label: 'Url of the Document',
+        label: 'Content Url',
         helpText:
-          'A url to the document. This is different from the document ID as this field provides you a url to the file you can click and it will always take you to the document from the url. You should use this field if you manually constructed the document ID and you have urls available as input options. If nothing is put here, the default url you can click will be whatever you put in the Document ID input field.',
+          'A URL pointing to the original content you are pushing. Use this if you manually constructed the Item ID and still want a url to your content, or you want an additional/alternate URL to the content in your submission.',
       },
       {
         key: 'content',
         required: false,
         type: 'string',
-        label: 'File',
+        label: 'Files',
+        list: true, //Makes an 'infinite' list of input boxes for the user to put in files/urls
         helpText:
-          'The main content you want extracted into the source. This can be a URL or a file. Zapier displays files as (Exists but not shown). This will always be the content of the push submission if it is supplied, the content extraction does not fail, or if the input supplied does not require authorization (i.e. a gmail email link). If you wish to push multiple files at once, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported. Only supply one url or file here and do not append any text to the supplied url, otherwise extraction will fail.',
+          'The main content of a file or URL you want extracted into the source. Files or URLs that require authorization or are not in the proper format will fail. If you wish to push multiple files in the form of an archive file, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported.',
       },
       {
         key: 'data',
         required: false,
         type: 'string',
-        label: 'Plain Text',
+        label: 'Item Body',
         helpText:
-          'The main content you want extracted into the source as plain text. This can be text of a file, some free text you input, an HTML body, or a mix of any of these. Use this if no files or urls for the File field are supplied and you want content to be extracted into your push source. If neither this nor the File field have any content, then no content will be extracted in the source. If both are supplied, then both will be pushed into the source.',
+          'The main content of the item, when not using files. This text is usually interpreted as HTML content. You should use this when no valid files or URLs are supplied for content extraction.',
       },
       {
         key: 'fields',
@@ -101,21 +116,21 @@ module.exports = {
         dict: true, //Creates input boxes for key value pairs, required for fields
         label: 'Fields',
         helpText:
-          'Any fields you wish to map content to in your source. Put the name of the field in the smaller box on the left, then the content of that field you want mapped in the larger box on the right. Be careful when typing the field names, as the spelling must be exact and fields are case sensitive.',
+          'Any fields your organization uses that you wish to map content to in your submission. Put the name of the field in the smaller box on the left, then the content of that field in the larger box on the right.',
       },
     ],
     //Action function
     perform: createNewPush,
 
-    // In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
-    // from the API, Zapier will fallback to this hard-coded sample. It should reflect the data structure of
-    // returned records, and have obviously dummy values that we can show to any user.
+    //In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
+    //from the API, Zapier will fallback to this hard-coded sample. It should reflect the data structure of
+    //returned records, and have obviously dummy values that we can show to any user.
     sample: pushResource.sample,
 
-    // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
-    // field definitions. The result will be used to augment the sample.
-    // outputFields: () => { return []; }
-    // Alternatively, a static field definition should be provided, to specify labels for the fields
+    //If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
+    //field definitions. The result will be used to augment the sample.
+    //outputFields: () => { return []; }
+    //Alternatively, a static field definition should be provided, to specify labels for the fields
     outputFields: pushResource.outputFields,
   },
 };

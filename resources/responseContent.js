@@ -5,7 +5,7 @@ const platform = require('../config').PLATFORM;
 
 //Function to construct an object appropriate for the user to see
 //when they want to use information from Coveo actions on other apps on Zapier.
-//Since we do not return anything useful other than the input information in our
+//Since Coveo requests don't return anything useful other than the input information in the
 //responses...manually construct the response content with other calls to Coveo.
 const getOrgInfoForOutput = (z, bundle) => {
 
@@ -24,6 +24,7 @@ const getOrgInfoForOutput = (z, bundle) => {
     docSize: '',
     orgName: '',
     orgOwner: '',
+    numFilesPushed: 0,
   };
 
   //Start promise to get org information from Coveo
@@ -39,7 +40,7 @@ const getOrgInfoForOutput = (z, bundle) => {
       throw new Error('Error getting organization name: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
     }
 
-    //Assign only the info I'm interested in from the response
+    //Assign only the useful info from the response
     const result = z.JSON.parse(response.content);
     outputInfo.orgName = result.displayName;
     outputInfo.orgOwner = result.owner.email;
@@ -61,7 +62,7 @@ const getOrgInfoForOutput = (z, bundle) => {
           throw new Error('Error getting source name and fields: ' , z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
         }
 
-        //Get only the information that I find useful from the response
+        //Get only the information useful from the response
         //and throw it into the object response.
         const result = z.JSON.parse(response.content);
         outputInfo.sourceName = result.name;
@@ -74,13 +75,16 @@ const getOrgInfoForOutput = (z, bundle) => {
         outputInfo.docSize = pretty(result.information.documentsTotalSize);
 
         return outputInfo;
-
       })
         .then(() => {
 
           //Put the input data from the bundle the user made into the object where
-          //I stored the information from Coveo calls I found useful.
+          //the gathered information is now stored.
           Object.assign(outputInfo, bundle.inputData);
+
+          if(outputInfo.content){
+            outputInfo.numFilesPushed = outputInfo.content.length;
+          }
 
           return outputInfo;
         })

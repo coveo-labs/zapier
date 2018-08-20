@@ -21,6 +21,8 @@ const outputFields = () => {
     {key: 'data', label: 'Plain Text Content'},
     {key: 'docSize', label: 'Size of all the Documents in the Source'},
     {key: 'clickableuri', label: 'Clickable Document URL'},
+    {key: 'date', label: 'Date of Document Creation'},
+    {key: 'numFilesPushed', label: 'Number of Files Successfully Pushed'},
   ];
 
   return output;
@@ -45,10 +47,10 @@ module.exports = {
     field2Content: 'coveo-source-field-2-content',	
   },
 
-  // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
-  // field definitions. The result will be used to augment the sample.
-  // outputFields: () => { return []; }
-  // Alternatively, a static field definition should be provided, to specify labels for the fields
+  //If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom
+  //field definitions. The result will be used to augment the sample.
+  //outputFields: () => { return []; }
+  //Alternatively, a static field definition should be provided, to specify labels for the fields
   outputFields: outputFields(),
 
 };

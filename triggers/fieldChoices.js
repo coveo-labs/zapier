@@ -1,17 +1,23 @@
 'use strict';
 
 //Currently not needed, but if Zapier one day allows for drop down lists alongside of the dict property in
-//their input field declarations, this would make the app very simple to use.
+//their input field declarations, this would make the app very simple to use. Just make sure to include it in
+//index.js if this happens one day.
 
 const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
 const message = require('../messages');
 
 //This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
-//without the trigger actual showing up in the app. This allows me to create dynamic drop downs for the input users
+//without the trigger actually showing up in the app. This allows the creation of dynamic drop downs for the input users
 //can use to get choices instead of manually inputting some information. This specific function
 //gets the fields used by a specific source, fills the input value with the field name, and displays the field name in a readable format.
 const perform = (z, bundle) => {
+
+  //No source/org ID or both chosen yet, so throw an error
+  if(!bundle.inputData.orgId && !bundle.inputData.sourceId){
+    throw new Error(message.SELECT_ORG_AND_SOURCE);
+  }
 
   //Request to Coveo to get fields that specified source uses in it's mappings. Source ID and Org ID must be
   //given by the user beforehand for this to work.
@@ -25,7 +31,7 @@ const perform = (z, bundle) => {
     .then(response => {
       if (response.status >= 400) {
         throw new Error(
-          'Error getting field choices for the drop down. Please ensure the source and organization IDs have been selected already: ' +
+          'Error getting field choices for the drop down: ' +
             z.JSON.parse(response.content).message +
             ' Error Code: ' +
             response.status
@@ -35,7 +41,7 @@ const perform = (z, bundle) => {
       let results = z.JSON.parse(response.content);
       results = results.items || [];
       if (!results.map) {
-        // make sure it's an array
+        //Make sure it's an array
         results = [];
       }
 

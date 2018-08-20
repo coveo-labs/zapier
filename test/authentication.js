@@ -9,8 +9,8 @@ const appTester = zapier.createAppTester(App);
 
 describe('basic authentication', () => {
   before(function() {
-    // Put your test ACCESS_TOKEN in a .env file.
-    // The inject method will load them and make them available to use in your tests.
+    //Put test ACCESS_TOKEN in a .env file.
+    //The inject method will load them and make them available to use in tests.
     zapier.tools.env.inject();
 
     should.ok(process.env.ACCESS_TOKEN, 'missing ACCESS_TOKEN');
