@@ -15,11 +15,27 @@ describe('searches', function() {
     //Put test ACCESS_TOKEN in a .env file.
     //The inject method will load them and make them available to use in tests.
     zapier.tools.env.inject();
+    should.ok(process.env.TEST_ORG_ID, 'missing TEST_ORG_ID=some-id in .env');
     should.ok(process.env.ACCESS_TOKEN, 'missing ACCESS_TOKEN. Add ACCESS_TOKEN=some-token in .env');
   });
 
 
-  it('Search Test', function() {
+  it('Search a Specified Org Test', function() {
+    const bundle = {
+      authData: {
+        access_token: process.env.ACCESS_TOKEN,
+      }, 
+      inputData: {
+        lq: 'What is Coveo for Sitecore?',
+        organizationId: process.env.TEST_ORG_ID,
+        numberOfResults: '6',
+      }, 
+    };
+
+    return appTester(App.searches.orgQuery.operation.perform, bundle);
+  });
+
+  it('Search Coveo Public Docs Test', function() {
     const bundle = {
       authData: {
         access_token: process.env.ACCESS_TOKEN,
@@ -30,6 +46,6 @@ describe('searches', function() {
       }, 
     };
 
-    return appTester(App.searches.query.operation.perform, bundle);
+    return appTester(App.searches.publicQuery.operation.perform, bundle);
   });
 });

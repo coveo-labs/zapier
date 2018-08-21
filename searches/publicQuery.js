@@ -1,9 +1,11 @@
+'use strict';
+
 const queryResource = require('../resources/query');
 const handleQuery = require('../resources/queryHandler').handleQuery;
 
 //This is a handoff to the queryHandler. This sets up the defaults of some 
 //of the values if none were provided in the input fields. 
-const searchQuery = (z, bundle) => {
+const searchPublicQuery = (z, bundle) => {
   //Default number of documents to get and display
   //and make sure the number isn't bigger than 10.
   if(!bundle.inputData.numberOfResults || typeof bundle.inputData.numberOfResults !== 'number'){
@@ -12,7 +14,8 @@ const searchQuery = (z, bundle) => {
     bundle.inputData.numberOfResults = 10;
   }
 
-  //Default sorting of the documents
+  //Default sorting of the documents, only option in
+  //this action to get most useful options for user.
   bundle.inputData.sortCriteria = 'Relevancy';
 
   //Send off to the handler
@@ -23,14 +26,14 @@ const searchQuery = (z, bundle) => {
 //We recommend writing your searches separate like this and rolling them
 //into the App definition at the end.
 module.exports = {
-  key: 'query',
+  key: 'publicQuery',
   noun: 'Query',
 
   //You'll want to provide some helpful display labels and descriptions
   //for users. Zapier will put them into the UI/UX.
   display: {
-    label: 'Search for Documents in an Organization',
-    description: 'Search and get relevant documents in an organization using the Coveo Search API by constructing a query.',
+    label: 'Find Help Documents',
+    description: 'Find public help documents from Coveo.',
     important: true,
   },
 
@@ -43,7 +46,7 @@ module.exports = {
         type: 'string', 
         required: true,
         label: 'Search Query',
-        helpText: 'The query to send to Coveo to search for documents.',
+        helpText: 'The search query to find documents. The query should follow the [Coveo Cloud Query Syntax](http://www.coveo.com/go?dest=cloudhelp&lcid=9&context=357).',
       },
       {
         key: 'numberOfResults',
@@ -51,20 +54,12 @@ module.exports = {
         required: false,
         label: 'Number of Documents',
         choices: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
-        helpText: 'The number of documents you wish to fetch in your result. The default number is 3 documents, and the maximum number of documents is 10.',
-      },
-      {
-        key: 'organizationId',
-        type: 'string',
-        required: false,
-        label: 'Organization ID',
-        helpText: 'Search an organization for relevant documents. Leave this blank if you wish to search for relevant help documents from `https://support.coveo.com/s/`.',
-        dynamic: 'orgChoices.id.displayName', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
+        helpText: 'The number of documents you wish to fetch in your result. Default is `3`, maximum is `10`.',
       },
     ],
 
     //Action function
-    perform: searchQuery,
+    perform: searchPublicQuery,
 
     //In cases where Zapier needs to show an example record to the user, but we are unable to get a live example
     //from the API, Zapier will fallback to this hard-coded sample. It should reflect the data structure of

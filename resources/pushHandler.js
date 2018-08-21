@@ -2,9 +2,8 @@
 
 const push = require('../config').PUSH;
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
-const messages = require('../messages');
-const fileHandler = require('../fileHandler').fileHandler;
-const { handleError, findCompressionType, getStringByteSize, setSourceStatus, fileCountChecker, fileSizeChecker } = require('../utils');
+const fileHandler = require('./fileHandler').fileHandler;
+const { handleError, coveoErrorHandler, findCompressionType, getStringByteSize, setSourceStatus, fileCountChecker, fileSizeChecker } = require('../utils');
 
 //Regular expression checker for the 'data' property of a push being an html body or not.
 //This is needed to change the fileExtension to html if needed. 
@@ -58,7 +57,7 @@ const processBatchPush = (z, bundle, result) => {
     return promise
       .then(response => {
         if (response.status !== 202) {
-          throw new Error('Error occurred sending batch push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+          coveoErrorHandler(response.status);
         }
 
         //Set the status of the source back once the push has succeeded
@@ -106,7 +105,7 @@ const processPush = (z, bundle) => {
     return promise
       .then(response => {
         if (response.status !== 202) {
-          throw new Error('Error occurred sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+            coveoErrorHandler(response.status);
         }
 
         //Set the status of the source back once the push has succeeded
@@ -140,7 +139,7 @@ const createContainer = (z, bundle) => {
   return promise
     .then(response => {
       if (response.status !== 201) {
-        throw new Error('Error creating file container: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        coveoErrorHandler(response.status);
       }
 
       //Parse the response for easier accessing of contents for the
@@ -240,7 +239,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   return promise
     .then(response => {
       if (response.status !== 200) {
-        throw new Error('Error uploading file contents to container: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        coveoErrorHandler(response.status);
       }
 
       //The container file ID is needed for the next stage of pushing the container
@@ -354,7 +353,7 @@ const uploadToContainer = (z, bundle, result) => {
           return promise
             .then(response => {
               if (response.status !== 200) {
-                throw new Error('Error uploading file contents to container: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+                coveoErrorHandler(response.status);
               }
 
               //Get the content and return it, should be an empty object.

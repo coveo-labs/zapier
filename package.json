@@ -1,14 +1,14 @@
 {
   "name": "coveo",
-  "version": "0.9.9",
+  "version": "1.0.0",
   "description": "Index documents into a push source on your Coveo Cloud V2 Platform organization.",
   "repository": "coveo-labs/zapier",
   "homepage": "https://coveo.com/",
   "author": "Bryan Arnold <barnold@coveo.com>",
   "contributors": [
     "Jerome Devost <jdevost@coveo.com>",
-    "Peter McCormick <pmccormick@coveo.com>",
-    "Alexandre Moreau <amoreau@coveo.com>"
+    "Alexandre Moreau <amoreau@coveo.com>",
+    "Peter McCormick <pmccormick@coveo.com>"
   ],
   "license": "MIT",
   "main": "index.js",

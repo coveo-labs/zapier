@@ -25,6 +25,7 @@ module.exports = {
   //fetch can be performed or some issues getting the details occurs.
   sample: {
     lq: 'What is Coveo for Sitecore?',
+    organizationId: 'coveo-organization-id',
     numberOfResults: '6',
   },
 

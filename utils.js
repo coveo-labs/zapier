@@ -18,6 +18,28 @@ const handleError = error => {
 };
 
 
+//Function to handle the logic of all Coveo errors that can occur
+//to make them more user friendly and sorted.
+const coveoErrorHandler = status => {
+  if(status === 400){
+    throw new Error(messages.ERROR_400);
+  } else if (status === 401){
+    throw new Error(messages.ERROR_401);
+  } else if (status === 403){
+    throw new Error(messages.ERROR_403);
+  } else if (status === 412){
+    throw new Error(messages.ERROR_412);
+  } else if (status === 413){
+    throw new Error(messages.ERROR_413);
+  } else if (status === 429){
+    throw new Error(messages.ERROR_429);
+  } else if (status >= 500 || status === 415 || status === 404){
+    throw new Error(messages.SHOULD_NOT_OCCUR_ERRORS);
+  } else {
+    throw new Error(messages.FALLBACK_ERROR);
+  }
+};
+
 //function to check whether or not the url given for the fetch
 //is absolute or the fetch got bad content. 
 const fetchChecker = (url, fetchResponse) => {
@@ -210,7 +232,7 @@ const setSourceStatus = (z, bundle, status) => {
   return promise
     .then(response => {
       if (response.status !== 201) {
-        throw new Error('Error occurred updating the source status: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        coveoErrorHandler(response.status);
       }
     });
 };
@@ -236,7 +258,6 @@ const findCompressionType = (zipContent, uncompressedSize) => {
     };
   }
 
-
   //Check first few bytes of the buffer to get compression, except LZMA
   //as the structure for these isn't very consistent globally to check for each time
   //and is very taxing to determine without a handy module.
@@ -255,10 +276,10 @@ const findCompressionType = (zipContent, uncompressedSize) => {
   return compressionType;
 };
 
-
 module.exports = {
   getStringByteSize,
   handleError,
+  coveoErrorHandler,
   fetchChecker,
   fileCountChecker,
   fileSizeChecker,

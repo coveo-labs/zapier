@@ -5,7 +5,7 @@ const zapier = require('zapier-platform-core');
 const { getStringByteSize, findCompressionType, fetchChecker, fileCountChecker, fileSizeChecker, 
   archiveTypeChecker, archiveFileFilter, findExtension, findFilename, setSourceStatus } = require('../utils');
 
-describe('Utils', () => {
+describe('utils', () => {
   zapier.tools.env.inject();
 
   should.ok(process.env.TEST_ORG_ID, 'missing TEST_ORG_ID=some-id in .env');
@@ -94,4 +94,12 @@ describe('Utils', () => {
     fileSizeChecker(nullSize, bufferOfNullSize).should.equal(28);
 
   });
+
+
+  it('Testing archiveFileFilter', () => {
+
+
+
+  });
+
 });

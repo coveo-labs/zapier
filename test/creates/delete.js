@@ -20,7 +20,6 @@ describe('deletes', () => {
     should.ok(process.env.ACCESS_TOKEN, 'missing ACCESS_TOKEN. Add ACCESS_TOKEN=some-token in .env');
   });
 
-  describe('Delete Test', function() {
     it('Delete Test', function() {
       zapier.tools.env.inject();
       this.timeout(10000); //Set timeout to 10 seconds
@@ -40,5 +39,4 @@ describe('deletes', () => {
 
       return appTester(App.creates.deletes.operation.perform, bundle);
     });
-  });
 });

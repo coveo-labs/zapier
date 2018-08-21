@@ -20,10 +20,9 @@ const createNewPush = (z, bundle) => {
   //Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
+  //Eliminate repeat url/file inputs in the Files input field
   if(bundle.inputData.content && bundle.inputData.content.length > 1){
-
     bundle.inputData.content = _.uniq(bundle.inputData.content);
-
   }
 
   //Move on to handling the push process
@@ -40,7 +39,7 @@ module.exports = {
   noun: 'Push',
   display: {
     label: 'Push or Update Content',
-    description: 'Push or Update Content to a Specified Push Source.',
+    description: 'Push or update content to a specified push source.',
     important: true,
   },
 
@@ -54,7 +53,6 @@ module.exports = {
         type: 'string',
         label: 'Organization',
         dynamic: 'orgChoices.id.displayName', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The organization ID of your Coveo Cloud organization.',
       },
       {
         key: 'sourceId',
@@ -62,7 +60,7 @@ module.exports = {
         type: 'string',
         label: 'Source',
         dynamic: 'orgSources.id.name', //For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'The source ID where the item should be pushed.',
+        helpText: 'Choose an Organization before selecting a source.',
       },
       {
         key: 'documentId',
@@ -81,7 +79,7 @@ module.exports = {
       {
         key: 'date',
         required: false,
-        type: 'string',
+        type: 'datetime',
         label: 'Date',
         helpText: 'The date of the item you are pushing in the source. You are strongly encouraged to enter a value for this field.',
       },
@@ -91,16 +89,16 @@ module.exports = {
         type: 'string',
         label: 'Content Url',
         helpText:
-          'A URL pointing to the original content you are pushing. Use this if you manually constructed the Item ID and still want a url to your content, or you want an additional/alternate URL to the content in your submission.',
+          'A URL pointing to the original content you are pushing. Use this if you manually constructed the Item ID and still want a URL to your content, or you want an additional/alternate URL to the content in your submission.',
       },
       {
         key: 'content',
         required: false,
-        type: 'string',
+        type: 'file',
         label: 'Files',
         list: true, //Makes an 'infinite' list of input boxes for the user to put in files/urls
         helpText:
-          'The main content of a file or URL you want extracted into the source. Files or URLs that require authorization or are not in the proper format will fail. If you wish to push multiple files in the form of an archive file, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported.',
+          'The main content of any files or URLs you want extracted into the source. Files or URLs that require authorization will not have the intended content extracted. If you wish to push multiple files in the form of an archive file, .zip, .tar, .tar.gz, and .tar.bz2 (as well as their short hands) are supported.',
       },
       {
         key: 'data',

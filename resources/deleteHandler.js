@@ -1,6 +1,6 @@
 'use strict';
 
-const { handleError, setSourceStatus } = require('../utils');
+const { handleError, coveoErrorHandler, setSourceStatus } = require('../utils');
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
 const push = require('../config').PUSH;
 
@@ -30,7 +30,7 @@ const handleDeleteCreation = (z, bundle) => {
     return promise.then((response) => {
 
       if(response.status !== 202){
-        throw new Error('Error occurred sending delete request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        coveoErrorHandler(response.status);
       }
 
       //Set the status of the source back once the push has succeeded

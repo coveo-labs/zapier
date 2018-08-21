@@ -1,6 +1,6 @@
 'use strict';
 
-const { getStringByteSize, handleError, findCompressionType, fetchChecker, fileCountChecker, fileSizeChecker, archiveTypeChecker, archiveFileFilter, findExtension, findFilename } = require('./utils');
+const { getStringByteSize, handleError, findCompressionType, fetchChecker, fileCountChecker, fileSizeChecker, archiveTypeChecker, archiveFileFilter, findExtension, findFilename } = require('../utils');
 
 //This function handles the process of fetching all the files provided
 //in the Field input field. All files will have content extracted, if they don't
