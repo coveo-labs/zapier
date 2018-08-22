@@ -26,7 +26,7 @@ describe('searches', function() {
         access_token: process.env.ACCESS_TOKEN,
       }, 
       inputData: {
-        lq: 'What is Coveo for Sitecore?',
+        lq: 'Zapier',
         organizationId: process.env.TEST_ORG_ID,
         numberOfResults: '6',
       }, 
@@ -42,7 +42,6 @@ describe('searches', function() {
       }, 
       inputData: {
         lq: 'What is Coveo for Sitecore?',
-        numberOfResults: '6',
       }, 
     };
 

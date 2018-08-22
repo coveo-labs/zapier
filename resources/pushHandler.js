@@ -105,7 +105,7 @@ const processPush = (z, bundle) => {
     return promise
       .then(response => {
         if (response.status !== 202) {
-            coveoErrorHandler(response.status);
+          coveoErrorHandler(response.status);
         }
 
         //Set the status of the source back once the push has succeeded

@@ -47,7 +47,7 @@ const fetchChecker = (url, fetchResponse) => {
   let fetch = '';
 
   //Absolute url format checker
-  if(url.indexOf('http') !== 0 || url.indexOf('https') !== 0){
+  if(url.indexOf('http') !== 0){
     fetch = 'bad url';
   }
   // If the url given is redirected to another place, doesn't match the given url, or contains link, the given file url
@@ -84,11 +84,13 @@ const fileSizeChecker = (fileSize, fileBuffer) => {
 
 
 //Function for finding the filetype/extension of a file after it's contents have been fetched
-const findExtension = (file , response) => {
+const findExtension = (file, response) => {
   const mime = require('mime-types');
   const path = require('path');
   let fileExtension = '';
 
+  //If the filename is trying to be determined from node-fetch call, aka when
+  //a file is being looked at that isn't inside of an archive file
   if(response){
     fileExtension = '.' + mime.extension(response.headers.get('content-type'));
 
@@ -113,6 +115,7 @@ const findExtension = (file , response) => {
 
     return fileExtension;
 
+    //Files within archive files checker
   } else {
 
     let type = fileType(file.data); //To get the extension/file type
@@ -158,7 +161,7 @@ const findFilename = (disposition, response) => {
   //This is a fabricated file extension from fetch if none is found,
   //just get rid of it as it confuses indexing and the title.
   if(filename.split('.').pop() === 'obj'){
-    filename = details.filename.substr(0, filename.lastIndexOf('.'));
+    filename = filename.substr(0, filename.lastIndexOf('.'));
   }
 
   return filename;

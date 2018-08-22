@@ -58,7 +58,6 @@ const fileHandler = (files, bundle) => {
   
           //Too many files checker
           fileCountChecker(fileCount);
-  
         }
         
         //If the content fetched was bad (not the initial desired content)

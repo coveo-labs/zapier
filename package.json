@@ -1,6 +1,6 @@
 {
   "name": "coveo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Index documents into a push source on your Coveo Cloud V2 Platform organization.",
   "repository": "coveo-labs/zapier",
   "homepage": "https://coveo.com/",
