@@ -1,6 +1,6 @@
 # Coveo Zapier Integration
 
-This is the code for the integration of the Coveo app on Zapier. It is capable of extracting the content of files or urls, then indexing that content into a specified push source on the Coveo Cloud Platform as either a single item push, or a batch. The batch push is currently limited to zip/tar files only along with optional plain text for any number of files sent, archive or not.
+This is the code for the integration of the Coveo app on Zapier. It is capable of extracting the content of files or urls, then indexing that content into a specified push source on the Coveo Cloud Platform as either a single item push, or a batch.
 
 ## Setting Up The App
 
@@ -23,12 +23,12 @@ git clone https://github.com/coveo-labs/zapier.git
 cd zapier
 npm install
 ```
-Now, you should have the app and all of it's dependencies installed in the directory. If the app failed to update or fully install on it's own, run the following commands to ensure the app is updated:
+Now, you should have the app and all of it's dependencies installed in the directory. If the app failed to update or fully install on it's own, run the following command to ensure the app is updated:
 
 ```bash
 sudo npm install -g zapier-platform-cli
 ```
-The basics of setting up the app should be complete at this point. If any problems arose, diagnose them from the errors in the command line and resolve them.
+The basics of setting up the app should be complete at this point. If any problems arose, diagnose them from the errors in the command line and resolve them. Note: you may have to run `sudo npm install -g zapier-platform-core` as well if you get an error while testing.
 
 Now, you'll want to register your own app on the website. Run the following commands in order to do so:
 
@@ -67,9 +67,7 @@ in `config.json`. Note: you must have a registered app on Zapier and have pushed
 }
 ```
 
-Finally, you'll want to tell Zapier what `CLIENT_ID` and `CLIENT_SECRET` to use when authenticating with Coveo. You will
-also need the version number of the app. You can get the app version by running `zapier versions` on the command line. Get these client credentials
-and enter the following commands:
+Finally, you'll want to tell Zapier what `CLIENT_ID` and `CLIENT_SECRET` to use when authenticating with Coveo. You will also need the version number of the app. You can get the app version by running `zapier versions` on the command line. Get these client credentials, then enter the following commands:
 
 ```bash
 zapier env <coveo-app-version> CLIENT_ID <coveo-client-id>
@@ -100,11 +98,11 @@ TEST_ORG_ID = <coveo-org-id>
 TEST_SOURCE_ID = <coveo-source-id>
 ACCESS_TOKEN = <coveo-source-api-key>
 ```
-These values will allow you to test to the specified source in the desired organization anytime locally. Within the `test/creates` file, you can replace the
-contents of the `bundle.inputData` with whatever you wish, as long as the required input fields are there (the required fields are in push.js/delete.js in the creates folder). The `test/authentication` and `test/orgChoices` files shouldn't need anything changed unless you desire.
+These values will allow you to test to the specified source in the desired organization anytime locally. Within the `test/creates` and `test/utils.js` files, you can replace the
+contents of the `bundle.inputData` or test case values with whatever you wish, as long as the required input fields are there for tests that require outbound requests. The `test/authentication` and `test/triggers` files shouldn't need anything changed unless you desire.
 
-This gives access to your source in your organization. Now, you can begin to test with any values you put into the `inputData` fields with the `zapier test` command.
-You should replace all of the `inputData` fields, since the ones in the repo will most likely not work anymore.
+This gives access to your source in your organization. Now, you can begin to test with the `zapier test` command.
+Note: You probably should replace all of the `inputData` fields, since the ones in the repo will most likely not work anymore.
 
 If for any reason you are getting authentication errors about your `ACCESS_TOKEN` being invalid or anything else you put into `.env` not being detected, simply run this command and it should resolve the issue:
 
