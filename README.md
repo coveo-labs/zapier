@@ -67,24 +67,20 @@ in `config.json`. Note: you must have a registered app on Zapier and have pushed
 }
 ```
 
-Finally, you'll want to tell Zapier what `CLIENT_ID` and `CLIENT_SECRET` to use when authenticating with Coveo. You will also need the `SEARCH_TOKEN` to fully use the query actions
-as well as the version number of the app. You can get the app version by running `zapier versions` on the command line. Get these client credentials and the search token,
-then enter the following commands:
+Finally, you'll want to tell Zapier what `CLIENT_ID` and `CLIENT_SECRET` to use when authenticating with Coveo. You will also need the version number of the app. You can get the app version by running `zapier versions` on the command line. Get these client credentials, then enter the following commands:
 
 ```bash
 zapier env <coveo-app-version> CLIENT_ID <coveo-client-id>
 zapier env <coveo-app-version> CLIENT_SECRET <coveo-client-secret>
-zapier env <coveo-app-version> SEARCH_TOKEN <coveo-search-token>
 ```
 
 To ensure the environment was setup correctly, run `zapier env <coveo-app-version>`. If the credentials match up, you've finished setting up the app.
 You should now set up a `.env` file to store these credentials and prep for testing. This isn't required, but it is very helpful for Zapier and let's you have access to credentials at any time.
-Create a `.env` file, ensure it is ignored in `.gitignore` if you are pushing to a repo, and store the credentials and search token like this:
+Create a `.env` file, ensure it is ignored in `.gitignore` if you are pushing to a repo, and store the credentials like this:
 
 ```bash
 CLIENT_ID = <coveo-client-id>
 CLIENT_SECRET = <coveo-client-secret>
-SEARCH_TOKEN = <coveo-search-token>
 ```
 Now, your app is configured to work with Coveo. From here on, you can start setting up tests for your app and updating the app based on changes you make.
 
@@ -102,7 +98,7 @@ TEST_ORG_ID = <coveo-org-id>
 TEST_SOURCE_ID = <coveo-source-id>
 ACCESS_TOKEN = <coveo-source-api-key>
 ```
-These values will allow you to test to the specified source in the desired organization anytime locally. Within the `test/creates`, `test/searches`, and `test/utils.js` files, you can replace the
+These values will allow you to test to the specified source in the desired organization anytime locally. Within the `test/creates` and `test/utils.js` files, you can replace the
 contents of the `bundle.inputData` or test case values with whatever you wish, as long as the required input fields are there for tests that require outbound requests. The `test/authentication` and `test/triggers` files shouldn't need anything changed unless you desire.
 
 This gives access to your source in your organization. Now, you can begin to test with the `zapier test` command.
