@@ -42,18 +42,18 @@ const coveoErrorHandler = status => {
 
 //function to check whether or not the url given for the fetch
 //is absolute or the fetch got bad content. 
-const fetchChecker = (url, fetchResponse) => {
-  const lowerCase = require('lower-case');
-  let fetch = '';
+const validateFetch = (url, fetchResponse) => {
+  let fetch = true;
 
   //Absolute url format checker
   if(url.indexOf('http') !== 0){
-    fetch = 'bad url';
-  }
-  // If the url given is redirected to another place, doesn't match the given url, or contains link, the given file url
-  // wasn't the url content was extracted from. So, throw the bad fetch error.
-  else if (fetchResponse && ((fetchResponse.headers.link) || lowerCase(url) !== lowerCase(fetchResponse.url) || (fetchResponse.headers['www-authenticate']))) {
-    fetch = 'bad fetch';
+    fetch = false;
+  } else if (fetchResponse) {
+    // If the url given is redirected to another place, doesn't match the given url, or contains link, the given file url
+    // wasn't the url content was extracted from. So, throw the bad fetch error.
+    if (fetchResponse.headers.link || url.toLowerCase() !== fetchResponse.url.toLowerCase() || fetchResponse.headers['www-authenticate']){
+      fetch = false;
+    }
   }
 
   return fetch;
@@ -61,7 +61,7 @@ const fetchChecker = (url, fetchResponse) => {
 
 //Function to check if the total number of files
 //processed exceeds 50.
-const fileCountChecker = fileCount => {
+const validateFileCount = fileCount => {
   if(fileCount > 50){
     throw new Error(messages.TOO_MANY_FILES);
   }
@@ -72,7 +72,7 @@ const fileCountChecker = fileCount => {
 //Function to check if the file size or total size of the files
 //fetched exceeds 100 MB. If no size can be fetched, find it from
 //the buffer first, then check.
-const fileSizeChecker = (fileSize, fileBuffer) => {
+const validateFileSize = (fileSize, fileBuffer) => {
   if(fileSize === 'null' && fileBuffer){
     fileSize = getStringByteSize(fileBuffer);
   } 
@@ -92,25 +92,25 @@ const findExtension = (file, response) => {
   //If the filename is trying to be determined from node-fetch call, aka when
   //a file is being looked at that isn't inside of an archive file
   if(response){
-    fileExtension = '.' + mime.extension(response.headers.get('content-type'));
+    fileExtension = mime.extension(response.headers.get('content-type'));
 
     //If mime-type couldn't pick up an extension, try file-type to get it
     //based on the data buffer
-    if (fileExtension === '.false') {
+    if (!fileExtension) {
       if(fileType(fileExtension) === null){ //Bad call, do nothing
       } else {
-        fileExtension = '.' + fileType(file.content).ext;
+        fileExtension = fileType(file.content).ext;
       }
     } 
   
     //If mime-type and file-type fail, last resort is the file name for an extension.
-    if(fileExtension === '.false'){
+    if(!fileExtension){
       fileExtension = path.extname(file.filename);
     } 
   
     //If no extension or file type is found, and all checkers failed, default to nothing.
-    if (fileExtension === null || fileExtension === undefined || fileExtension === '') {
-      fileExtension = '';
+    if (fileExtension) {
+      fileExtension = '.' + fileExtension;
     }
 
     return fileExtension;
@@ -125,19 +125,19 @@ const findExtension = (file, response) => {
     if(type === null){
 
       let mimeType = mime.lookup(file.path);
-      fileExtension = '.' + mime.extension(mimeType);
+      fileExtension = mime.extension(mimeType);
 
     } else {
-      fileExtension = '.' + type.ext;
+      fileExtension = type.ext;
     }
     //If both the mime-type checker and file-type checkers failed to get anything from the
     //file, try one last time on the file name if an extension if present.
-    if(fileExtension === '.false'){
+    if(!fileExtension){
       fileExtension = path.extname(file.path);
     } 
     //If no extension or file type is found, and all checkers failed, default to nothing.
-    else if (fileExtension === null || fileExtension === undefined || fileExtension === '') {
-      fileExtension = '';
+    else if (fileExtension) {
+      fileExtension = '.' + fileExtension;
     }
 
     return fileExtension;
@@ -170,7 +170,7 @@ const findFilename = (disposition, response) => {
 
 //Function to filter out hidden files and macOS dependent files when scanning through the contents
 //of an archive file.
-const archiveFileFilter = (file, folderNames) => {
+const archiveFileNameFilter = (file, folderNames) => {
 
   //These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
   if (file.path.indexOf('__MACOSX/') > -1 || ((/(^|\/)\.[^\/\.]/g).test(file.path.split('/').pop()))) {
@@ -186,18 +186,18 @@ const archiveFileFilter = (file, folderNames) => {
 
 //Function to detect if the file being observed is a supported archive
 //filetype or not.
-const archiveTypeChecker = details => {
+const validateArchiveType = details => {
 
   const c = details.content;
   const len = c.length;
   const type = details.contentType;
   const name = details.filename;
-  let goodArchive = '';
+  let goodArchive = false;
 
   //Zip file, send to handleZip to get content. This helps to detect compression/file types based upon bytes in the data buffer for the
   //following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
   if ((c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) || type === '.zip') {
-    goodArchive = 'good archive';
+    goodArchive = true;
 
     //These are the bad tar types, throwing errors could break the app if the user doesn't realize the tar types they send are bad. So, instead of throwing an error,
     //do nothing, index the file with no extraction, and let the user look at their logs to see why things are going wrong.
@@ -207,7 +207,7 @@ const archiveTypeChecker = details => {
   //This case is after zip and bad tars to avoid any bad tars from slipping by for the last case of the conditional, is the file just a tar with no compressions, despite this
   //doing the same thing as the zip conditional. 
   } else if (((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) && (type === '.tar' || ((/\.(tgz)$/i).test(name)))) || ((c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && ((/\.(tbz2)$/i).test(name)) || ((/\.(tbz)$/i).test(name)) || ((/\.(tb2)$/i).test(name)) || type === '.tar' || type === '.bz2')) || type === '.tar'){
-    goodArchive = 'good archive';
+    goodArchive = true;
   }
 
   return goodArchive;
@@ -219,7 +219,7 @@ const archiveTypeChecker = details => {
 const setSourceStatus = (z, bundle, status) => {
 
   //Send request to Coveo
-  const promise = z.request({
+  const statePromise = z.request({
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/status`,
     method: 'POST',
     params: {
@@ -232,7 +232,7 @@ const setSourceStatus = (z, bundle, status) => {
   });
 
   //Return and handle response
-  return promise
+  return statePromise
     .then(response => {
       if (response.status !== 201) {
         coveoErrorHandler(response.status);
@@ -244,7 +244,7 @@ const setSourceStatus = (z, bundle, status) => {
 //This is a function to determine the type of compression used on a file. If none of these are detected, it will be indexed with the default of UNCOMPRESSED.
 //Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe for compression detecting as
 //well as documents about the file format headers for these types of compressions.
-const findCompressionType = (zipContent, uncompressedSize) => {
+const validateCompressionType = (zipContent, uncompressedSize) => {
 
   //Default
   let compressionType = 'UNCOMPRESSED';
@@ -283,13 +283,13 @@ module.exports = {
   getStringByteSize,
   handleError,
   coveoErrorHandler,
-  fetchChecker,
-  fileCountChecker,
-  fileSizeChecker,
+  validateFetch,
+  validateFileCount,
+  validateFileSize,
   findExtension,
   findFilename,
-  archiveFileFilter,
-  archiveTypeChecker,
+  archiveFileNameFilter,
+  validateArchiveType,
   setSourceStatus,
-  findCompressionType,
+  validateCompressionType,
 };

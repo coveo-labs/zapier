@@ -21,13 +21,13 @@ const perform = (z, bundle) => {
 
   //Request to Coveo to get fields that specified source uses in it's mappings. Source ID and Org ID must be
   //given by the user beforehand for this to work.
-  const sourceFieldsPromise = z.request({
+  const orgFieldsPromise = z.request({
     url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/indexes/page/fields`,
     method: 'GET',
   });
 
   //Handle response
-  return sourceFieldsPromise
+  return orgFieldsPromise
     .then(response => {
       if (response.status >= 400) {
         throw new Error(

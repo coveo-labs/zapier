@@ -1,6 +1,6 @@
 'use strict';
 
-const { getStringByteSize, handleError, findCompressionType, fetchChecker, fileCountChecker, fileSizeChecker, archiveTypeChecker, archiveFileFilter, findExtension, findFilename } = require('../utils');
+const { getStringByteSize, handleError, validateCompressionType, validateFetch, validateFileCount, validateFileSize, validateArchiveType, archiveFileNameFilter, findExtension, findFilename } = require('../utils');
 
 //This function handles the process of fetching all the files provided
 //in the Field input field. All files will have content extracted, if they don't
@@ -8,23 +8,21 @@ const { getStringByteSize, handleError, findCompressionType, fetchChecker, fileC
 const fileHandler = (files, bundle) => {
   //List of promises, content of all the files, total files, and 
   //and index tracker for updating the bundle for better response content later on.
-  let promises = [];
+  let fileFetches = [];
   let fileContents = [];
   let fileCount = 0;
   let indexCount = -1;
   
   //Set up promises to fetch each file supplied
   files.forEach(file => {
-    promises.push(fetchFile(file));
+    fileFetches.push(fetchFile(file));
   });
   
   //Return all the promises
-  return Promise.all(promises)
+  return Promise.all(fileFetches)
     .then(function(fileContent){
-  
       //For each result of the fetch...
       fileContent.forEach(content => {
-  
         //Get the file name and type, iterate index once.
         let filename = decodeURI(content.filename); //Fixes bug where some apps encode file names
         let fileType = 'A(n) ' + content.contentType;
@@ -45,23 +43,22 @@ const fileHandler = (files, bundle) => {
             fileCount++;
   
             //Too many files checker
-            fileCountChecker(fileCount);
+            validateFileCount(fileCount);
   
           });
   
           //If a non-archive file is being looked at
-        } else if (!content.fetch){
-  
+        } else if (content.fetch){
           //Get the content of the file and iterate the file count
           fileContents.push(content);
           fileCount++;
-  
+
           //Too many files checker
-          fileCountChecker(fileCount);
+          validateFileCount(fileCount);
         }
         
         //If the content fetched was bad (not the initial desired content)
-        if (content.fetch){
+        if (!content.fetch){
   
           //Remove the content from the data, as it isn't important or useful
           bundle.inputData.content.splice(indexCount, 1);
@@ -95,7 +92,6 @@ const fileHandler = (files, bundle) => {
           }
   
         }
-  
       });
   
       return fileContents;
@@ -122,9 +118,9 @@ const fetchFile = url => {
 
   //If the url is not absolute, fetch will fail. Prevent the error here
   //and from breaking the Zap by just not fetching any content from it
-  if(fetchChecker(url)){
+  if(!validateFetch(url)){
       
-    details.fetch = 'bad url';
+    details.fetch = false;
     return details;
   
   } else {
@@ -134,7 +130,7 @@ const fetchFile = url => {
         fetchResponse = response;
 
         //Check if the url content was extracted from was the url that was intended for content extraction.
-        details.fetch = fetchChecker(url, response);
+        details.fetch = validateFetch(url, response);
   
         const disposition = response.headers.get('content-disposition');
         details.size = response.headers.get('content-length');
@@ -149,11 +145,11 @@ const fetchFile = url => {
 
         //The file is too big (100 MB for now), throw an error telling
         //the user so and the file size limit.
-        fileSizeChecker(details.size, details.content);
+        validateFileSize(details.size, details.content);
   
         //See if the file is a supported archive or not, handle
         //accordingly.
-        if(archiveTypeChecker(details)){
+        if(validateArchiveType(details)){
           return decompressArchive(details);
         }
 
@@ -192,7 +188,7 @@ const decompressArchive = details => {
       let archiveContent = {};
   
       //These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
-      if (archiveFileFilter(file, folderNames)) {
+      if (archiveFileNameFilter(file, folderNames)) {
         //Also ignore folders within the archive, but keep folder names
         //to help alter the file names within them.
       } else {
@@ -209,8 +205,8 @@ const decompressArchive = details => {
   
         //Too many files or the contents of the archive
         //are too big, so catch early and throw an error
-        fileCountChecker(fileCount);
-        fileSizeChecker(totalFileSize, archiveContent.content);
+        validateFileCount(fileCount);
+        validateFileSize(totalFileSize, archiveContent.content);
   
         //If a file is in a folder, the file name includes the folder's name
         //as well. Remove the excess folder name out of the file name.
@@ -221,7 +217,7 @@ const decompressArchive = details => {
         });
   
         //Get the compression type of the individual file in the zip file
-        archiveContent.compressionType = findCompressionType(archiveContent, archiveContent.size);
+        archiveContent.compressionType = validateCompressionType(archiveContent, archiveContent.size);
   
         //Push the file information into the array to be handled later
         addOrUpdate.push(archiveContent);

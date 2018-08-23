@@ -6,7 +6,7 @@ const zapier = require('zapier-platform-core');
 //No reason to test handleError, it's a backup error handler that'll most likely never happen.
 //Most of the file related utils functions left out of this, since they're very reliant on actually reading files. Can be put here later to 
 //individually test them if so desired. These tests are easy/aren't too dependent on reading actual files.
-const { getStringByteSize, coveoErrorHandler, fetchChecker, fileCountChecker, fileSizeChecker, archiveFileFilter } = require('../utils');
+const { getStringByteSize, coveoErrorHandler, validateFetch, validateFileCount, validateFileSize, archiveFileNameFilter } = require('../utils');
 
 describe('utils', () => {
   //This must be included in any test file before bundle, as it extracts the
@@ -51,61 +51,63 @@ describe('utils', () => {
 
   });
 
-  it('Testing fetchChecker', () => {
+  it('Testing validateFetch', () => {
 
-    const fetchCheckerTests = [
+    const validateFetchTests = [
       {
         url: 'www.notabsolute.com/',
-        expected: 'bad url',
+        expected: false,
       },
       {
         url: 'http://isabsolute.com/',
-        expected: '',
+        expected: true,
       },
       {
         url: 'notabsolute://12356',
-        expected: 'bad url',
+        expected: false,
       },
       {
         url: 'https://github.com/',
-        expected: '',
+        expected: true,
       },
       {
         url: 'https://coveo.com/',
         fetchResponse: {
+          url: 'https://coveo.com/',
           headers: {
             link: 'redirects to another place',
           },
         },
-        expected: 'bad fetch',
+        expected: false,
       },
       {
         url: 'https://coveo.com/',
         fetchResponse: {
+          url: 'https://coveo.com/',
           headers: {
             'www-authenticate': 'requires authorization',
           },
         },
-        expected: 'bad fetch',
+        expected: false,
       },
       {
         url: 'https://coveo.com/',
         fetchResponse: {
-          url: 'different url from fetch',
+          url: 'https://Coveo.com/',
           headers: {
             noBadHeaders: 'no bad headers here',
           },
         },
-        expected: 'bad fetch',
+        expected: true,
       },
     ];
 
-    fetchCheckerTests.forEach((fetch) => fetchChecker(fetch.url, fetch.fetchResponse).should.equal(fetch.expected));
+    validateFetchTests.forEach((fetch) => validateFetch(fetch.url, fetch.fetchResponse).should.equal(fetch.expected));
   });
 
-  it('Testing fileCountChecker', () => {
+  it('Testing validateFileCount', () => {
 
-    const fileCountCheckerTests = [
+    const validateFileCountTests = [
       {
         fileCount: 50,
         expected: false,
@@ -124,17 +126,17 @@ describe('utils', () => {
       },
     ];
 
-    fileCountCheckerTests.forEach((test) => fileCountChecker(test.fileCount).should.equal(test.expected));
+    validateFileCountTests.forEach((test) => validateFileCount(test.fileCount).should.equal(test.expected));
 
     let badCount = 80;
 
-    (function(){ fileCountChecker(badCount); }).should.throw();
+    (function(){ validateFileCount(badCount); }).should.throw();
 
   });
 
-  it('Testing fileSizeChecker', () => {
+  it('Testing validateFileSize', () => {
 
-    const fileSizeCheckerTests = [
+    const validateFileSizeTests = [
       {
         fileSize: 99 * 1024 * 1024,
         expected: 99 * 1024 * 1024,
@@ -149,23 +151,23 @@ describe('utils', () => {
       },
     ];
 
-    fileSizeCheckerTests.forEach((test) => fileSizeChecker(test.fileSize).should.equal(test.expected));
+    validateFileSizeTests.forEach((test) => validateFileSize(test.fileSize).should.equal(test.expected));
 
     let badSize = 101 * 1024 * 1024;
 
-    (function(){ fileSizeChecker(badSize); }).should.throw();
+    (function(){ validateFileSize(badSize); }).should.throw();
 
     let nullSize = 'null';
     let bufferOfNullSize = new Buffer.from('This is a test with a buffer');
 
-    fileSizeChecker(nullSize, bufferOfNullSize).should.equal(28);
+    validateFileSize(nullSize, bufferOfNullSize).should.equal(28);
 
   });
 
-  it('Testing archiveFileFilter', () => {
+  it('Testing archiveFileNameFilter', () => {
     let folderNames = [];
 
-    const archiveFileFilterTests = [
+    const archiveFileNameFilterTests = [
       {
         path: 'test.txt',
         type: 'file',
@@ -218,7 +220,7 @@ describe('utils', () => {
       },
     ];
 
-    archiveFileFilterTests.forEach((file) => archiveFileFilter(file, folderNames).should.equal(file.expected));
+    archiveFileNameFilterTests.forEach((file) => archiveFileNameFilter(file, folderNames).should.equal(file.expected));
     folderNames.length.should.equal(3);
 
   });
@@ -261,7 +263,7 @@ describe('utils', () => {
     const http = require('http');
 
     //Send request to Coveo
-    const promise = http.request({
+    const statePromise = http.request({
       url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/status`,
       method: 'POST',
       params: {
@@ -273,6 +275,6 @@ describe('utils', () => {
       },
     });
 
-    return promise;
+    return statePromise;
   };
 });
