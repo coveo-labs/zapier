@@ -28,10 +28,9 @@ describe('pushes', function() {
       },
       //Change this content for your testing
       inputData: {
-        documentId: 'https://drive.google.com/a/uconn.edu/file/d/1Y-ozUehmYIkwPUJ8Y-6JyZS51cZ4aljr/preview?usp=drivesdk',
+        documentId: 'localtest://12345',
         title: 'Push Test',
-        content: ['https://zapier.com/engine/hydrate/1625243/.eJx1kLFugzAQhl-l8pApCTaYwyBFlVqpSqOqU4cqCwL7AgTHJrZpmkZ594LUtTfd_92vG74b6YwPlZFYdooUnAkQeQpLcuhQq9JUJyTFFDSSJZEtyr7s8UoKBnEa82Ri1gQ0oQzXYW6-T7X-UrnGk-JGRqcn1oYw-CKKlJUrKlZAV9Pm1421jcbRo_v7sZb2NJd85FGODr2Mut5jfByPnCI0Aw75kNU6yVV_wLN15iuCOudtU0Hfjy5OvLc2a7s6tOEMphEsRCxNeCaooPNELIGEcxEnPM1FTlkuMvgH0lrv5JN6Fntvv98kAJwvPNt-bqudFVeePbYbxhmwDOIcBMQ04cB5usCNshejbaUWjdoEN87mDtadqjC5-OmGKYYu6NnWi9UK3avZd8MH-vAQr-f7_f4LvMx-5g:1frnpS:QqC6iJVx4UsXw1DMPZwcjENrQFM/',
-          'https://onlinehelp.coveo.com/en/ces/6.5/User/Whats_New.htm',
+        content: ['https://onlinehelp.coveo.com/en/ces/6.5/User/Whats_New.htm',
           'https://onlinehelp.coveo.com/en/ces/7.0/Administrator/Whats_New_-_For_Coveo_Platform_Administrators.htm',
           'https://onlinehelp.coveo.com/en/ces/7.0/Administrator/Whats_New_-_Coveo_Platform_7_Introduction.htm'],
         fields: {author: 'Bryan Arnold', site: 'https://coveo.com/'},

@@ -11,7 +11,7 @@ const message = require('../messages');
 //This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
 //without the trigger actually showing up in the app. This allows the creation of dynamic drop downs for the input users
 //can use to get choices instead of manually inputting some information. This specific function
-//gets the fields used by a specific source, fills the input value with the field name, and displays the field name in a readable format.
+//gets the fields used by a specific org, fills the input value with the field name, and displays the field name in a readable format.
 const perform = (z, bundle) => {
 
   //No source/org ID or both chosen yet, so throw an error
