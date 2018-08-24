@@ -7,7 +7,7 @@ const appTester = zapier.createAppTester(App);
 //Tests for the dynamic drop down lists on the app. As long as these get
 //the info needed, they'll work on Zapier as well.
 
-describe('GET organizations', () => {
+describe('get drop downs', () => {
   before(function() {
     //Put test ACCESS_TOKEN in a .env file as well as the org/source information.
     //The inject method will load them and make them available to use in tests.

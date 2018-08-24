@@ -20,24 +20,23 @@ describe('deletes', () => {
     should.ok(process.env.ACCESS_TOKEN, 'missing ACCESS_TOKEN. Add ACCESS_TOKEN=some-token in .env');
   });
 
-  describe('Delete Test', function() {
-    it('Delete single document', function() {
-      zapier.tools.env.inject();
-      const bundle = {
-        authData: {
-          access_token: process.env.ACCESS_TOKEN,
-        },
+  it('Delete Test', function() {
+    zapier.tools.env.inject();
+    this.timeout(10000); //Set timeout to 10 seconds
+    const bundle = {
+      authData: {
+        access_token: process.env.ACCESS_TOKEN,
+      },
 
-        //Change these when you test
-        inputData: {
-          documentId: 'https://drive.google.com/a/uconn.edu/file/d/1j_X-vV_OpLlnjzxAKWQ5jwq36FEHGk-W/preview?usp=drivesdk',
-          title: 'Zapier Delete Test',
-          sourceId: process.env.TEST_SOURCE_ID,
-          orgId: process.env.TEST_ORG_ID,
-        },
-      };
+      //Change these when you test
+      inputData: {
+        documentId: 'https://drive.google.com/a/uconn.edu/file/d/1j_X-vV_OpLlnjzxAKWQ5jwq36FEHGk-W/preview?usp=drivesdk',
+        title: 'Zapier Delete Test',
+        sourceId: process.env.TEST_SOURCE_ID,
+        orgId: process.env.TEST_ORG_ID,
+      },
+    };
 
-      return appTester(App.creates.deletes.operation.perform, bundle);
-    });
+    return appTester(App.creates.deletes.operation.perform, bundle);
   });
 });

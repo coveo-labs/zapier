@@ -41,10 +41,6 @@ module.exports = {
     orgId: 'coveo-organization-id',
     title: 'my-file.html',
     content: 'content-to-extract',
-    field1: 'coveo-source-field-1',
-    field1Content: 'coveo-source-field-1-content',
-    field2: 'coveo-source-field-2',
-    field2Content: 'coveo-source-field-2-content',	
   },
 
   //If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom

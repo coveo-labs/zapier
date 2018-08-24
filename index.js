@@ -6,7 +6,7 @@ const deletes = require('./creates/delete');
 const authentication = require('./authentication');
 const orgChoices = require('./triggers/orgChoices');
 const orgSources = require('./triggers/orgSources');
-const {includeBearerToken} = require('./before-handlers');
+const { includeBearerToken } = require('./before-handlers');
 
 // Now we can roll up all our behaviors in an App.
 const App = {

@@ -7,8 +7,8 @@
   "author": "Bryan Arnold <barnold@coveo.com>",
   "contributors": [
     "Jerome Devost <jdevost@coveo.com>",
-    "Peter McCormick <pmccormick@coveo.com>",
-    "Alexandre Moreau <amoreau@coveo.com>"
+    "Alexandre Moreau <amoreau@coveo.com>",
+    "Peter McCormick <pmccormick@coveo.com>"
   ],
   "license": "MIT",
   "main": "index.js",
@@ -25,7 +25,6 @@
     "file-type": "^8.1.0",
     "jszip": "3.1.5",
     "lodash": "^4.17.10",
-    "lower-case": "^1.1.4",
     "mime-types": "^2.1.19",
     "node-native-zip": "^1.1.0",
     "prettysize": "^1.1.0",

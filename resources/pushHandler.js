@@ -2,8 +2,8 @@
 
 const push = require('../config').PUSH;
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
-const messages = require('../messages');
-const { handleError, findCompressionType, getStringByteSize, setSourceStatus, fileHandler } = require('../utils');
+const fileHandler = require('./fileHandler').fileHandler;
+const { handleError, coveoErrorHandler, validateCompressionType, getStringByteSize, setSourceStatus, validateFileCount, validateFileSize } = require('../utils');
 
 //Regular expression checker for the 'data' property of a push being an html body or not.
 //This is needed to change the fileExtension to html if needed. 
@@ -39,12 +39,12 @@ const handlePushCreation = (z, bundle) => {
 //or a file along with plain text as a batch push.
 const processBatchPush = (z, bundle, result) => {
   //Set te status of the source before any push is sent to it
-  const setStatusBefore = setSourceStatus(z, bundle, 'INCREMENTAL');
+  const statePromise = setSourceStatus(z, bundle, 'INCREMENTAL');
 
-  return setStatusBefore.then(() => {
+  return statePromise.then(() => {
 
   //Send request to Coveo
-    const promise = z.request({
+    const batchPushPromise = z.request({
       url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result}`,
       method: 'PUT',
       headers: {
@@ -54,10 +54,10 @@ const processBatchPush = (z, bundle, result) => {
     });
 
     //Handle response from Coveo.
-    return promise
+    return batchPushPromise
       .then(response => {
         if (response.status !== 202) {
-          throw new Error('Error occurred sending batch push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+          coveoErrorHandler(response.status);
         }
 
         //Set the status of the source back once the push has succeeded
@@ -77,7 +77,7 @@ const processBatchPush = (z, bundle, result) => {
 //this will not upload any valuable content.
 const processPush = (z, bundle) => {
   //Set te status of the source before any push is sent to it
-  const setStatusBefore = setSourceStatus(z, bundle, 'INCREMENTAL');
+  const statePromise = setSourceStatus(z, bundle, 'INCREMENTAL');
 
   //Check for any HTML tags in the data if it exists, and change the fileExtension to
   //.html so it is indexed properly
@@ -85,10 +85,10 @@ const processPush = (z, bundle) => {
     bundle.inputData.fileExtension = '.html';
   }
 
-  return setStatusBefore.then(() => {
+  return statePromise.then(() => {
 
   //Send request to Coveo.
-    const promise = z.request({
+    const singleItemPushPromise = z.request({
       url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
       method: 'PUT',
       body: JSON.stringify(bundle.inputData),
@@ -102,10 +102,10 @@ const processPush = (z, bundle) => {
     });
 
     //Handle request response
-    return promise
+    return singleItemPushPromise
       .then(response => {
         if (response.status !== 202) {
-          throw new Error('Error occurred sending push request to Coveo: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+          coveoErrorHandler(response.status);
         }
 
         //Set the status of the source back once the push has succeeded
@@ -126,7 +126,7 @@ const processPush = (z, bundle) => {
 //The creation of a container to amazon.
 const createContainer = (z, bundle) => {
   //Send request to Coveo
-  const promise = z.request({
+  const containerPromise = z.request({
     url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/files`,
     method: 'POST',
     headers: {
@@ -136,10 +136,10 @@ const createContainer = (z, bundle) => {
   });
 
   //Handle request response
-  return promise
+  return containerPromise
     .then(response => {
       if (response.status !== 201) {
-        throw new Error('Error creating file container: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        coveoErrorHandler(response.status);
       }
 
       //Parse the response for easier accessing of contents for the
@@ -200,17 +200,13 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
       }
 
       //Call compression checker to get the compression type of the file
-      batchItem.compressionType = findCompressionType(fileContent);
-
+      batchItem.compressionType = validateCompressionType(fileContent);
     }
-
     //Add batch item to total batch
     batchContent.addOrUpdate.push(batchItem);
 
     //A backup error checker for the size of the files being too high
-    if (totalSize >= 100 * 1024 * 1024) {
-      throw new Error(messages.BIG_FILE);
-    }
+    validateFileSize(totalSize);
   });
 
   //If the parent document has no plain text, the parent document
@@ -229,7 +225,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   let headers = result.requiredHeaders;
 
   //Send upload request to amazon
-  const promise = z.request({
+  const uploadPromise = z.request({
     url: result.uploadUri,
     method: 'PUT',
     body: batchContent,
@@ -237,12 +233,11 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   });
 
   //Handle amazon response
-  return promise
+  return uploadPromise
     .then(response => {
       if (response.status !== 200) {
-        throw new Error('Error uploading file contents to container: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+        coveoErrorHandler(response.status);
       }
-
       //The container file ID is needed for the next stage of pushing the container
       //and the batch contents aren't needed as they've been uploaded to the container.
       //So, just return the file ID.
@@ -269,11 +264,8 @@ const uploadToContainer = (z, bundle, result) => {
   return (
     fileDetails
       .then(fileContents => {
-
         //Too many files if a batch was set up, throw an error
-        if(fileContents.length > 50){
-          throw new Error(messages.TOO_MANY_FILES);
-        }
+        validateFileCount(fileContents.length);
 
         //If the returned response has more than just 1 file, this means the returned contents
         //will have a length greater than 1 in them. If that is the case, use the empty
@@ -317,7 +309,7 @@ const uploadToContainer = (z, bundle, result) => {
               }
 
               //Call compression checker to get the compression type of the file
-              uploadContent.compressionType = findCompressionType(fileContents[0]);
+              uploadContent.compressionType = validateCompressionType(fileContents[0]);
             }
 
             //Push onto the batch
@@ -327,9 +319,7 @@ const uploadToContainer = (z, bundle, result) => {
           }
 
           //This is a backup error checker for the size of the file.
-          if (fileContents[0].size >= 100 * 1024 * 1024 || getStringByteSize(fileContents[0].content) >= 100 * 1024 * 1024) {
-            throw new Error(messages.BIG_FILE);
-          }
+          validateFileSize(fileContents[0].size || getStringByteSize(fileContents[0].content));
 
           //If the document has a file supplied and no plain text, the first
           //item in the batch is useless, as it will contain no data or file content, so remove it.
@@ -347,7 +337,7 @@ const uploadToContainer = (z, bundle, result) => {
           let headers = result.requiredHeaders;
 
           //Send request to upload the file to amazon
-          const promise = z.request({
+          const uploadPromise = z.request({
             url: result.uploadUri,
             method: 'PUT',
             body: upload,
@@ -355,10 +345,10 @@ const uploadToContainer = (z, bundle, result) => {
           });
 
           //Handle the response from amazon
-          return promise
+          return uploadPromise
             .then(response => {
               if (response.status !== 200) {
-                throw new Error('Error uploading file contents to container: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+                coveoErrorHandler(response.status);
               }
 
               //Get the content and return it, should be an empty object.
