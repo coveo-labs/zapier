@@ -2,7 +2,6 @@
 
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
-const _ = require('lodash');
 
 // This functions is a handoff to the pushHandler file to handle the creation of a push request, sending it
 // to Coveo, then handling the appropriate response content.
@@ -20,7 +19,7 @@ const createNewPush = (z, bundle) => {
 
   // Eliminate repeat url/file inputs in the Files input field
   if (bundle.inputData.content && bundle.inputData.content.length > 1) {
-    bundle.inputData.content = _.uniq(bundle.inputData.content);
+    bundle.inputData.content = [...new Set(bundle.inputData.content)];
   }
 
   // Move on to handling the push process
