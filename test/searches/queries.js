@@ -43,6 +43,9 @@ describe('searches', function() {
       },
     };
 
+    // Searching the public org requires SEARCH_TOKEN to be set in .env
+    should.ok(process.env.SEARCH_TOKEN, 'missing SEARCH_TOKEN. Add SEARCH_TOKEN=some-token in .env');
+
     return appTester(App.searches.publicQuery.operation.perform, bundle);
   });
 });

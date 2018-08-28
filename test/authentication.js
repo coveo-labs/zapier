@@ -16,7 +16,7 @@ describe('basic authentication', () => {
     should.ok(process.env.ACCESS_TOKEN, 'missing ACCESS_TOKEN');
   });
 
-  it('Testing refresh token', function(done) {
+  it('Test a bad token, should catch error', function(done) {
     const bundle = {
       authData: {
         access_token: 'bad-token',
@@ -36,6 +36,11 @@ describe('basic authentication', () => {
       },
     };
 
-    return appTester(App.authentication.test, bundle);
+    return appTester(App.authentication.test, bundle).catch(err=> {
+      console.error(err);
+      console.log(`\n\n INVALID ACCESS TOKEN - STOPPING TESTS HERE. \n\n`);
+      // Invalid token - stop tests here.
+      process.exit();
+    });
   });
 });
