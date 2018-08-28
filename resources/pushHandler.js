@@ -3,7 +3,7 @@
 const push = require('../config').PUSH;
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
 const fileHandler = require('./fileHandler').fileHandler;
-const { handleError, coveoErrorHandler, validateCompressionType, getStringByteSize, setSourceStatus, validateFileCount, validateFileSize } = require('../utils');
+const utils = require('../utils');
 
 // Regular expression checker for the 'data' property of a push being an html body or not.
 // This is needed to change the fileExtension to html if needed.
@@ -30,7 +30,7 @@ const handlePushCreation = (z, bundle) => {
         // Push file container into the source. this indexes the content of the submission.
         return processBatchPush(z, bundle, result);
       })
-      .catch(handleError);
+      .catch(utils.handleError);
   }
 };
 
@@ -38,7 +38,7 @@ const handlePushCreation = (z, bundle) => {
 // or a file along with plain text as a batch push.
 const processBatchPush = (z, bundle, result) => {
   // Set te status of the source before any push is sent to it
-  const statePromise = setSourceStatus(z, bundle, 'INCREMENTAL');
+  const statePromise = utils.setSourceStatus(z, bundle, 'INCREMENTAL');
 
   return statePromise
     .then(() => {
@@ -56,19 +56,19 @@ const processBatchPush = (z, bundle, result) => {
       return batchPushPromise
         .then(response => {
           if (response.status !== 202) {
-            coveoErrorHandler(response.status);
+            utils.coveoErrorHandler(response.status);
           }
 
           // Set the status of the source back once the push has succeeded
-          return setSourceStatus(z, bundle, 'IDLE');
+          return utils.setSourceStatus(z, bundle, 'IDLE');
         })
         .then(() => {
           // /Send to responseContent handler.
           return getOutputInfo(z, bundle);
         })
-        .catch(handleError);
+        .catch(utils.handleError);
     })
-    .catch(handleError);
+    .catch(utils.handleError);
 };
 
 // Function to send single item push to Coveo with no File input field.
@@ -76,7 +76,7 @@ const processBatchPush = (z, bundle, result) => {
 // this will not upload any valuable content.
 const processPush = (z, bundle) => {
   // Set te status of the source before any push is sent to it
-  const statePromise = setSourceStatus(z, bundle, 'INCREMENTAL');
+  const statePromise = utils.setSourceStatus(z, bundle, 'INCREMENTAL');
 
   // Check for any HTML tags in the data if it exists, and change the fileExtension to .html so it is indexed properly
   if (RE_IS_HTML.test(bundle.inputData.data)) {
@@ -103,11 +103,11 @@ const processPush = (z, bundle) => {
       return singleItemPushPromise
         .then(response => {
           if (response.status !== 202) {
-            coveoErrorHandler(response.status);
+            utils.coveoErrorHandler(response.status);
           }
 
           // Set the status of the source back once the push has succeeded
-          return setSourceStatus(z, bundle, 'IDLE');
+          return utils.setSourceStatus(z, bundle, 'IDLE');
         })
         .then(() => {
           // Don't need this for output info, so remove it
@@ -116,9 +116,9 @@ const processPush = (z, bundle) => {
           // Send to responseContent handler
           return getOutputInfo(z, bundle);
         })
-        .catch(handleError);
+        .catch(utils.handleError);
     })
-    .catch(handleError);
+    .catch(utils.handleError);
 };
 
 // The creation of a container to amazon.
@@ -137,7 +137,7 @@ const createContainer = (z, bundle) => {
   return containerPromise
     .then(response => {
       if (response.status !== 201) {
-        coveoErrorHandler(response.status);
+        utils.coveoErrorHandler(response.status);
       }
 
       // Parse the response for easier accessing of contents for the
@@ -145,7 +145,7 @@ const createContainer = (z, bundle) => {
       const result = z.JSON.parse(response.content);
       return uploadToContainer(z, bundle, result);
     })
-    .catch(handleError);
+    .catch(utils.handleError);
 };
 
 // The function to handle a batch upload to amazon with multiple
@@ -191,13 +191,13 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
       }
 
       // Call compression checker to get the compression type of the file
-      batchItem.compressionType = validateCompressionType(fileContent);
+      batchItem.compressionType = utils.validateCompressionType(fileContent);
     }
     // Add batch item to total batch
     batchContent.addOrUpdate.push(batchItem);
 
     // A backup error checker for the size of the files being too high
-    validateFileSize(totalSize);
+    utils.validateFileSize(totalSize);
   });
 
   // If the parent document has no plain text, the parent document item in the batch is useless, as it will contain no data or file content, so remove it.
@@ -226,14 +226,14 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   return uploadPromise
     .then(response => {
       if (response.status !== 200) {
-        coveoErrorHandler(response.status);
+        utils.coveoErrorHandler(response.status);
       }
       // The container file ID is needed for the next stage of pushing the container
       // and the batch contents aren't needed as they've been uploaded to the container.
       // So, just return the file ID.
       return result.fileId;
     })
-    .catch(handleError);
+    .catch(utils.handleError);
 };
 
 // Function to handle the uploading of the file contents into
@@ -255,7 +255,7 @@ const uploadToContainer = (z, bundle, result) => {
     fileDetails
       .then(fileContents => {
         // Too many files if a batch was set up, throw an error
-        validateFileCount(fileContents.length);
+        utils.validateFileCount(fileContents.length);
 
         // If the returned response has more than just 1 file, this means the returned contents
         // will have a length greater than 1 in them. If that is the case, use the empty
@@ -294,7 +294,7 @@ const uploadToContainer = (z, bundle, result) => {
               }
 
               // Call compression checker to get the compression type of the file
-              uploadContent.compressionType = validateCompressionType(fileContents[0]);
+              uploadContent.compressionType = utils.validateCompressionType(fileContents[0]);
             }
 
             // Push onto the batch
@@ -303,7 +303,7 @@ const uploadToContainer = (z, bundle, result) => {
           }
 
           // This is a backup error checker for the size of the file.
-          validateFileSize(fileContents[0].size || getStringByteSize(fileContents[0].content));
+          utils.validateFileSize(fileContents[0].size || utils.getStringByteSize(fileContents[0].content));
 
           // If the document has a file supplied and no plain text, the first
           // item in the batch is useless, as it will contain no data or file content, so remove it.
@@ -332,7 +332,7 @@ const uploadToContainer = (z, bundle, result) => {
           return uploadPromise
             .then(response => {
               if (response.status !== 200) {
-                coveoErrorHandler(response.status);
+                utils.coveoErrorHandler(response.status);
               }
 
               // Get the content and return it, should be an empty object.
@@ -340,7 +340,7 @@ const uploadToContainer = (z, bundle, result) => {
               const result = z.JSON.stringify(response.content);
               return result;
             })
-            .catch(handleError);
+            .catch(utils.handleError);
         }
       })
       // After the upload succeeds
@@ -353,7 +353,7 @@ const uploadToContainer = (z, bundle, result) => {
         }
         return result.fileId;
       })
-      .catch(handleError)
+      .catch(utils.handleError)
   );
 };
 

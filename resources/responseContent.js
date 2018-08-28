@@ -1,6 +1,6 @@
 'use strict';
 
-const { handleError, coveoErrorHandler } = require('../utils');
+const utils = require('../utils');
 const platform = require('../config').PLATFORM;
 
 // Function to construct an object appropriate for the user to see
@@ -37,7 +37,7 @@ const getOrgInfoForOutput = (z, bundle) => {
     orgInfoPromise
       .then(response => {
         if (response.status >= 400) {
-          coveoErrorHandler(response.status);
+          utils.coveoErrorHandler(response.status);
         }
 
         // Assign only the useful info from the response
@@ -57,7 +57,7 @@ const getOrgInfoForOutput = (z, bundle) => {
         return orgSourcesPromise
           .then(response => {
             if (response.status >= 400) {
-              coveoErrorHandler(response.status);
+              utils.coveoErrorHandler(response.status);
             }
 
             // Get only the information useful from the response and throw it into the object response.
@@ -82,9 +82,9 @@ const getOrgInfoForOutput = (z, bundle) => {
 
             return outputInfo;
           })
-          .catch(handleError);
+          .catch(utils.handleError);
       })
-      .catch(handleError)
+      .catch(utils.handleError)
   );
 };
 

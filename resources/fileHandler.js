@@ -1,17 +1,6 @@
 'use strict';
 
-const {
-  getStringByteSize,
-  handleError,
-  validateCompressionType,
-  validateFetch,
-  validateFileCount,
-  validateFileSize,
-  validateArchiveType,
-  archiveFileNameFilter,
-  findExtension,
-  findFilename,
-} = require('../utils');
+const utils = require('../utils');
 
 // This function handles the process of fetching all the files provided in the Field input field.
 // All files will have content extracted, if they don't violate absolute url form or have content, and then indexed into the source.
@@ -50,7 +39,7 @@ const fileHandler = (files, bundle) => {
             fileCount++;
 
             // Too many files checker
-            validateFileCount(fileCount);
+            utils.validateFileCount(fileCount);
           });
 
           // If a non-archive file is being looked at
@@ -60,7 +49,7 @@ const fileHandler = (files, bundle) => {
           fileCount++;
 
           // Too many files checker
-          validateFileCount(fileCount);
+          utils.validateFileCount(fileCount);
         }
 
         // If the content fetched was bad (not the initial desired content)
@@ -95,7 +84,7 @@ const fileHandler = (files, bundle) => {
 
       return fileContents;
     })
-    .catch(handleError);
+    .catch(utils.handleError);
 };
 
 // Default method to extract content sent from Zapier. Will extract the file content using fetch (since everything
@@ -115,7 +104,7 @@ const fetchFile = url => {
   let fetchResponse = '';
 
   // If the url is not absolute, fetch will fail. Prevent the error here and from breaking the Zap by just not fetching any content from it
-  if (!validateFetch(url)) {
+  if (!utils.validateFetch(url)) {
     details.fetch = false;
     return details;
   } else {
@@ -124,24 +113,24 @@ const fetchFile = url => {
         fetchResponse = response;
 
         // Check if the url content was extracted from was the url that was intended for content extraction.
-        details.fetch = validateFetch(url, response);
+        details.fetch = utils.validateFetch(url, response);
 
         const disposition = response.headers.get('content-disposition');
         details.size = response.headers.get('content-length');
-        details.filename = findFilename(disposition, response);
+        details.filename = utils.findFilename(disposition, response);
 
         // Return the promise/buffer of the file
         return response.buffer();
       })
       .then(content => {
         details.content = content;
-        details.contentType = findExtension(details, fetchResponse);
+        details.contentType = utils.findExtension(details, fetchResponse);
 
         // The file is too big (100 MB for now), throw an error telling the user so and the file size limit.
-        validateFileSize(details.size, details.content);
+        utils.validateFileSize(details.size, details.content);
 
         // See if the file is a supported archive or not, handle accordingly.
-        if (validateArchiveType(details)) {
+        if (utils.validateArchiveType(details)) {
           return decompressArchive(details);
         }
 
@@ -149,7 +138,7 @@ const fetchFile = url => {
         // that isn't supported (in which no valuable content will be extracted in the source) and Coveo may or may not delete the submission.
         return details;
       })
-      .catch(handleError);
+      .catch(utils.handleError);
   }
 };
 
@@ -180,22 +169,22 @@ const decompressArchive = details => {
         let archiveContent = {};
 
         // These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
-        if (archiveFileNameFilter(file, folderNames)) {
+        if (utils.archiveFileNameFilter(file, folderNames)) {
           // Also ignore folders within the archive, but keep folder names to help alter the file names within them.
         } else {
           // Get the file type/extension for the file info
-          archiveContent.contentType = findExtension(file);
+          archiveContent.contentType = utils.findExtension(file);
 
           // Get important file info from each file in the archive
-          archiveContent.size = getStringByteSize(file.data);
+          archiveContent.size = utils.getStringByteSize(file.data);
           archiveContent.content = file.data;
           archiveContent.filename = file.path;
           totalFileSize += archiveContent.size;
           fileCount++;
 
           // Too many files or the contents of the archive are too big, so catch early and throw an error
-          validateFileCount(fileCount);
-          validateFileSize(totalFileSize, archiveContent.content);
+          utils.validateFileCount(fileCount);
+          utils.validateFileSize(totalFileSize, archiveContent.content);
 
           // If a file is in a folder, the file name includes the folder's name as well.
           // Remove the excess folder name out of the file name.
@@ -206,7 +195,7 @@ const decompressArchive = details => {
           });
 
           // Get the compression type of the individual file in the zip file
-          archiveContent.compressionType = validateCompressionType(archiveContent, archiveContent.size);
+          archiveContent.compressionType = utils.validateCompressionType(archiveContent, archiveContent.size);
 
           // Push the file information into the array to be handled later
           addOrUpdate.push(archiveContent);
@@ -217,7 +206,7 @@ const decompressArchive = details => {
       addOrUpdate.originalFileInfo = details;
       return addOrUpdate;
     })
-    .catch(handleError);
+    .catch(utils.handleError);
 };
 
 module.exports = {

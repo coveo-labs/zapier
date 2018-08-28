@@ -1,7 +1,7 @@
 'use strict';
 
 const platform = require('../config').PLATFORM;
-const { handleError, coveoErrorHandler } = require('../utils');
+const utils = require('../utils');
 
 // This functions handles the query call to Coveo, then
 // sends off the result to the output handler.
@@ -35,7 +35,7 @@ const handleQuery = (z, bundle) => {
     .then(response => {
       // Handle errors that can occur
       if (response.status !== 200) {
-        coveoErrorHandler(response.status);
+        utils.coveoErrorHandler(response.status);
       }
 
       // Get the important parts of the response that we want
@@ -44,7 +44,7 @@ const handleQuery = (z, bundle) => {
       // Send to output handler
       return queryOutput(bundle, results);
     })
-    .catch(handleError);
+    .catch(utils.handleError);
 };
 
 // This function handles the output te user will see on Zapier.

@@ -6,7 +6,7 @@ const zapier = require('zapier-platform-core');
 // No reason to test handleError, it's a backup error handler that'll most likely never happen.
 // Most of the file related utils functions left out of this, since they're very reliant on actually reading files. Can be put here later to
 // individually test them if so desired. These tests are easy/aren't too dependent on reading actual files.
-const { getStringByteSize, coveoErrorHandler, validateFetch, validateFileCount, validateFileSize, archiveFileNameFilter } = require('../utils');
+const utils = require('../utils');
 
 describe('utils', () => {
   // This must be included in any test file before bundle, as it extracts the authentication data that was exported from the command line.
@@ -37,7 +37,7 @@ describe('utils', () => {
       },
     ];
 
-    getStringByteSizeTests.forEach(test => getStringByteSize(test.string).should.equal(test.expected));
+    getStringByteSizeTests.forEach(test => utils.getStringByteSize(test.string).should.equal(test.expected));
   });
 
   it('Testing coveoErrorHandler', () => {
@@ -45,7 +45,7 @@ describe('utils', () => {
 
     coveoErrorHandlerTests.forEach(error =>
       function() {
-        coveoErrorHandler(error);
+        utils.coveoErrorHandler(error);
       }.should.throw()
     );
   });
@@ -100,7 +100,7 @@ describe('utils', () => {
       },
     ];
 
-    validateFetchTests.forEach(fetch => validateFetch(fetch.url, fetch.fetchResponse).should.equal(fetch.expected));
+    validateFetchTests.forEach(fetch => utils.validateFetch(fetch.url, fetch.fetchResponse).should.equal(fetch.expected));
   });
 
   it('Testing validateFileCount', () => {
@@ -123,12 +123,12 @@ describe('utils', () => {
       },
     ];
 
-    validateFileCountTests.forEach(test => validateFileCount(test.fileCount).should.equal(test.expected));
+    validateFileCountTests.forEach(test => utils.validateFileCount(test.fileCount).should.equal(test.expected));
 
     let badCount = 80;
 
     (function() {
-      validateFileCount(badCount);
+      utils.validateFileCount(badCount);
     }.should.throw());
   });
 
@@ -148,18 +148,18 @@ describe('utils', () => {
       },
     ];
 
-    validateFileSizeTests.forEach(test => validateFileSize(test.fileSize).should.equal(test.expected));
+    validateFileSizeTests.forEach(test => utils.validateFileSize(test.fileSize).should.equal(test.expected));
 
     let badSize = 101 * 1024 * 1024;
 
     (function() {
-      validateFileSize(badSize);
+      utils.validateFileSize(badSize);
     }.should.throw());
 
     let nullSize = 'null';
     let bufferOfNullSize = new Buffer.from('This is a test with a buffer');
 
-    validateFileSize(nullSize, bufferOfNullSize).should.equal(28);
+    utils.validateFileSize(nullSize, bufferOfNullSize).should.equal(28);
   });
 
   it('Testing archiveFileNameFilter', () => {
@@ -218,7 +218,7 @@ describe('utils', () => {
       },
     ];
 
-    archiveFileNameFilterTests.forEach(file => archiveFileNameFilter(file, folderNames).should.equal(file.expected));
+    archiveFileNameFilterTests.forEach(file => utils.archiveFileNameFilter(file, folderNames).should.equal(file.expected));
     folderNames.length.should.equal(3);
   });
 

@@ -299,16 +299,16 @@ const validateCompressionType = (zipContent, uncompressedSize) => {
 };
 
 module.exports = {
+  archiveFileNameFilter,
+  coveoErrorHandler,
+  findExtension,
+  findFilename,
   getStringByteSize,
   handleError,
-  coveoErrorHandler,
+  setSourceStatus,
+  validateArchiveType,
+  validateCompressionType,
   validateFetch,
   validateFileCount,
   validateFileSize,
-  findExtension,
-  findFilename,
-  archiveFileNameFilter,
-  validateArchiveType,
-  setSourceStatus,
-  validateCompressionType,
 };

@@ -1,13 +1,13 @@
 'use strict';
 
-const { handleError, coveoErrorHandler, setSourceStatus } = require('../utils');
+const utils = require('../utils');
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
 const push = require('../config').PUSH;
 
 // This function does as it says, it handles the process of creating a delete request to Coveo.
 const handleDeleteCreation = (z, bundle) => {
   // Set te status of the source before any push is sent to it
-  const statePromise = setSourceStatus(z, bundle, 'INCREMENTAL');
+  const statePromise = utils.setSourceStatus(z, bundle, 'INCREMENTAL');
 
   return statePromise
     .then(() => {
@@ -29,19 +29,19 @@ const handleDeleteCreation = (z, bundle) => {
       return deletePromise
         .then(response => {
           if (response.status !== 202) {
-            coveoErrorHandler(response.status);
+            utils.coveoErrorHandler(response.status);
           }
 
           // Set the status of the source back once the delete has succeeded
-          return setSourceStatus(z, bundle, 'IDLE');
+          return utils.setSourceStatus(z, bundle, 'IDLE');
         })
         .then(() => {
           // Send to responseContent handler
           return getOutputInfo(z, bundle);
         })
-        .catch(handleError);
+        .catch(utils.handleError);
     })
-    .catch(handleError);
+    .catch(utils.handleError);
 };
 
 module.exports = {
