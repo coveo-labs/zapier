@@ -7,10 +7,10 @@ This is the code for the integration of the Coveo app on Zapier. It is capable o
 Before starting anything Zapier related, it will probably be helpful to brush up on some of Coveo's API.
 Head [here](https://platform.cloud.coveo.com/docs?api=Platform) for a refresher or to get antiquated with Coveo API, as many different calls using the API are used within this project.
 
-You should also ensure you have the latest version of Node.js installed (this app was created with `v8.11.3`). If you don't have the most recent version of Node.js, go to the [main node.js site](https://nodejs.org/en/download/) to download the latest version. If you have some method to update locally on your command line, feel free, otherwise just download the correct package from the site.
-It's recommended to use the latest stable release of node.js.
+It's recommended to use the latest LTS version of [Node.js](https://nodejs.org/en/download/).
 
-For general information regarding Zapier, follow this [link](https://zapier.com/developer/documentation/v2/) to their main documentation page. Since this is part of their CLI Interface, you may also find it useful to have [this](https://www.npmjs.com/package/zapier-platform-cli) or [this](https://zapier.github.io/zapier-platform-cli/cli.html) on hand. The main zapier [github](https://github.com/zapier/zapier-platform-cli) also has a very good description of all the components of the CLI as well as example apps you can look at.
+For general information regarding Zapier, you can review [Zapier's main documentation page](https://zapier.com/developer/documentation/v2/). We are also using [Zapier Platform CLI](https://zapier.github.io/zapier-platform-cli/cli.html), available from [npm](https://www.npmjs.com/package/zapier-platform-cli).
+The main zapier [Github](https://github.com/zapier/zapier-platform-cli) also has a very good description of all the components of the CLI as well as example apps you can look at.
 
 In order to get a better grasp of the requirements for the CLI as well as how it functions, follow the first section, the setup portion, of this [tutorial](https://zapier.com/developer/start/introduction).
 You can follow the entire tutorial if you wish, but do not clone the Coveo app if you do, clone their example app instead.
