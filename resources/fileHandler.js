@@ -89,7 +89,7 @@ const fileHandler = (files, bundle) => {
           // This is for non-archive files only.
           if (filename !== '') {
             bundle.inputData.content[indexCount] = filename;
-          } else if (fileType != 'A(n) ') {
+          } else if (fileType !== 'A(n) ') {
             bundle.inputData.content[indexCount] = fileType + ' file';
           } else {
             bundle.inputData.content[indexCount] = 'A file';

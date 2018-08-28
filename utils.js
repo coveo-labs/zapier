@@ -162,7 +162,7 @@ const findFilename = (disposition, response) => {
 // of an archive file.
 const archiveFileNameFilter = (file, folderNames) => {
   // These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
-  if (file.path.indexOf('__MACOSX/') > -1 || /(^|\/)\.[^\/\.]/g.test(file.path.split('/').pop())) {
+  if (file.path.indexOf('__MACOSX/') > -1 || /(^|\/)\.[^/.]/g.test(file.path.split('/').pop())) {
     return true;
     // Ignore folders as well, we just want files, but hold onto the
     // folder names to fix filenames within them
@@ -174,38 +174,56 @@ const archiveFileNameFilter = (file, folderNames) => {
   return false;
 };
 
+// see description in validateArchiveType
+const isValidZip = (content, name, type) => {
+  const c = content;
+  const len = c.length;
+  return (c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) || type === '.zip';
+};
+
+// see description in validateArchiveType
+const isInvalidTar = (content, name, type) => {
+  const c = content;
+  const typeIsTar = type === '.tar';
+  return (
+    type === '.bin' ||
+    (c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (/\.(txz)$/i.test(name) || typeIsTar)) ||
+    (c[0] === 0x1f && c[1] === 0x9d && (typeIsTar || type === '.Z' || /\.(Z)$/i.test(name))) ||
+    (/\.(lzma)$/i.test(name) && typeIsTar) ||
+    (/\.(tlz)$/i.test(name) && typeIsTar) ||
+    (/\.(lz)$/i.test(name) && typeIsTar)
+  );
+};
+
+// see description in validateArchiveType
+const isValidTar = (content, name, type) => {
+  const c = content;
+  return (
+    (c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08 && (type === '.tar' || /\.(tgz)$/i.test(name))) ||
+    ((c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && /\.(tbz2)$/i.test(name)) || /\.(tbz)$/i.test(name) || /\.(tb2)$/i.test(name) || type === '.tar' || type === '.bz2') ||
+    type === '.tar'
+  );
+};
+
 // Function to detect if the file being observed is a supported archive
 // filetype or not.
 const validateArchiveType = details => {
-  const c = details.content;
-  const len = c.length;
   const type = details.contentType;
   const name = details.filename;
   let goodArchive = false;
 
-  // Zip file supported archive type. This helps to detect compression/file types based upon bytes in the data buffer for the
-  // following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
-  if ((c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) || type === '.zip') {
+  if (isValidZip(details.content, name, type)) {
+    // Zip file supported archive type. This helps to detect compression/file types based upon bytes in the data buffer for the
+    // following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
     goodArchive = true;
-
+  } else if (isInvalidTar(details.content, name, type)) {
     // These are the bad tar types, throwing errors could break the app if the user doesn't realize the tar types they send are bad. So, instead of throwing an error,
     // do nothing, index the file with no extraction, and let the user look at their logs to see why things are going wrong.
     // Fetch gets lzma/xz tar files as an octet-stream, which mime-types defaults to .bin. So, check for type .bin as well as the normal extensions to avoid that tar.
-  } else if (
-    (c[0] === 0xfd && c[1] === 0x37 && c[2] === 0x7a && c[3] === 0x58 && c[4] === 0x5a && c[5] === 0x00 && (/\.(txz)$/i.test(name) || type === '.tar' || type === '.bin')) ||
-    (c[0] === 0x1f && c[1] === 0x9d && (type === '.tar' || type === '.Z' || /\.(Z)$/i.test(name))) ||
-    ((/\.(lzma)$/i.test(name) && type === '.tar') || type === '.bin') ||
-    ((/\.(tlz)$/i.test(name) && type === '.tar') || type === '.bin') ||
-    ((/\.(lz)$/i.test(name) && type === '.tar') || type === '.bin')
-  ) {
+  } else if (isValidTar(details.content, name, type)) {
     // This tests to see if tar file sent or any possible tar file compression type was sent that are supported. Compressions for tar that are supported include: gzip, bz2, and normal tar.
     // This case is after zip and bad tars to avoid any bad tars from slipping by for the last case of the conditional, is the file just a tar with no compressions, despite this
     // doing the same thing as the zip conditional.
-  } else if (
-    (c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08 && (type === '.tar' || /\.(tgz)$/i.test(name))) ||
-    ((c[0] === 0x42 && c[1] === 0x5a && c[2] === 0x68 && /\.(tbz2)$/i.test(name)) || /\.(tbz)$/i.test(name) || /\.(tb2)$/i.test(name) || type === '.tar' || type === '.bz2') ||
-    type === '.tar'
-  ) {
     goodArchive = true;
   }
 
@@ -236,6 +254,21 @@ const setSourceStatus = (z, bundle, status) => {
   });
 };
 
+// see description in validateCompressionType
+const isCompressionGzip = (c, type) => {
+  return (c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) || type.ext === 'gz' || type.mime === 'application/gzip';
+};
+
+// see description in validateCompressionType
+const isCompressionDeflate = c => {
+  return c[0] === 0x78 && (c[1] === 1 || c[1] === 0x9c || c[1] === 0xda);
+};
+
+// see description in validateCompressionType
+const isCompressionZlib = c => {
+  return (c[0] * 256 + c[1]) % 31 === 0 && c[0] !== 0x00 && c[1] !== 0x00;
+};
+
 // This is a function to determine the type of compression used on a file. If none of these are detected, it will be indexed with the default of UNCOMPRESSED.
 // Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe for compression detecting as
 // well as documents about the file format headers for these types of compressions.
@@ -258,13 +291,13 @@ const validateCompressionType = (zipContent, uncompressedSize) => {
   // Check first few bytes of the buffer to get compression, except LZMA
   // as the structure for these isn't very consistent globally to check for each time
   // and is very taxing to determine without a handy module.
-  if ((c[0] === 0x1f && c[1] === 0x8b && c[2] === 0x08) || type.ext === 'gz' || type.mime === 'application/gzip') {
+  if (isCompressionGzip(c, type)) {
     compressionType = 'GZIP';
-  } else if (c[0] === 0x78 && (c[1] === 1 || c[1] === 0x9c || c[1] === 0xda)) {
+  } else if (isCompressionDeflate(c, type)) {
     compressionType = 'DEFLATE';
   } else if (zipContent.size === uncompressedSize) {
     compressionType = 'UNCOMPRESSED';
-  } else if ((c[0] * 256 + c[1]) % 31 === 0 && c[0] !== 0x00 && c[1] !== 0x00) {
+  } else if (isCompressionZlib(c)) {
     compressionType = 'ZLIB';
   } else if (/\.(lzma|lz)$/i.test(zipContent.filename) || type.ext === 'lz' || type.mime === 'x-lzip') {
     // lz shares LZMA compression, so checking for these is the same as lzma
