@@ -1,4 +1,4 @@
-//Required files to be included in Zapier
+// Required files to be included in Zapier
 const OrgQuerySearch = require('./searches/orgQuery');
 const PublicQuerySearch = require('./searches/publicQuery');
 const DeleteResource = require('./resources/delete');
@@ -17,19 +17,19 @@ const App = {
   version: require('./package.json').version,
   platformVersion: require('zapier-platform-core').version,
 
-  //Include authentication
+  // Include authentication
   authentication: authentication,
 
-  //Whenever an outbound request is made, this will be called before the request is sent.
+  // Whenever an outbound request is made, this will be called before the request is sent.
   beforeRequest: [
     includeBearerToken,
   ],
 
-  //Whenever a response from a request is obtained, you can add calls in here.
+  // Whenever a response from a request is obtained, you can add calls in here.
   afterResponse: [
   ],
 
-  //Include resources in the app so that the creates can access the methods from within
+  // Include resources in the app so that the creates can access the methods from within
   resources: {
     [PushResource.key]: PushResource,
     [DeleteResource.key]: DeleteResource,

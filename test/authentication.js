@@ -4,13 +4,13 @@ const zapier = require('zapier-platform-core');
 const App = require('../index');
 const appTester = zapier.createAppTester(App);
 
-//Tests for making sure the authentication process is working. Tests getting
-//an access_token, using it, and get a refresh token.
+// Tests for making sure the authentication process is working. Tests getting
+// an access_token, using it, and get a refresh token.
 
 describe('basic authentication', () => {
   before(function() {
-    //Put test ACCESS_TOKEN in a .env file.
-    //The inject method will load them and make them available to use in tests.
+    // Put test ACCESS_TOKEN in a .env file.
+    // The inject method will load them and make them available to use in tests.
     zapier.tools.env.inject();
 
     should.ok(process.env.ACCESS_TOKEN, 'missing ACCESS_TOKEN');

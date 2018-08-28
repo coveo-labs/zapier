@@ -3,22 +3,22 @@
 const config = require('./config');
 const OAUTH_URL = `https://${config.PLATFORM}/oauth`;
 
-//Basic oauth2 used to get access/refresh tokens
+// Basic oauth2 used to get access/refresh tokens
 let basicToken = Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64');
 
 module.exports = {
   type: 'oauth2',
   connectionLabel: ' ',
-  //oauth2Config data structure is how Zapier determines what to call when managing the oauth. The authorization url construction is
-  //called when needed in authorizeUrl, whenever a access/refresh token is needed it calls getAccessToken, and whenever a 401 error occurs
-  //it knows to call autoRefresh (which calls refreshAccessToken).
-  //See the following:
-  //https://zapier.com/developer/documentation/v2/oauth-v2/
-  //https://zapier.github.io/zapier-platform-cli/?utm_source=zapier.com&utm_medium=referral&utm_campaign=zapier#oauth2
+  // oauth2Config data structure is how Zapier determines what to call when managing the oauth. The authorization url construction is
+  // called when needed in authorizeUrl, whenever a access/refresh token is needed it calls getAccessToken, and whenever a 401 error occurs
+  // it knows to call autoRefresh (which calls refreshAccessToken).
+  // See the following:
+  // https://zapier.com/developer/documentation/v2/oauth-v2/
+  // https://zapier.github.io/zapier-platform-cli/?utm_source=zapier.com&utm_medium=referral&utm_campaign=zapier#oauth2
 
   oauth2Config: {
-    //Construct the authorization url that Coveo uses in order to grant access/refresh
-    //tokens. The individual's redirect_uri must be found before this.
+    // Construct the authorization url that Coveo uses in order to grant access/refresh
+    // tokens. The individual's redirect_uri must be found before this.
     authorizeUrl: {
       method: 'GET',
       url: `${OAUTH_URL}/authorize`,
@@ -30,8 +30,8 @@ module.exports = {
       },
     },
 
-    //Get the access token from the authorization url and store it for later
-    //to use as the authorization header for any request made to Coveo.
+    // Get the access token from the authorization url and store it for later
+    // to use as the authorization header for any request made to Coveo.
     getAccessToken: {
       method: 'POST',
       url: `${OAUTH_URL}/token`,
@@ -48,8 +48,8 @@ module.exports = {
       },
     },
 
-    //Get the refresh token from the authorization url and store it for later
-    //to use if any authorization runs into a 401 error.
+    // Get the refresh token from the authorization url and store it for later
+    // to use if any authorization runs into a 401 error.
     refreshAccessToken: {
       method: 'POST',
       url: `${OAUTH_URL}/token`,
@@ -63,11 +63,11 @@ module.exports = {
       },
     },
 
-    //Set so Zapier automatically checks for 401s and calls refreshAccessToken
+    // Set so Zapier automatically checks for 401s and calls refreshAccessToken
     autoRefresh: true,
   },
 
-  //The test call Zapier makes to ensure an access token is valid
+  // The test call Zapier makes to ensure an access token is valid
   test: {
     url: `https://${config.PLATFORM}/rest/organizations`,
   },

@@ -4,18 +4,18 @@ const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
 const message = require('../messages');
 
-//This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
-//without the trigger actually showing up in the app. This allows the creation of dynamic drop downs for the input users
-//can use to get choices instead of manually inputting some information. This specific function
-//gets the possible organizations the user has access to, puts the org Id as the input value, and displays the org name in a readable format.
+// This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
+// without the trigger actually showing up in the app. This allows the creation of dynamic drop downs for the input users
+// can use to get choices instead of manually inputting some information. This specific function
+// gets the possible organizations the user has access to, puts the org Id as the input value, and displays the org name in a readable format.
 const perform = z => {
-  //Request to Coveo to get organizations user has access to.
+  // Request to Coveo to get organizations user has access to.
   const orgChoicesPromise = z.request({
     url: `https://${platform}/rest/organizations/`,
     method: 'GET',
   });
 
-  //Handle response
+  // Handle response
   return orgChoicesPromise
     .then(response => {
       if (response.status >= 400) {
@@ -29,15 +29,15 @@ const perform = z => {
 
       let results = z.JSON.parse(response.content);
       if (!results.map) {
-        //Make sure it's an array
+        // Make sure it's an array
         results = [];
       }
 
-      //Only wants org ids and names from this call
+      // Only wants org ids and names from this call
       results = results.map(r => ({ id: r.id, displayName: r.displayName }));
 
-      //Make sure that the user has access to some organization in the platform
-      //with the connected account, if not throw an error
+      // Make sure that the user has access to some organization in the platform
+      // with the connected account, if not throw an error
       if (!results.length) {
         throw new Error(message.NO_ORGS);
       }
@@ -54,11 +54,11 @@ module.exports = {
   display: {
     label: 'List of Organizations',
     description: 'Hidden trigger in the app responsible for dynamic drop down',
-    hidden: true, //Makes the trigger hidden. Don't remove.
+    hidden: true, // Makes the trigger hidden. Don't remove.
   },
 
   operation: {
     perform,
-    canPaginate: true, //In case the number of results is very high, allows for the results to be displayed in pages
+    canPaginate: true, // In case the number of results is very high, allows for the results to be displayed in pages
   },
 };

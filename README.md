@@ -36,7 +36,7 @@ Now, you'll want to register your own app on the website. Run the following comm
 zapier register "app-name"
 zapier push
 ```
-`zapier register` registers your app on the Zapier website, and `zapier push` pushes the contents of the app onto the site where your app is. You can use the `zapier apps` command at anytime to see the apps you have registered with your account. 
+`zapier register` registers your app on the Zapier website, and `zapier push` pushes the contents of the app onto the site where your app is. You can use the `zapier apps` command at anytime to see the apps you have registered with your account.
 
 After these two commands are done, you'll be able to configure your newly created app to work with Coveo. DO NOT input the `zapier init .` command unless you want to completely erase the Coveo app content. Only do this when you're starting an app completely from scratch. If you wish to change the app in which your directory is linked to, you can run `zapier link` to get a list of apps you can link your current directory to.
 
@@ -142,7 +142,7 @@ This can be done by executing the following commands separately to ensure they c
 
 ```bash
 zapier promote <updated-app-version-number>
-//Success!
+// Success!
 zapier migrate <current-live-app-version-number> <updated-app-version-number> [% of users to migrate]
 ```
 

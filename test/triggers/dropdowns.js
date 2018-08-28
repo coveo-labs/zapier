@@ -4,13 +4,13 @@ const zapier = require('zapier-platform-core');
 const App = require('../../index');
 const appTester = zapier.createAppTester(App);
 
-//Tests for the dynamic drop down lists on the app. As long as these get
-//the info needed, they'll work on Zapier as well.
+// Tests for the dynamic drop down lists on the app. As long as these get
+// the info needed, they'll work on Zapier as well.
 
 describe('get drop downs', () => {
   before(function() {
-    //Put test ACCESS_TOKEN in a .env file as well as the org/source information.
-    //The inject method will load them and make them available to use in tests.
+    // Put test ACCESS_TOKEN in a .env file as well as the org/source information.
+    // The inject method will load them and make them available to use in tests.
     zapier.tools.env.inject();
 
     should.ok(process.env.ACCESS_TOKEN, 'missing ACCESS_TOKEN');
@@ -27,7 +27,7 @@ describe('get drop downs', () => {
       should.ok(response);
       should.ok(response.length > 0);
 
-      //First object
+      // First object
       let first = response[0];
       should.equal(Object.keys(first).length, 2);
       should.ok(first.id);
@@ -51,7 +51,7 @@ describe('get drop downs', () => {
       should.ok(response);
       should.ok(response.length > 0);
 
-      //First object
+      // First object
       let first = response[0];
       should.equal(Object.keys(first).length, 2);
       should.ok(first.id);

@@ -3,16 +3,16 @@
 const should = require('should');
 const zapier = require('zapier-platform-core');
 
-//No reason to test handleError, it's a backup error handler that'll most likely never happen.
-//Most of the file related utils functions left out of this, since they're very reliant on actually reading files. Can be put here later to 
-//individually test them if so desired. These tests are easy/aren't too dependent on reading actual files.
+// No reason to test handleError, it's a backup error handler that'll most likely never happen.
+// Most of the file related utils functions left out of this, since they're very reliant on actually reading files. Can be put here later to
+// individually test them if so desired. These tests are easy/aren't too dependent on reading actual files.
 const { getStringByteSize, coveoErrorHandler, validateFetch, validateFileCount, validateFileSize, archiveFileNameFilter } = require('../utils');
 
 describe('utils', () => {
-  //This must be included in any test file before bundle, as it extracts the
-  //authentication data that was exported from the command line.
-  //Put test ACCESS_TOKEN in a .env file as well as the org/source information.
-  //inject() will load them and make them available to use in tests.
+  // This must be included in any test file before bundle, as it extracts the
+  // authentication data that was exported from the command line.
+  // Put test ACCESS_TOKEN in a .env file as well as the org/source information.
+  // inject() will load them and make them available to use in tests.
   zapier.tools.env.inject();
 
   should.ok(process.env.TEST_ORG_ID, 'missing TEST_ORG_ID=some-id in .env');
@@ -47,7 +47,7 @@ describe('utils', () => {
 
     const coveoErrorHandlerTests = [400, 401, 403, 412, 413, 429, 500, 415, 404, 514, 60000, -3];
 
-    coveoErrorHandlerTests.forEach((error) => (function(){ coveoErrorHandler(error); }).should.throw()); 
+    coveoErrorHandlerTests.forEach((error) => (function(){ coveoErrorHandler(error); }).should.throw());
 
   });
 
@@ -255,14 +255,14 @@ describe('utils', () => {
     return setSourceStatus(bundle, 'IDLE');
   });
 
-  //Can't test this function from utils.js, since the 
-  //'z' component of 'z.request' isn't available for local testing.
-  //Have to test is with a local version here. 
+  // Can't test this function from utils.js, since the
+  // 'z' component of 'z.request' isn't available for local testing.
+  // Have to test is with a local version here.
   const setSourceStatus = (bundle, status) => {
     const push = require('../config').PUSH;
     const http = require('http');
 
-    //Send request to Coveo
+    // Send request to Coveo
     const statePromise = http.request({
       url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/status`,
       method: 'POST',
