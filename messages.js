@@ -20,4 +20,4 @@ const messages = {
   FALLBACK_ERROR: 'There was an issue processing the request to Coveo. Ensure the connected account is working and your inputs are valid before trying again.',
 };
 
-module.exports =  messages;
+module.exports = messages;

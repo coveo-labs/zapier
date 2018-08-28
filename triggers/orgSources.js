@@ -9,9 +9,8 @@ const message = require('../messages');
 // can use to get choices instead of manually inputting some information. This specific function
 // gets the possible push sources that are in the specified org, puts the source id in the input value, and displays the source name as in a readable format.
 const perform = (z, bundle) => {
-
   // No org ID selected yet, so throw an error
-  if(!bundle.inputData.orgId){
+  if (!bundle.inputData.orgId) {
     throw new Error(message.SELECT_ORG);
   }
 
@@ -25,12 +24,7 @@ const perform = (z, bundle) => {
   return orgSourcesPromise
     .then(response => {
       if (response.status >= 400) {
-        throw new Error(
-          'Error getting source choices for the drop down: ' +
-            z.JSON.parse(response.content).message +
-            ' Error Code: ' +
-            response.status
-        );
+        throw new Error('Error getting source choices for the drop down: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
       }
 
       let results = z.JSON.parse(response.content);

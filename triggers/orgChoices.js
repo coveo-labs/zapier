@@ -19,12 +19,7 @@ const perform = z => {
   return orgChoicesPromise
     .then(response => {
       if (response.status >= 400) {
-        throw new Error(
-          'Error getting organization choices for the drop down: ' +
-            z.JSON.parse(response.content).message +
-            ' Error Code: ' +
-            response.status
-        );
+        throw new Error('Error getting organization choices for the drop down: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
       }
 
       let results = z.JSON.parse(response.content);

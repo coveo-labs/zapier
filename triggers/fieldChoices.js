@@ -13,9 +13,8 @@ const message = require('../messages');
 // can use to get choices instead of manually inputting some information. This specific function
 // gets the fields used by a specific org, fills the input value with the field name, and displays the field name in a readable format.
 const perform = (z, bundle) => {
-
   // No source/org ID or both chosen yet, so throw an error
-  if(!bundle.inputData.orgId && !bundle.inputData.sourceId){
+  if (!bundle.inputData.orgId && !bundle.inputData.sourceId) {
     throw new Error(message.SELECT_ORG_AND_SOURCE);
   }
 
@@ -30,12 +29,7 @@ const perform = (z, bundle) => {
   return orgFieldsPromise
     .then(response => {
       if (response.status >= 400) {
-        throw new Error(
-          'Error getting field choices for the drop down: ' +
-            z.JSON.parse(response.content).message +
-            ' Error Code: ' +
-            response.status
-        );
+        throw new Error('Error getting field choices for the drop down: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
       }
 
       let results = z.JSON.parse(response.content);

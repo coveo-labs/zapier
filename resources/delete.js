@@ -1,31 +1,28 @@
 'use strict';
 
 const outputFields = () => {
-
   // This is how Zapier handles outputs from responses on the app. It looks at the
   // object returned from a function in perform, matches the keys declared here to those
   // in the returned object, then displays the values corresponding to those keys. The label
   // tag is what is displayed to be readable and make more sense to the user when they see it.
   const output = [
-    {key: 'documentId', label: 'Deleted Document ID'},
-    {key: 'orgName', label: 'Organization Name'},
-    {key: 'orgId', label: 'Organization ID'},
-    {key: 'orgOwner', label: 'Organization Owner'},
-    {key: 'sourceName', label: 'Source Name'},
-    {key: 'sourceId', label: 'Source ID'},
-    {key: 'sourceOwner', label: 'Source Owner'},
-    {key: 'sourceType', label: 'Source Type'},
-    {key: 'numDocs', label: 'Number of Documents in Source'},
-    {key: 'title', label: 'Deleted Document Title'},
-    {key: 'docSize', label: 'Size of all the Documents in the Source'},
+    { key: 'documentId', label: 'Deleted Document ID' },
+    { key: 'orgName', label: 'Organization Name' },
+    { key: 'orgId', label: 'Organization ID' },
+    { key: 'orgOwner', label: 'Organization Owner' },
+    { key: 'sourceName', label: 'Source Name' },
+    { key: 'sourceId', label: 'Source ID' },
+    { key: 'sourceOwner', label: 'Source Owner' },
+    { key: 'sourceType', label: 'Source Type' },
+    { key: 'numDocs', label: 'Number of Documents in Source' },
+    { key: 'title', label: 'Deleted Document Title' },
+    { key: 'docSize', label: 'Size of all the Documents in the Source' },
   ];
 
   return output;
-
 };
 
 module.exports = {
-
   key: 'delete',
   noun: 'Delete',
 
@@ -43,5 +40,4 @@ module.exports = {
   // outputFields: () => { return []; }
   // Alternatively, a static field definition should be provided, to specify labels for the fields
   outputFields: outputFields(),
-
 };

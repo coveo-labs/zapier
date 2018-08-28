@@ -6,7 +6,6 @@ const deleteHandler = require('../resources/deleteHandler');
 // This functions is a handoff to the deleteHandler file to handle the creation of a delete request, sending it
 // to Coveo, then handling the appropriate response content.
 const createDelete = (z, bundle) => {
-
   // Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
@@ -49,7 +48,8 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Item ID',
-        helpText: 'The ID of the item you wish to delete. It should follow a URL format. If you wish to delete a specific child item of a parent item, simply add `/file#` to the item ID ( e.g., `ITEM_ID/file2`).',
+        helpText:
+          'The ID of the item you wish to delete. It should follow a URL format. If you wish to delete a specific child item of a parent item, simply add `/file#` to the item ID ( e.g., `ITEM_ID/file2`).',
       },
       {
         key: 'title',

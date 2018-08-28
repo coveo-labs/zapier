@@ -7,7 +7,6 @@ const _ = require('lodash');
 // This functions is a handoff to the pushHandler file to handle the creation of a push request, sending it
 // to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
-
   // Take the fields the user submitted and put them into the input data
   // to be sent in the push.
   Object.assign(bundle.inputData, bundle.inputData.fields);
@@ -21,7 +20,7 @@ const createNewPush = (z, bundle) => {
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   // Eliminate repeat url/file inputs in the Files input field
-  if(bundle.inputData.content && bundle.inputData.content.length > 1){
+  if (bundle.inputData.content && bundle.inputData.content.length > 1) {
     bundle.inputData.content = _.uniq(bundle.inputData.content);
   }
 

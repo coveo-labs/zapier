@@ -19,7 +19,6 @@ describe('utils', () => {
   should.ok(process.env.TEST_SOURCE_ID, 'missing TEST_SOURCE_ID=some-id in .env');
   should.ok(process.env.ACCESS_TOKEN, 'missing ACCESS_TOKEN. Add ACCESS_TOKEN=some-token in .env');
   it('Testing getStringByteSize', () => {
-
     const getStringByteSizeTests = [
       {
         string: 'asdfjkl;',
@@ -39,20 +38,20 @@ describe('utils', () => {
       },
     ];
 
-    getStringByteSizeTests.forEach((test) => getStringByteSize(test.string).should.equal(test.expected));
+    getStringByteSizeTests.forEach(test => getStringByteSize(test.string).should.equal(test.expected));
   });
 
-
   it('Testing coveoErrorHandler', () => {
-
     const coveoErrorHandlerTests = [400, 401, 403, 412, 413, 429, 500, 415, 404, 514, 60000, -3];
 
-    coveoErrorHandlerTests.forEach((error) => (function(){ coveoErrorHandler(error); }).should.throw());
-
+    coveoErrorHandlerTests.forEach(error =>
+      function() {
+        coveoErrorHandler(error);
+      }.should.throw()
+    );
   });
 
   it('Testing validateFetch', () => {
-
     const validateFetchTests = [
       {
         url: 'www.notabsolute.com/',
@@ -102,11 +101,10 @@ describe('utils', () => {
       },
     ];
 
-    validateFetchTests.forEach((fetch) => validateFetch(fetch.url, fetch.fetchResponse).should.equal(fetch.expected));
+    validateFetchTests.forEach(fetch => validateFetch(fetch.url, fetch.fetchResponse).should.equal(fetch.expected));
   });
 
   it('Testing validateFileCount', () => {
-
     const validateFileCountTests = [
       {
         fileCount: 50,
@@ -126,16 +124,16 @@ describe('utils', () => {
       },
     ];
 
-    validateFileCountTests.forEach((test) => validateFileCount(test.fileCount).should.equal(test.expected));
+    validateFileCountTests.forEach(test => validateFileCount(test.fileCount).should.equal(test.expected));
 
     let badCount = 80;
 
-    (function(){ validateFileCount(badCount); }).should.throw();
-
+    (function() {
+      validateFileCount(badCount);
+    }.should.throw());
   });
 
   it('Testing validateFileSize', () => {
-
     const validateFileSizeTests = [
       {
         fileSize: 99 * 1024 * 1024,
@@ -151,17 +149,18 @@ describe('utils', () => {
       },
     ];
 
-    validateFileSizeTests.forEach((test) => validateFileSize(test.fileSize).should.equal(test.expected));
+    validateFileSizeTests.forEach(test => validateFileSize(test.fileSize).should.equal(test.expected));
 
     let badSize = 101 * 1024 * 1024;
 
-    (function(){ validateFileSize(badSize); }).should.throw();
+    (function() {
+      validateFileSize(badSize);
+    }.should.throw());
 
     let nullSize = 'null';
     let bufferOfNullSize = new Buffer.from('This is a test with a buffer');
 
     validateFileSize(nullSize, bufferOfNullSize).should.equal(28);
-
   });
 
   it('Testing archiveFileNameFilter', () => {
@@ -185,7 +184,7 @@ describe('utils', () => {
       },
       {
         path: '__MACOSX/test.txt',
-        type:'file',
+        type: 'file',
         expected: true,
       },
       {
@@ -220,13 +219,11 @@ describe('utils', () => {
       },
     ];
 
-    archiveFileNameFilterTests.forEach((file) => archiveFileNameFilter(file, folderNames).should.equal(file.expected));
+    archiveFileNameFilterTests.forEach(file => archiveFileNameFilter(file, folderNames).should.equal(file.expected));
     folderNames.length.should.equal(3);
-
   });
 
   it('Testing setSourceStatus INCREMENTAL', () => {
-
     const bundle = {
       authData: {
         access_token: process.env.ACCESS_TOKEN,
@@ -241,7 +238,6 @@ describe('utils', () => {
   });
 
   it('Testing setSourceStatus IDLE', () => {
-
     const bundle = {
       authData: {
         access_token: process.env.ACCESS_TOKEN,

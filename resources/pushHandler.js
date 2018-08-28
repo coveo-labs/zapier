@@ -17,7 +17,6 @@ const handlePushCreation = (z, bundle) => {
     // sending a single item push request to Coveo.
     delete bundle.inputData.content;
     return processPush(z, bundle);
-
   } else {
     // Creation of a container on amazon to store file contents. This function
     // creates the container as well as uploads to it. Depending on what kind of file
@@ -41,34 +40,34 @@ const processBatchPush = (z, bundle, result) => {
   // Set te status of the source before any push is sent to it
   const statePromise = setSourceStatus(z, bundle, 'INCREMENTAL');
 
-  return statePromise.then(() => {
+  return statePromise
+    .then(() => {
+      // Send request to Coveo
+      const batchPushPromise = z.request({
+        url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result}`,
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
 
-  // Send request to Coveo
-    const batchPushPromise = z.request({
-      url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result}`,
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    });
+      // Handle response from Coveo.
+      return batchPushPromise
+        .then(response => {
+          if (response.status !== 202) {
+            coveoErrorHandler(response.status);
+          }
 
-    // Handle response from Coveo.
-    return batchPushPromise
-      .then(response => {
-        if (response.status !== 202) {
-          coveoErrorHandler(response.status);
-        }
-
-        // Set the status of the source back once the push has succeeded
-        return setSourceStatus(z, bundle, 'IDLE');
-      })
-      .then(() => {
-      // /Send to responseContent handler.
-        return getOutputInfo(z, bundle);
-      })
-      .catch(handleError);
-  })
+          // Set the status of the source back once the push has succeeded
+          return setSourceStatus(z, bundle, 'IDLE');
+        })
+        .then(() => {
+          // /Send to responseContent handler.
+          return getOutputInfo(z, bundle);
+        })
+        .catch(handleError);
+    })
     .catch(handleError);
 };
 
@@ -85,41 +84,41 @@ const processPush = (z, bundle) => {
     bundle.inputData.fileExtension = '.html';
   }
 
-  return statePromise.then(() => {
+  return statePromise
+    .then(() => {
+      // Send request to Coveo.
+      const singleItemPushPromise = z.request({
+        url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
+        method: 'PUT',
+        body: JSON.stringify(bundle.inputData),
+        params: {
+          documentId: bundle.inputData.documentId,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
 
-  // Send request to Coveo.
-    const singleItemPushPromise = z.request({
-      url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
-      method: 'PUT',
-      body: JSON.stringify(bundle.inputData),
-      params: {
-        documentId: bundle.inputData.documentId,
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    });
+      // Handle request response
+      return singleItemPushPromise
+        .then(response => {
+          if (response.status !== 202) {
+            coveoErrorHandler(response.status);
+          }
 
-    // Handle request response
-    return singleItemPushPromise
-      .then(response => {
-        if (response.status !== 202) {
-          coveoErrorHandler(response.status);
-        }
+          // Set the status of the source back once the push has succeeded
+          return setSourceStatus(z, bundle, 'IDLE');
+        })
+        .then(() => {
+          // Don't need this for output info, so remove it
+          delete bundle.inputData.fileExtension;
 
-        // Set the status of the source back once the push has succeeded
-        return setSourceStatus(z, bundle, 'IDLE');
-      })
-      .then(() => {
-      // Don't need this for output info, so remove it
-        delete bundle.inputData.fileExtension;
-
-        // Send to responseContent handler
-        return getOutputInfo(z, bundle);
-      })
-      .catch(handleError);
-  })
+          // Send to responseContent handler
+          return getOutputInfo(z, bundle);
+        })
+        .catch(handleError);
+    })
     .catch(handleError);
 };
 
@@ -184,7 +183,6 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     // and doc ID's dependent on the first item, so they cannot be made until the
     // first one is.
     if (batchContent.addOrUpdate.length >= 1) {
-
       delete batchItem.data;
       batchItem.title = decodeURI(fileContent.filename); // Some apps encode the title, this gets rid of that
       batchItem.compressedBinaryData = Buffer.from(fileContent.content).toString('base64');
@@ -195,7 +193,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
 
       // If there is no extension for the file, don't put that property in
       // the batch push. Let the indexer try and figure it out.
-      if(fileContent.contentType !== ''){
+      if (fileContent.contentType !== '') {
         batchItem.fileExtension = fileContent.contentType;
       }
 
@@ -295,7 +293,6 @@ const uploadToContainer = (z, bundle, result) => {
             // and doc ID's dependent on the first item, so they cannot be made until the
             // first one is.
             if (upload.addOrUpdate.length >= 1) {
-
               delete uploadContent.data;
               uploadContent.title = decodeURI(fileContents[0].filename);
               uploadContent.compressedBinaryData = Buffer.from(fileContents[0].content).toString('base64');
@@ -304,7 +301,7 @@ const uploadToContainer = (z, bundle, result) => {
 
               // If no extension is present, don't provide that property in the push. Try
               // and let the indexer figure it out if it can.
-              if(fileContents.contentType !== ''){
+              if (fileContents.contentType !== '') {
                 uploadContent.fileExtension = fileContents[0].contentType;
               }
 
@@ -315,7 +312,6 @@ const uploadToContainer = (z, bundle, result) => {
             // Push onto the batch
             upload.addOrUpdate.push(uploadContent);
             contentNumber++;
-
           }
 
           // This is a backup error checker for the size of the file.

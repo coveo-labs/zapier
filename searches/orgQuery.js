@@ -8,14 +8,14 @@ const handleQuery = require('../resources/queryHandler').handleQuery;
 const searchOrgQuery = (z, bundle) => {
   // Default number of documents to get and display
   // and make sure the number isn't bigger than 10.
-  if(!bundle.inputData.numberOfResults || typeof bundle.inputData.numberOfResults !== 'number'){
+  if (!bundle.inputData.numberOfResults || typeof bundle.inputData.numberOfResults !== 'number') {
     bundle.inputData.numberOfResults = 3;
-  } else if (bundle.inputData.numberOfResults > 10){
+  } else if (bundle.inputData.numberOfResults > 10) {
     bundle.inputData.numberOfResults = 10;
   }
 
   // Default sorting of the documents
-  if(!bundle.inputData.sortCriteria){
+  if (!bundle.inputData.sortCriteria) {
     bundle.inputData.sortCriteria = 'Relevancy';
   }
 
@@ -60,7 +60,7 @@ module.exports = {
         type: 'string',
         required: false,
         label: 'Sort By',
-        choices: {'Relevancy': 'Relevance', 'DateDescending': 'Newest to Oldest', 'DateAscending': 'Oldest to Newest', 'qre': 'Match Strength'},
+        choices: { Relevancy: 'Relevance', DateDescending: 'Newest to Oldest', DateAscending: 'Oldest to Newest', qre: 'Match Strength' },
         helpText: 'Choose how to sort the retrieved documents. Default is `Relevancy`.',
       },
       {

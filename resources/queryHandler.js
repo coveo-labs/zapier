@@ -6,13 +6,12 @@ const { handleError, coveoErrorHandler } = require('../utils');
 // This functions handles the query call to Coveo, then
 // sends off the result to the output handler.
 const handleQuery = (z, bundle) => {
-
   let tempKey = '';
 
   // Default to help documents org if needed and for
   // publicQuery action. Don't change access_token of bundle,
   // just use a tempKey to avoid errors in swapping access_tokens.
-  if(!bundle.inputData.organizationId ){
+  if (!bundle.inputData.organizationId) {
     bundle.inputData.organizationId = 'coveosearch';
     tempKey = process.env.SEARCH_TOKEN;
   } else {
@@ -32,21 +31,20 @@ const handleQuery = (z, bundle) => {
   });
 
   // Handle response info
-  return orgQueryPromise.then((response) => {
+  return orgQueryPromise
+    .then(response => {
+      // Handle errors that can occur
+      if (response.status !== 200) {
+        coveoErrorHandler(response.status);
+      }
 
-    // Handle errors that can occur
-    if(response.status !== 200){
-      coveoErrorHandler(response.status);
-    }
+      // Get the important parts of the response that we want
+      let results = z.JSON.parse(response.content).results;
 
-    // Get the important parts of the response that we want
-    let results = z.JSON.parse(response.content).results;
-
-    // Send to output handler
-    return queryOutput(bundle, results);
-  })
+      // Send to output handler
+      return queryOutput(bundle, results);
+    })
     .catch(handleError);
-
 };
 
 // This function handles the output te user will see on Zapier.
@@ -61,8 +59,7 @@ const queryOutput = (bundle, results) => {
   const docs = [];
 
   // If no results were found, nothing matched the query.
-  if(!results.length){
-
+  if (!results.length) {
     // Tell the user no documents found, give them the
     // input the gave, then return.
     documents['No Documents Found'] = 'No documents matching your query were found';
@@ -78,11 +75,10 @@ const queryOutput = (bundle, results) => {
 
     // Sort through the keys of each item object in the returned array response
     Object.keys(item).forEach(key => {
-
       // These are the really only good keys returned that the user may find useful for their output on Zapier.
       // Filter out the others and save these. Number them to differentiate them on Zapier.
-      if(key === 'Title' || key === 'ClickUri' || key === 'Excerpt'){
-        if(key === 'ClickUri'){
+      if (key === 'Title' || key === 'ClickUri' || key === 'Excerpt') {
+        if (key === 'ClickUri') {
           let tempKey = 'Url';
           documents['Document #' + (i + 1) + ' Url'] = item[key];
           docInfoHTML += `<div>${tempKey}: ${item[key].link(item[key])}</div>`;

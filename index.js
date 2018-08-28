@@ -21,13 +21,10 @@ const App = {
   authentication: authentication,
 
   // Whenever an outbound request is made, this will be called before the request is sent.
-  beforeRequest: [
-    includeBearerToken,
-  ],
+  beforeRequest: [includeBearerToken],
 
   // Whenever a response from a request is obtained, you can add calls in here.
-  afterResponse: [
-  ],
+  afterResponse: [],
 
   // Include resources in the app so that the creates can access the methods from within
   resources: {

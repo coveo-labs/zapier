@@ -1,20 +1,18 @@
 'use strict';
 
 const outputFields = () => {
-
   // This is how Zapier handles outputs from responses on the app. It looks at the
   // object returned from a function in perform, matches the keys declared here to those
   // in the returned object, then displays the values corresponding to those keys. The label
   // tag is what is displayed to be readable and make more sense to the user when they see it.
   const output = [
-    {key: 'lq', label: 'Query Sent to Coveo'},
-    {key: 'sortCriteria', label: 'How the Documents Were Sorted'},
-    {key: 'numberOfResults', label: 'Number of Documents Searched For'},
-    {key: 'organizationId', label: 'Organization Searched'},
+    { key: 'lq', label: 'Query Sent to Coveo' },
+    { key: 'sortCriteria', label: 'How the Documents Were Sorted' },
+    { key: 'numberOfResults', label: 'Number of Documents Searched For' },
+    { key: 'organizationId', label: 'Organization Searched' },
   ];
 
   return output;
-
 };
 
 module.exports = {
@@ -34,5 +32,4 @@ module.exports = {
   // outputFields: () => { return []; }
   // Alternatively, a static field definition should be provided, to specify labels for the fields
   outputFields: outputFields(),
-
 };

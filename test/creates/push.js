@@ -30,10 +30,12 @@ describe('pushes', function() {
       inputData: {
         documentId: 'localtest://12345',
         title: 'Push Test',
-        content: ['https://onlinehelp.coveo.com/en/ces/6.5/User/Whats_New.htm',
+        content: [
+          'https://onlinehelp.coveo.com/en/ces/6.5/User/Whats_New.htm',
           'https://onlinehelp.coveo.com/en/ces/7.0/Administrator/Whats_New_-_For_Coveo_Platform_Administrators.htm',
-          'https://onlinehelp.coveo.com/en/ces/7.0/Administrator/Whats_New_-_Coveo_Platform_7_Introduction.htm'],
-        fields: {author: 'Bryan Arnold', site: 'https://coveo.com/'},
+          'https://onlinehelp.coveo.com/en/ces/7.0/Administrator/Whats_New_-_Coveo_Platform_7_Introduction.htm',
+        ],
+        fields: { author: 'Bryan Arnold', site: 'https://coveo.com/' },
         data: 'testing',
         orgId: process.env.TEST_ORG_ID,
         sourceId: process.env.TEST_SOURCE_ID,

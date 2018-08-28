@@ -11,9 +11,9 @@ const handleQuery = require('../resources/queryHandler').handleQuery;
 const searchPublicQuery = (z, bundle) => {
   // Default number of documents to get and display
   // and make sure the number isn't bigger than 10.
-  if(!bundle.inputData.numberOfResults || typeof bundle.inputData.numberOfResults !== 'number'){
+  if (!bundle.inputData.numberOfResults || typeof bundle.inputData.numberOfResults !== 'number') {
     bundle.inputData.numberOfResults = 3;
-  } else if (bundle.inputData.numberOfResults > 10){
+  } else if (bundle.inputData.numberOfResults > 10) {
     bundle.inputData.numberOfResults = 10;
   }
 
