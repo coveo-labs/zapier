@@ -9,8 +9,7 @@ const zapier = require('zapier-platform-core');
 const { getStringByteSize, coveoErrorHandler, validateFetch, validateFileCount, validateFileSize, archiveFileNameFilter } = require('../utils');
 
 describe('utils', () => {
-  // This must be included in any test file before bundle, as it extracts the
-  // authentication data that was exported from the command line.
+  // This must be included in any test file before bundle, as it extracts the authentication data that was exported from the command line.
   // Put test ACCESS_TOKEN in a .env file as well as the org/source information.
   // inject() will load them and make them available to use in tests.
   zapier.tools.env.inject();
@@ -251,8 +250,7 @@ describe('utils', () => {
     return setSourceStatus(bundle, 'IDLE');
   });
 
-  // Can't test this function from utils.js, since the
-  // 'z' component of 'z.request' isn't available for local testing.
+  // Can't test this function from utils.js, since the 'z' component of 'z.request' isn't available for local testing.
   // Have to test is with a local version here.
   const setSourceStatus = (bundle, status) => {
     const push = require('../config').PUSH;

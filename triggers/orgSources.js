@@ -38,8 +38,7 @@ const perform = (z, bundle) => {
       // Only want source ids and names from this call
       results = results.map(source => ({ id: source.id, name: source.name }));
 
-      // Check if the selected organization has any push sources
-      // in it, if not throw an error.
+      // Check if the selected organization has any push sources in it, if not throw an error.
       if (!results.length) {
         throw new Error(message.NO_PUSH_SOURCES);
       }

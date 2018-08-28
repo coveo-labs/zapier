@@ -9,8 +9,7 @@ const appTester = zapier.createAppTester(App);
 
 describe('searches', function() {
   before(function() {
-    // This must be included in any test file before bundle, as it extracts the
-    // authentication data that was exported from the command line.
+    // This must be included in any test file before bundle, as it extracts the authentication data that was exported from the command line.
     // Put test ACCESS_TOKEN in a .env file.
     // The inject method will load them and make them available to use in tests.
     zapier.tools.env.inject();

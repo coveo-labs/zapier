@@ -37,8 +37,7 @@ const coveoErrorHandler = status => {
   }
 };
 
-// function to check whether or not the url given for the fetch
-// is absolute or the fetch got bad content.
+// function to check whether or not the url given for the fetch is absolute or the fetch got bad content.
 const validateFetch = (url, fetchResponse) => {
   let fetch = true;
 
@@ -56,8 +55,7 @@ const validateFetch = (url, fetchResponse) => {
   return fetch;
 };
 
-// Function to check if the total number of files
-// processed exceeds 50.
+// Function to check if the total number of files processed exceeds 50.
 const validateFileCount = fileCount => {
   if (fileCount > 50) {
     throw new Error(messages.TOO_MANY_FILES);
@@ -65,9 +63,8 @@ const validateFileCount = fileCount => {
   return false;
 };
 
-// Function to check if the file size or total size of the files
-// fetched exceeds 100 MB. If no size can be fetched, find it from
-// the buffer first, then check.
+// Function to check if the file size or total size of the files fetched exceeds 100 MB.
+// If no size can be fetched, find it from the buffer first, then check.
 const validateFileSize = (fileSize, fileBuffer) => {
   if (fileSize === 'null' && fileBuffer) {
     fileSize = getStringByteSize(fileBuffer);
@@ -84,13 +81,11 @@ const findExtension = (file, response) => {
   const path = require('path');
   let fileExtension = '';
 
-  // If the filename is trying to be determined from node-fetch call, aka when
-  // a file is being looked at that isn't inside of an archive file
+  // If the filename is trying to be determined from node-fetch call, aka when a file is being looked at that isn't inside of an archive file
   if (response) {
     fileExtension = mime.extension(response.headers.get('content-type'));
 
-    // If mime-type couldn't pick up an extension, try file-type to get it
-    // based on the data buffer
+    // If mime-type couldn't pick up an extension, try file-type to get it based on the data buffer
     if (!fileExtension) {
       if (fileType(fileExtension) !== null) {
         fileExtension = fileType(file.content).ext;
@@ -141,16 +136,15 @@ const findFilename = (disposition, response) => {
   let filename = '';
 
   // If disposition exists, makes getting this file info very easy/possible like this.
-  // If the file extraction is a temporary amazon bucket, .parse() breaks. So, just use split
-  // for the filename if this happens
+  // If the file extraction is a temporary amazon bucket, .parse() breaks.
+  // So, just use split for the filename if this happens
   if (disposition && response.headers.get('x-amz-server-side-encryption')) {
     filename = disposition.split(`''`)[1];
   } else if (disposition) {
     filename = contentDisposition.parse(disposition).parameters.filename;
   }
 
-  // This is a fabricated file extension from fetch if none is found,
-  // just get rid of it as it confuses indexing and the title.
+  // This is a fabricated file extension from fetch if none is found, just get rid of it as it confuses indexing and the title.
   if (filename.split('.').pop() === 'obj') {
     filename = filename.substr(0, filename.lastIndexOf('.'));
   }
@@ -158,8 +152,7 @@ const findFilename = (disposition, response) => {
   return filename;
 };
 
-// Function to filter out hidden files and macOS dependent files when scanning through the contents
-// of an archive file.
+// Function to filter out hidden files and macOS dependent files when scanning through the contents of an archive file.
 const archiveFileNameFilter = (file, folderNames) => {
   // These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
   if (file.path.indexOf('__MACOSX/') > -1 || /(^|\/)\.[^/.]/g.test(file.path.split('/').pop())) {
@@ -230,8 +223,7 @@ const validateArchiveType = details => {
   return goodArchive;
 };
 
-// This function sends a request to update the status of the source in the organization
-// before and after a push/delete request is made.
+// This function sends a request to update the status of the source in the organization before and after a push/delete request is made.
 const setSourceStatus = (z, bundle, status) => {
   // Send request to Coveo
   const statePromise = z.request({
@@ -288,9 +280,8 @@ const validateCompressionType = (zipContent, uncompressedSize) => {
     };
   }
 
-  // Check first few bytes of the buffer to get compression, except LZMA
-  // as the structure for these isn't very consistent globally to check for each time
-  // and is very taxing to determine without a handy module.
+  // Check first few bytes of the buffer to get compression, except LZMA as the structure for these isn't very consistent globally
+  // to check for each time and is very taxing to determine without a handy module.
   if (isCompressionGzip(c, type)) {
     compressionType = 'GZIP';
   } else if (isCompressionDeflate(c, type)) {

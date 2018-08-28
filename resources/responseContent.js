@@ -60,12 +60,10 @@ const getOrgInfoForOutput = (z, bundle) => {
               coveoErrorHandler(response.status);
             }
 
-            // Get only the information useful from the response
-            // and throw it into the object response.
+            // Get only the information useful from the response and throw it into the object response.
             const result = z.JSON.parse(response.content);
             outputInfo.sourceName = result.name;
-            // Owner of source comes back at abc@coveo.com-google. '-google' isn't necessary for this and looks
-            // cleaner without it.
+            // Owner of source comes back at abc@coveo.com-google. '-google' isn't necessary for this and looks cleaner without it.
             outputInfo.sourceOwner = (result.owner || '').split('-')[0];
             outputInfo.sourceType = result.sourceType;
             outputInfo.numDocs = result.information.numberOfDocuments;
@@ -75,8 +73,7 @@ const getOrgInfoForOutput = (z, bundle) => {
             return outputInfo;
           })
           .then(() => {
-            // Put the input data from the bundle the user made into the object where
-            // the gathered information is now stored.
+            // Put the input data from the bundle the user made into the object where the gathered information is now stored.
             Object.assign(outputInfo, bundle.inputData);
 
             if (outputInfo.content) {

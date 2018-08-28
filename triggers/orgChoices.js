@@ -31,8 +31,7 @@ const perform = z => {
       // Only wants org ids and names from this call
       results = results.map(r => ({ id: r.id, displayName: r.displayName }));
 
-      // Make sure that the user has access to some organization in the platform
-      // with the connected account, if not throw an error
+      // Make sure that the user has access to some organization in the platform with the connected account, if not throw an error
       if (!results.length) {
         throw new Error(message.NO_ORGS);
       }

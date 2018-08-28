@@ -1,7 +1,7 @@
 'use strict';
 
-// A nice place to store certain error messages that would reoccur. Can easily add to this later on
-// if there's more types of errors that need to be handled frequently.
+// A nice place to store certain error messages that would reoccur.
+// Can easily add to this later on if there's more types of errors that need to be handled frequently.
 const messages = {
   BIG_FILE: 'The supplied file contents are too large. Limit is 100 MB. Please reduce the file size or try a smaller file.',
   TOO_MANY_FILES: 'The maximum number of files that can be sent is 50. Please reduce the number of files and try again.',

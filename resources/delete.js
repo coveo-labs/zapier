@@ -26,8 +26,7 @@ module.exports = {
   key: 'delete',
   noun: 'Delete',
 
-  // Samples are used for the output of the app if no
-  // fetch can be performed or some issues getting the details occurs.
+  // Samples are used for the output of the app if no fetch can be performed or some issues getting the details occurs.
   sample: {
     docId: 'http://example.com/',
     title: 'my-doc.txt',

@@ -1,8 +1,8 @@
 'use strict';
 
 // Currently not needed, but if Zapier one day allows for drop down lists alongside of the dict property in
-// their input field declarations, this would make the app very simple to use. Just make sure to include it in
-// index.js if this happens one day.
+// their input field declarations, this would make the app very simple to use.
+// Just make sure to include it in index.js if this happens one day.
 
 const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
@@ -18,8 +18,8 @@ const perform = (z, bundle) => {
     throw new Error(message.SELECT_ORG_AND_SOURCE);
   }
 
-  // Request to Coveo to get fields that specified source uses in it's mappings. Source ID and Org ID must be
-  // given by the user beforehand for this to work.
+  // Request to Coveo to get fields that specified source uses in it's mappings.
+  // Source ID and Org ID must be given by the user beforehand for this to work.
   const orgFieldsPromise = z.request({
     url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/indexes/page/fields`,
     method: 'GET',
@@ -42,8 +42,7 @@ const perform = (z, bundle) => {
       // Only want the ids and names of the fields from this call.
       results = results.map(r => ({ id: r.name, name: r.name }));
 
-      // Check to make sure that fields exist in the source,
-      // if not throw an error to the user.
+      // Check to make sure that fields exist in the source, if not throw an error to the user.
       if (!results.length) {
         throw new Error(message.NO_FIELDS);
       }

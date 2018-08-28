@@ -4,8 +4,7 @@ const { handleError, coveoErrorHandler, setSourceStatus } = require('../utils');
 const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
 const push = require('../config').PUSH;
 
-// This function does as it says, it handles the process of creating a
-// delete request to Coveo.
+// This function does as it says, it handles the process of creating a delete request to Coveo.
 const handleDeleteCreation = (z, bundle) => {
   // Set te status of the source before any push is sent to it
   const statePromise = setSourceStatus(z, bundle, 'INCREMENTAL');

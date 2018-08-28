@@ -48,20 +48,17 @@ const handleQuery = (z, bundle) => {
 };
 
 // This function handles the output te user will see on Zapier.
-// Only extract the important components of each document the was fetched
-// for the user, like title and url.
+// Only extract the important components of each document the was fetched for the user, like title and url.
 const queryOutput = (bundle, results) => {
   const documents = {};
-  // give the user plain text an html of all the document information, so they don't have
-  // to use so many inputs to get it all.
+  // give the user plain text an html of all the document information, so they don't have to use so many inputs to get it all.
   let html = `<html><head><title>Results For The "${bundle.inputData.lq}" Query</title></head><body>`;
   let text = `Results for the "${bundle.inputData.lq}" query:\n\n`;
   const docs = [];
 
   // If no results were found, nothing matched the query.
   if (!results.length) {
-    // Tell the user no documents found, give them the
-    // input the gave, then return.
+    // Tell the user no documents found, give them the input the gave, then return.
     documents['No Documents Found'] = 'No documents matching your query were found';
     Object.assign(documents, bundle.inputData);
     docs.push(documents);

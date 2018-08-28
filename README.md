@@ -7,7 +7,8 @@ This is the code for the integration of the Coveo app on Zapier. It is capable o
 Before starting anything Zapier related, it will probably be helpful to brush up on some of Coveo's API.
 Head [here](https://platform.cloud.coveo.com/docs?api=Platform) for a refresher or to get antiquated with Coveo API, as many different calls using the API are used within this project.
 
-You should also ensure you have the latest version of Node.js installed (this app was created with `v8.11.3`). If you don't have the most recent version of Node.js, go to the [main node.js site](https://nodejs.org/en/download/) to download the latest version. If you have some method to update locally on your command line, feel free, otherwise just download the correct package from the site. It isn't recommended to not use the stable release of node.js here, since who knows what could go wrong otherwise.
+You should also ensure you have the latest version of Node.js installed (this app was created with `v8.11.3`). If you don't have the most recent version of Node.js, go to the [main node.js site](https://nodejs.org/en/download/) to download the latest version. If you have some method to update locally on your command line, feel free, otherwise just download the correct package from the site.
+It's recommended to use the latest stable release of node.js.
 
 For general information regarding Zapier, follow this [link](https://zapier.com/developer/documentation/v2/) to their main documentation page. Since this is part of their CLI Interface, you may also find it useful to have [this](https://www.npmjs.com/package/zapier-platform-cli) or [this](https://zapier.github.io/zapier-platform-cli/cli.html) on hand. The main zapier [github](https://github.com/zapier/zapier-platform-cli) also has a very good description of all the components of the CLI as well as example apps you can look at.
 

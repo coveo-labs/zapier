@@ -13,12 +13,10 @@ const {
   findFilename,
 } = require('../utils');
 
-// This function handles the process of fetching all the files provided
-// in the Field input field. All files will have content extracted, if they don't
-// violate absolute url form or have content, and then indexed into the source.
+// This function handles the process of fetching all the files provided in the Field input field.
+// All files will have content extracted, if they don't violate absolute url form or have content, and then indexed into the source.
 const fileHandler = (files, bundle) => {
-  // List of promises, content of all the files, total files, and
-  // and index tracker for updating the bundle for better response content later on.
+  // List of promises, content of all the files, total files, and index tracker for updating the bundle for better response content later on.
   let fileFetches = [];
   let fileContents = [];
   let fileCount = 0;
@@ -73,8 +71,7 @@ const fileHandler = (files, bundle) => {
 
           // If a good fetch happened
         } else if (content.length) {
-          // If the file name existed in the file information, set the
-          // filename to be more response friendly, same for file type.
+          // If the file name existed in the file information, set the filename to be more response friendly, same for file type.
           // This is for archive files only.
           if (filename !== 'Content of ') {
             bundle.inputData.content[indexCount] = filename;
@@ -84,8 +81,7 @@ const fileHandler = (files, bundle) => {
             bundle.inputData.content[indexCount] = 'A file';
           }
         } else {
-          // If the file name existed in the file information, set the
-          // filename to be more response friendly, same for file type.
+          // If the file name existed in the file information, set the filename to be more response friendly, same for file type.
           // This is for non-archive files only.
           if (filename !== '') {
             bundle.inputData.content[indexCount] = filename;
@@ -118,8 +114,7 @@ const fetchFile = url => {
 
   let fetchResponse = '';
 
-  // If the url is not absolute, fetch will fail. Prevent the error here
-  // and from breaking the Zap by just not fetching any content from it
+  // If the url is not absolute, fetch will fail. Prevent the error here and from breaking the Zap by just not fetching any content from it
   if (!validateFetch(url)) {
     details.fetch = false;
     return details;
@@ -142,19 +137,16 @@ const fetchFile = url => {
         details.content = content;
         details.contentType = findExtension(details, fetchResponse);
 
-        // The file is too big (100 MB for now), throw an error telling
-        // the user so and the file size limit.
+        // The file is too big (100 MB for now), throw an error telling the user so and the file size limit.
         validateFileSize(details.size, details.content);
 
-        // See if the file is a supported archive or not, handle
-        // accordingly.
+        // See if the file is a supported archive or not, handle accordingly.
         if (validateArchiveType(details)) {
           return decompressArchive(details);
         }
 
-        // If neither the zip or tar cases picked up anything, this is some single file
-        // type, like pdf, or a file type that isn't supported (in which no valuable content will be extracted in the source)
-        // and Coveo may or may not delete the submission.
+        // If neither the zip or tar cases picked up anything, this is some single file type, like pdf, or a file type
+        // that isn't supported (in which no valuable content will be extracted in the source) and Coveo may or may not delete the submission.
         return details;
       })
       .catch(handleError);
@@ -189,8 +181,7 @@ const decompressArchive = details => {
 
         // These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
         if (archiveFileNameFilter(file, folderNames)) {
-          // Also ignore folders within the archive, but keep folder names
-          // to help alter the file names within them.
+          // Also ignore folders within the archive, but keep folder names to help alter the file names within them.
         } else {
           // Get the file type/extension for the file info
           archiveContent.contentType = findExtension(file);
@@ -202,13 +193,12 @@ const decompressArchive = details => {
           totalFileSize += archiveContent.size;
           fileCount++;
 
-          // Too many files or the contents of the archive
-          // are too big, so catch early and throw an error
+          // Too many files or the contents of the archive are too big, so catch early and throw an error
           validateFileCount(fileCount);
           validateFileSize(totalFileSize, archiveContent.content);
 
-          // If a file is in a folder, the file name includes the folder's name
-          // as well. Remove the excess folder name out of the file name.
+          // If a file is in a folder, the file name includes the folder's name as well.
+          // Remove the excess folder name out of the file name.
           folderNames.forEach(folderName => {
             if (archiveContent.filename.indexOf(folderName) > -1) {
               archiveContent.filename = file.path.substr(folderName.length, file.path.length);

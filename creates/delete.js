@@ -15,8 +15,7 @@ const createDelete = (z, bundle) => {
 module.exports = {
   key: 'deletes',
 
-  // You'll want to provide some helpful display labels and descriptions
-  // for users. Zapier will put them into the UX.
+  // You'll want to provide some helpful display labels and descriptions for users. Zapier will put them into the UX.
   noun: 'Delete',
   display: {
     label: 'Delete Content',

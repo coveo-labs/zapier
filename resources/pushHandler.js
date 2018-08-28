@@ -78,8 +78,7 @@ const processPush = (z, bundle) => {
   // Set te status of the source before any push is sent to it
   const statePromise = setSourceStatus(z, bundle, 'INCREMENTAL');
 
-  // Check for any HTML tags in the data if it exists, and change the fileExtension to
-  // .html so it is indexed properly
+  // Check for any HTML tags in the data if it exists, and change the fileExtension to .html so it is indexed properly
   if (RE_IS_HTML.test(bundle.inputData.data)) {
     bundle.inputData.fileExtension = '.html';
   }
@@ -152,8 +151,7 @@ const createContainer = (z, bundle) => {
 // The function to handle a batch upload to amazon with multiple
 // inputs in the Files input field.
 const uploadBatchToContainer = (z, bundle, fileContents, result) => {
-  // Object to hold the addOrUpdate batch that will
-  // be pushed to amazon/Coveo.
+  // Object to hold the addOrUpdate batch that will be pushed to amazon/Coveo.
   const batchContent = {
     addOrUpdate: [],
   };
@@ -172,16 +170,12 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
   fileContents.forEach((fileContent, i) => {
     let batchItem = {};
 
-    // Scan through the bundle input information
-    // and assign them to the bundle component. Metadata
-    // will be included for each item pushed (should always be this since
-    // the first item pushed may be deleted if it has no valuable content).
+    // Scan through the bundle input information and assign them to the bundle component.
+    // Metadata will be included for each item pushed (should always be this since the first item pushed may be deleted if it has no valuable content).
     Object.assign(batchItem, bundle.inputData);
 
-    // The first item of the batch hasn't been processed yet, only do these after
-    // the first item is created. This is because these items require parent ID's
-    // and doc ID's dependent on the first item, so they cannot be made until the
-    // first one is.
+    // The first item of the batch hasn't been processed yet, only do these after the first item is created.
+    // This is because these items require parent ID's and doc ID's dependent on the first item, so they cannot be made until the first one is.
     if (batchContent.addOrUpdate.length >= 1) {
       delete batchItem.data;
       batchItem.title = decodeURI(fileContent.filename); // Some apps encode the title, this gets rid of that
@@ -191,8 +185,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
       batchItem.documentId = batchContent.addOrUpdate[0].documentId + '/file' + (i + 1);
       totalSize += parseInt(fileContent.size); // Some apps set the size toa  string, this converts it to an integer
 
-      // If there is no extension for the file, don't put that property in
-      // the batch push. Let the indexer try and figure it out.
+      // If there is no extension for the file, don't put that property in the batch push. Let the indexer try and figure it out.
       if (fileContent.contentType !== '') {
         batchItem.fileExtension = fileContent.contentType;
       }
@@ -207,8 +200,7 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     validateFileSize(totalSize);
   });
 
-  // If the parent document has no plain text, the parent document
-  // item in the batch is useless, as it will contain no data or file content, so remove it.
+  // If the parent document has no plain text, the parent document item in the batch is useless, as it will contain no data or file content, so remove it.
   if (!firstBatchItem.data) {
     batchContent.addOrUpdate.splice(0, 1);
   }
@@ -217,9 +209,9 @@ const uploadBatchToContainer = (z, bundle, fileContents, result) => {
     batchContent.addOrUpdate[0].fileExtension = '.html';
   }
 
-  // Amazon doesn't get mad about no content-length headers for this upload,
-  // very strange. This has potential to break in the future. Don't put the header
-  // if it isn't needed, as the excess headers can also break this.
+  // Amazon doesn't get mad about no content-length headers for this upload, very strange.
+  // This has potential to break in the future.
+  // Don't put the header if it isn't needed, as the excess headers can also break this.
   let headers = result.requiredHeaders;
 
   // Send upload request to amazon
@@ -282,16 +274,12 @@ const uploadToContainer = (z, bundle, result) => {
           while (contentNumber !== 2) {
             let uploadContent = {};
 
-            // Scan through the bundle input information
-            // and assign them to the bundle component. Metadata
-            // will be included for each item pushed (should always be this since
-            // the first item pushed may be deleted if it has no valuable content).
+            // Scan through the bundle input information and assign them to the bundle component.
+            // Metadata will be included for each item pushed (should always be this since the first item pushed may be deleted if it has no valuable content).
             Object.assign(uploadContent, bundle.inputData);
 
-            // The first item of the batch hasn't been processed yet, only do these after
-            // the first item is created. This is because these items require parent ID's
-            // and doc ID's dependent on the first item, so they cannot be made until the
-            // first one is.
+            // The first item of the batch hasn't been processed yet, only do these after the first item is created.
+            // This is because these items require parent ID's and doc ID's dependent on the first item, so they cannot be made until the first one is.
             if (upload.addOrUpdate.length >= 1) {
               delete uploadContent.data;
               uploadContent.title = decodeURI(fileContents[0].filename);
@@ -299,8 +287,8 @@ const uploadToContainer = (z, bundle, result) => {
               uploadContent.parentId = upload.addOrUpdate[0].documentId;
               uploadContent.documentId = upload.addOrUpdate[0].documentId + '/file1';
 
-              // If no extension is present, don't provide that property in the push. Try
-              // and let the indexer figure it out if it can.
+              // If no extension is present, don't provide that property in the push.
+              // Try and let the indexer figure it out if it can.
               if (fileContents.contentType !== '') {
                 uploadContent.fileExtension = fileContents[0].contentType;
               }
@@ -348,8 +336,7 @@ const uploadToContainer = (z, bundle, result) => {
               }
 
               // Get the content and return it, should be an empty object.
-              // Just need to return something in order to continue on to the next
-              // step where what this function returns as a whole.
+              // Just need to return something in order to continue on to the next step where what this function returns as a whole.
               const result = z.JSON.stringify(response.content);
               return result;
             })

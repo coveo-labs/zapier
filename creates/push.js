@@ -7,8 +7,7 @@ const _ = require('lodash');
 // This functions is a handoff to the pushHandler file to handle the creation of a push request, sending it
 // to Coveo, then handling the appropriate response content.
 const createNewPush = (z, bundle) => {
-  // Take the fields the user submitted and put them into the input data
-  // to be sent in the push.
+  // Take the fields the user submitted and put them into the input data to be sent in the push.
   Object.assign(bundle.inputData, bundle.inputData.fields);
   delete bundle.inputData.fields;
 
@@ -28,13 +27,11 @@ const createNewPush = (z, bundle) => {
   return pushHandler.handlePushCreation(z, bundle);
 };
 
-// We recommend writing your creates separate like this and rolling them
-// into the App definition at the end.
+// We recommend writing your creates separate like this and rolling them into the App definition at the end.
 module.exports = {
   key: 'push',
 
-  // You'll want to provide some helpful display labels and descriptions
-  // for users. Zapier will put them into the UI/UX.
+  // You'll want to provide some helpful display labels and descriptions for users. Zapier will put them into the UI/UX.
   noun: 'Push',
   display: {
     label: 'Push or Update Content',

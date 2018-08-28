@@ -17,8 +17,8 @@ module.exports = {
   // https://zapier.github.io/zapier-platform-cli/?utm_source=zapier.com&utm_medium=referral&utm_campaign=zapier#oauth2
 
   oauth2Config: {
-    // Construct the authorization url that Coveo uses in order to grant access/refresh
-    // tokens. The individual's redirect_uri must be found before this.
+    // Construct the authorization url that Coveo uses in order to grant access/refresh tokens.
+    // The individual's redirect_uri must be found before this.
     authorizeUrl: {
       method: 'GET',
       url: `${OAUTH_URL}/authorize`,
@@ -30,8 +30,7 @@ module.exports = {
       },
     },
 
-    // Get the access token from the authorization url and store it for later
-    // to use as the authorization header for any request made to Coveo.
+    // Get the access token from the authorization url and store it for later to use as the authorization header for any request made to Coveo.
     getAccessToken: {
       method: 'POST',
       url: `${OAUTH_URL}/token`,
@@ -48,8 +47,7 @@ module.exports = {
       },
     },
 
-    // Get the refresh token from the authorization url and store it for later
-    // to use if any authorization runs into a 401 error.
+    // Get the refresh token from the authorization url and store it for later to use if any authorization runs into a 401 error.
     refreshAccessToken: {
       method: 'POST',
       url: `${OAUTH_URL}/token`,

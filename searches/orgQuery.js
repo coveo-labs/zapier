@@ -3,11 +3,9 @@
 const queryResource = require('../resources/query');
 const handleQuery = require('../resources/queryHandler').handleQuery;
 
-// This is a handoff to the queryHandler. This sets up the defaults of some
-// of the values if none were provided in the input fields.
+// This is a handoff to the queryHandler. This sets up the defaults of some of the values if none were provided in the input fields.
 const searchOrgQuery = (z, bundle) => {
-  // Default number of documents to get and display
-  // and make sure the number isn't bigger than 10.
+  // Default number of documents to get and display and make sure the number isn't bigger than 10.
   if (!bundle.inputData.numberOfResults || typeof bundle.inputData.numberOfResults !== 'number') {
     bundle.inputData.numberOfResults = 3;
   } else if (bundle.inputData.numberOfResults > 10) {
@@ -23,14 +21,12 @@ const searchOrgQuery = (z, bundle) => {
   return handleQuery(z, bundle);
 };
 
-// We recommend writing your searches separate like this and rolling them
-// into the App definition at the end.
+// We recommend writing your searches separate like this and rolling them into the App definition at the end.
 module.exports = {
   key: 'orgQuery',
   noun: 'Query',
 
-  // You'll want to provide some helpful display labels and descriptions
-  // for users. Zapier will put them into the UI/UX.
+  // You'll want to provide some helpful display labels and descriptions for users. Zapier will put them into the UI/UX.
   display: {
     label: 'Find Documents',
     description: 'Find documents in a specified organization.',
