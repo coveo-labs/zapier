@@ -175,6 +175,8 @@ const archiveFileNameFilter = (file, folderNames) => {
   //These files are macOS dependent or hidden files that don't have any valuable content to extract, so ignore them.
   if (file.path.indexOf('__MACOSX/') > -1 || ((/(^|\/)\.[^\/\.]/g).test(file.path.split('/').pop()))) {
     return true;
+    //Ignore folders as well, we just want files, but hold onto the
+    //folder names to fix filenames within them
   } else if (file.type === 'directory'){
     folderNames.unshift(file.path);
     return true;
@@ -194,7 +196,7 @@ const validateArchiveType = details => {
   const name = details.filename;
   let goodArchive = false;
 
-  //Zip file, send to handleZip to get content. This helps to detect compression/file types based upon bytes in the data buffer for the
+  //Zip file supported archive type. This helps to detect compression/file types based upon bytes in the data buffer for the
   //following conditional chain: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe
   if ((c[0] === 0x50 && c[1] === 0x4b && c[2] === 0x03 && c[3] === 0x04 && c[len - 1] === 0x06 && (c[len - 2] === 0x06 || c[len - 2] === 0x05)) || type === '.zip') {
     goodArchive = true;

@@ -9,12 +9,12 @@ let basicToken = Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SE
 module.exports = {
   type: 'oauth2',
   connectionLabel: ' ',
-  // oauth2Config data structure is how Zapier determines what to call when managing the oauth. The authorization url construction is
-  // called when needed in authorizeUrl, whenever a access/refresh token is needed it calls getAccessToken, and whenever a 401 error occurs
-  // it knows to call autoRefresh (which calls refreshAccessToken).
-  // See the following:
-  // https://zapier.com/developer/documentation/v2/oauth-v2/
-  // https://zapier.github.io/zapier-platform-cli/?utm_source=zapier.com&utm_medium=referral&utm_campaign=zapier#oauth2
+  //oauth2Config data structure is how Zapier determines what to call when managing the oauth. The authorization url construction is
+  //called when needed in authorizeUrl, whenever a access/refresh token is needed it calls getAccessToken, and whenever a 401 error occurs
+  //it knows to call autoRefresh (which calls refreshAccessToken).
+  //See the following:
+  //https://zapier.com/developer/documentation/v2/oauth-v2/
+  //https://zapier.github.io/zapier-platform-cli/?utm_source=zapier.com&utm_medium=referral&utm_campaign=zapier#oauth2
 
   oauth2Config: {
     //Construct the authorization url that Coveo uses in order to grant access/refresh
@@ -63,11 +63,11 @@ module.exports = {
       },
     },
 
-    // Set so Zapier automatically checks for 401s and calls refreshAccessToken
+    //Set so Zapier automatically checks for 401s and calls refreshAccessToken
     autoRefresh: true,
   },
 
-  // The test call Zapier makes to ensure an access token is valid
+  //The test call Zapier makes to ensure an access token is valid
   test: {
     url: `https://${config.PLATFORM}/rest/organizations`,
   },
