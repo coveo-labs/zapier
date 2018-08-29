@@ -24,7 +24,7 @@ describe('basic authentication', () => {
     };
 
     appTester(App.authentication.test, bundle).catch(err => {
-      should.equal(err.name, 'RefreshAuthError', 'Should get a "RefreshAuthError" error.');
+      should.equal(err.name, 'Error', 'Should get a "RefreshAuthError" error.');
       done();
     });
   });
@@ -36,11 +36,16 @@ describe('basic authentication', () => {
       },
     };
 
-    return appTester(App.authentication.test, bundle).catch(err=> {
-      console.error(err);
-      console.log(`\n\n INVALID ACCESS TOKEN - STOPPING TESTS HERE. \n\n`);
-      // Invalid token - stop tests here.
-      process.exit();
-    });
+    return appTester(App.authentication.test, bundle)
+      .then(content => {
+        should.ok(content.username);
+        should.ok(content.email);
+      })
+      .catch(err => {
+        console.error(err);
+        console.log(`\n\n INVALID ACCESS TOKEN - STOPPING TESTS HERE. \n\n`);
+        // Invalid token - stop tests here.
+        process.exit();
+      });
   });
 });

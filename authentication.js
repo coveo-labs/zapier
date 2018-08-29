@@ -6,9 +6,29 @@ const OAUTH_URL = `https://${config.PLATFORM}/oauth`;
 // Basic oauth2 used to get access/refresh tokens
 let basicToken = Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64');
 
+const testAuth = (z, bundle) => {
+  let token = bundle.authData.access_token;
+  const promise = z.request({
+    method: 'POST',
+    url: `https://${config.PLATFORM}/oauth/check_token?token=${token}`,
+  });
+
+  // This method can return any truthy value to indicate the credentials are valid.
+  // Raise an error to show
+  return promise.then(response => {
+    if (response.status === 401) {
+      throw new z.errors.RefreshAuthError();
+    } else if (response.status >= 400) {
+      throw new Error('The access token you supplied is not valid');
+    }
+
+    return z.JSON.parse(response.content).authentication;
+  });
+};
+
 module.exports = {
   type: 'oauth2',
-  connectionLabel: ' ',
+  connectionLabel: '{{email}}',
   // oauth2Config data structure is how Zapier determines what to call when managing the oauth. The authorization url construction is
   // called when needed in authorizeUrl, whenever a access/refresh token is needed it calls getAccessToken, and whenever a 401 error occurs
   // it knows to call autoRefresh (which calls refreshAccessToken).
@@ -66,7 +86,5 @@ module.exports = {
   },
 
   // The test call Zapier makes to ensure an access token is valid
-  test: {
-    url: `https://${config.PLATFORM}/rest/organizations`,
-  },
+  test: testAuth,
 };
