@@ -16,6 +16,7 @@ const messages = {
   ERROR_412: 'There were incorrect or missing parameters sent with your request. Ensure all the required input fields are valid and try again.',
   ERROR_413: 'The search query you are sending is too large. Reduce the size of the search query and try again.',
   ERROR_429: 'You are attempting to send too many requests at a time. Wait a few minutes and try again.',
+  ERROR_DOCUMENT_ID_INVALID: 'Document Id should be a URI. More info at https://docs.coveo.com/en/78/cloud-v2-developers/push-api-reference#documentid-query-string-required.',
   SHOULD_NOT_OCCUR_ERRORS: 'There was an unexpected error with Coveo. If the error persists, contact Coveo Support.',
   FALLBACK_ERROR: 'There was an issue processing the request to Coveo. Ensure the connected account is working and your inputs are valid before trying again.',
 };

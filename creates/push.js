@@ -1,5 +1,6 @@
 'use strict';
 
+const messages = require('../messages');
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
 
@@ -9,13 +10,19 @@ const createNewPush = (z, bundle) => {
   // Take the fields the user submitted and put them into the input data to be sent in the push.
   Object.assign(bundle.inputData, bundle.inputData.fields);
   delete bundle.inputData.fields;
+  // Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
+  bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
+
+  if (!/^\w+:\/\/\w+/.test(bundle.inputData.documentId)) {
+    // documentId is not an URL, which is a requirement for Push.
+    // Stopping.
+    throw new Error(messages.ERROR_DOCUMENT_ID_INVALID);
+  }
 
   if (!bundle.inputData.clickableuri) {
     // Keep original url in clickableuri (if clickableuri isn't set already)
     bundle.inputData.clickableuri = bundle.inputData.documentId;
   }
-  // Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
-  bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   // Eliminate repeat url/file inputs in the Files input field
   if (bundle.inputData.content && bundle.inputData.content.length > 1) {

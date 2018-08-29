@@ -1,5 +1,6 @@
 'use strict';
 
+const messages = require('../messages');
 const deleteResource = require('../resources/delete');
 const deleteHandler = require('../resources/deleteHandler');
 
@@ -8,6 +9,12 @@ const deleteHandler = require('../resources/deleteHandler');
 const createDelete = (z, bundle) => {
   // Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
+
+  if (!/^\w+:\/\/\w+/.test(bundle.inputData.documentId)) {
+    // documentId is not an URL, which is a requirement for Push.
+    // Stopping.
+    throw new Error(messages.ERROR_DOCUMENT_ID_INVALID);
+  }
 
   return deleteHandler.handleDeleteCreation(z, bundle);
 };
