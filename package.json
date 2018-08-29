@@ -1,12 +1,12 @@
 {
   "name": "coveo",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Index documents into a push source on your Coveo Cloud V2 Platform organization.",
   "repository": "coveo-labs/zapier",
   "homepage": "https://coveo.com/",
-  "author": "Bryan Arnold <barnold@coveo.com>",
+  "author": "Jerome Devost <jdevost@coveo.com>",
   "contributors": [
-    "Jerome Devost <jdevost@coveo.com>",
+    "Bryan Arnold <barnold@coveo.com>",
     "Alexandre Moreau <amoreau@coveo.com>",
     "Peter McCormick <pmccormick@coveo.com>"
   ],
