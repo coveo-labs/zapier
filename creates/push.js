@@ -55,7 +55,7 @@ module.exports = {
         type: 'string',
         label: 'Source',
         dynamic: 'orgSources.id.name', // For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'Choose an Organization before selecting a source.',
+        helpText: 'Please choose an Organization first.',
       },
       {
         key: 'documentId',
