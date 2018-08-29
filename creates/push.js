@@ -69,7 +69,7 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Item ID',
-        helpText: 'The ID you want to give to your item. It must follow a URL format. You can use the original url, or create your own identifier like this: app-name://<ID>.',
+        helpText: 'The ID you want to give to your item. _It must be a URI_. You can use the original url, or create your own identifier like this: __app://*some-id*__\n\nFor more info see [Push API Reference](https://docs.coveo.com/en/78/cloud-v2-developers/push-api-reference#documentid-query-string-required).',
       },
       {
         key: 'title',
