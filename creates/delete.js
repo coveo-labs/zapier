@@ -31,7 +31,7 @@ module.exports = {
         key: 'orgId',
         required: true,
         type: 'string',
-        label: 'Organization ID',
+        label: 'Organization',
         dynamic: 'orgChoices.id.displayName', // For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
       },
       {
