@@ -5,18 +5,6 @@ const handleQuery = require('../resources/queryHandler').handleQuery;
 
 // This is a handoff to the queryHandler. This sets up the defaults of some of the values if none were provided in the input fields.
 const searchOrgQuery = (z, bundle) => {
-  // Default number of documents to get and display and make sure the number isn't bigger than 10.
-  if (!bundle.inputData.numberOfResults || typeof bundle.inputData.numberOfResults !== 'number') {
-    bundle.inputData.numberOfResults = 3;
-  } else if (bundle.inputData.numberOfResults > 10) {
-    bundle.inputData.numberOfResults = 10;
-  }
-
-  // Default sorting of the documents
-  if (!bundle.inputData.sortCriteria) {
-    bundle.inputData.sortCriteria = 'Relevancy';
-  }
-
   // Send off to the handler
   return handleQuery(z, bundle);
 };
@@ -50,22 +38,6 @@ module.exports = {
         required: true,
         label: 'Search Query',
         helpText: 'The search query to find documents. The query should follow the [Coveo Cloud Query Syntax](http://www.coveo.com/go?dest=cloudhelp&lcid=9&context=357).',
-      },
-      {
-        key: 'sortCriteria',
-        type: 'string',
-        required: false,
-        label: 'Sort By',
-        choices: { Relevancy: 'Relevance', DateDescending: 'Newest to Oldest', DateAscending: 'Oldest to Newest', qre: 'Match Strength' },
-        helpText: 'Choose how to sort the retrieved documents. Default is `Relevancy`.',
-      },
-      {
-        key: 'numberOfResults',
-        type: 'integer',
-        required: false,
-        label: 'Number of Documents',
-        choices: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
-        helpText: 'The number of documents you wish to fetch in your result. Default is `3`, maximum is `10`.',
       },
     ],
 

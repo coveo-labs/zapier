@@ -25,8 +25,6 @@ describe('searches', function() {
       inputData: {
         lq: 'Use Push API',
         organizationId: process.env.TEST_ORG_ID,
-        sortCriteria: 'DateDescending',
-        numberOfResults: '6',
       },
     };
 
