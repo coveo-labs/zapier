@@ -4,6 +4,9 @@ const handleError = require('../utils').handleError;
 const platform = require('../config').PLATFORM;
 const message = require('../messages');
 
+const triggerUtils = require('./utils');
+
+
 // This is a hidden trigger, meaning it acts like a trigger would (making calls to Coveo to get information)
 // without the trigger actually showing up in the app. This allows the creation of dynamic drop downs for the input users
 // can use to get choices instead of manually inputting some information. This specific function
@@ -14,38 +17,43 @@ const perform = (z, bundle) => {
     throw new Error(message.SELECT_ORG);
   }
 
-  // Request to Coveo
-  const orgSourcesPromise = z.request({
+  // getSources
+  const sourcesRequest = z.request({
     url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources`,
     method: 'GET',
   });
 
-  // Handle response
-  return orgSourcesPromise
-    .then(response => {
-      if (response.status >= 400) {
-        throw new Error('Error getting source choices for the drop down: ' + z.JSON.parse(response.content).message + ' Error Code: ' + response.status);
+  // getPrivileges
+  const privilegesRequest = z.request({
+    url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/members/privileges`,
+    method: 'GET',
+  });
+
+  let p = Promise.all([sourcesRequest, privilegesRequest])
+    .then(([sourcesResponse, privilegesResponse]) => {
+
+      let sources = z.JSON.parse(sourcesResponse.content);
+      let privileges = z.JSON.parse(privilegesResponse.content);
+
+      if (sourcesResponse.status >= 400) {
+        throw new Error('Error getting source choices for the drop down: ' + sources.message + ' Error Code: ' + sourcesResponse.status);
+      }
+      if (privilegesResponse.status >= 400) {
+        throw new Error('Error getting privileges: ' + privileges.message + ' Error Code: ' + privilegesResponse.status);
       }
 
-      let results = z.JSON.parse(response.content);
-      if (!results.map) {
-        // make sure it's an array
-        results = [];
-      }
-
-      // We can only use this app with Push sources.
-      results = results.filter(source => source.sourceType === 'PUSH');
-      // Only want source ids and names from this call
-      results = results.map(source => ({ id: source.id, name: source.name }));
+      sources = triggerUtils.filterSourcesWithPrivileges(sources, privileges);
 
       // Check if the selected organization has any push sources in it, if not throw an error.
-      if (!results.length) {
+      if (!sources.length) {
         throw new Error(message.NO_PUSH_SOURCES);
       }
 
-      return results;
+      return sources;
     })
     .catch(handleError);
+
+  return p;
 };
 
 module.exports = {
