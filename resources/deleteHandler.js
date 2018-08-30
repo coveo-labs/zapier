@@ -28,12 +28,14 @@ const handleDeleteCreation = (z, bundle) => {
       // Handle request response
       return deletePromise
         .then(response => {
+          const p = utils.setSourceStatus(z, bundle, 'IDLE');
+
           if (response.status !== 202) {
             utils.coveoErrorHandler(response.status);
           }
 
           // Set the status of the source back once the delete has succeeded
-          return utils.setSourceStatus(z, bundle, 'IDLE');
+          return p;
         })
         .then(() => {
           // Send to responseContent handler

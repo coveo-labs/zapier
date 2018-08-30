@@ -55,15 +55,17 @@ const processBatchPush = (z, bundle, result) => {
       // Handle response from Coveo.
       return batchPushPromise
         .then(response => {
+          const p = utils.setSourceStatus(z, bundle, 'IDLE');
+
           if (response.status !== 202) {
             utils.coveoErrorHandler(response.status);
           }
 
           // Set the status of the source back once the push has succeeded
-          return utils.setSourceStatus(z, bundle, 'IDLE');
+          return p;
         })
         .then(() => {
-          // /Send to responseContent handler.
+          // Send to responseContent handler.
           return getOutputInfo(z, bundle);
         })
         .catch(utils.handleError);
@@ -102,12 +104,14 @@ const processPush = (z, bundle) => {
       // Handle request response
       return singleItemPushPromise
         .then(response => {
+          const p = utils.setSourceStatus(z, bundle, 'IDLE');
+
           if (response.status !== 202) {
             utils.coveoErrorHandler(response.status);
           }
 
           // Set the status of the source back once the push has succeeded
-          return utils.setSourceStatus(z, bundle, 'IDLE');
+          return p;
         })
         .then(() => {
           // Don't need this for output info, so remove it

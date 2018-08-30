@@ -55,7 +55,7 @@ module.exports = {
         type: 'string',
         label: 'Item ID',
         helpText:
-          'The ID of the item you wish to delete. It should follow a URL format. If you wish to delete a specific child item of a parent item, simply add `/file#` to the item ID ( e.g., `ITEM_ID/file2`).',
+          'The ID of the item you wish to delete. _It must be a URI_. If you wish to delete a specific child item of a parent item, simply add `/file#` to the item ID ( e.g., `ITEM_ID/file2`).',
       },
       {
         key: 'title',
