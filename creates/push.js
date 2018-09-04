@@ -105,7 +105,7 @@ module.exports = {
       {
         key: 'data',
         required: false,
-        type: 'string',
+        type: 'text',
         label: 'Document Body',
         helpText:
           'The main content of the document, when not using files. This text is usually interpreted as HTML content. You should use this when no valid files or URLs are supplied for content extraction.',
