@@ -20,7 +20,10 @@ const cleanResult = response => {
 
   // For the filtered keys, copy their value
   keys.forEach(k=>{
-    cleanedResult[k] = response[k];
+    let v = response[k];
+    if (v !== null && !(v instanceof Array && v.length === 0)) { // filter out null values and empty arrays
+      cleanedResult[k] = response[k];
+    }
   });
 
   // same procedure for the 'raw' values

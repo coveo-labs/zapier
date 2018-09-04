@@ -161,6 +161,10 @@ describe('searches', function() {
     should.ok(clean1.raw.title);
     should.not.exist(clean1.raw.systitle);
 
+    should.not.exist(clean1.excerptHighlights);
+    should.not.exist(clean1.summary);
+
     should.equal(clean1.raw.author, 'Coveo Doc Team');
   });
+
 });
