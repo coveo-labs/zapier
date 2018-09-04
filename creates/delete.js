@@ -55,13 +55,13 @@ module.exports = {
         type: 'string',
         label: 'Document ID',
         helpText:
-          'The ID of the item you wish to delete. _It must be a URI_. If you wish to delete a specific child item of a parent item, simply add `/file#` to the item ID ( e.g., `ITEM_ID/file2`).',
+          'The ID of the document you wish to delete. _It must be a URI_. If you wish to delete a specific child document of a parent document, simply add `/file#` to the document ID ( e.g., `DOCUMENT_ID/file2`).',
       },
       {
         key: 'title',
         required: false,
         type: 'string',
-        label: 'Item Title',
+        label: 'Title',
         helpText: 'The title of the content being deleted. Use this if you want more detailed output of this action.',
       },
     ],
