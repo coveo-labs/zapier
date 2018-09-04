@@ -33,7 +33,7 @@ module.exports = {
 
   // Samples are used for the output of the app if no fetch can be performed or some issues getting the details occurs.
   sample: {
-    docId: 'http://example.com/',
+    documentId: 'http://example.com/',
     sourceId: 'coveo-source-id',
     orgId: 'coveo-organization-id',
     title: 'my-file.html',

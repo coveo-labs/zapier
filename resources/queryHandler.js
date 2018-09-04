@@ -3,6 +3,34 @@
 const platform = require('../config').PLATFORM;
 const utils = require('../utils');
 
+// Remove duplicated and sys* fields fields from responses.
+const cleanResult = response => {
+  let cleanedResult = {};
+
+  let keys = Object.keys(response); // get all keys
+  keys = keys.sort((a, b) => a.localeCompare(b)); // sort them alphetically, lowercases will be first. for example: "alpha","beta","Beta","delta","Delta"...
+  keys = keys.filter((k, i, a) => {
+    // remove sysX if X exists on its own. (systitle/title)
+    if (/^sys/.test(k) && a.includes(k.substr(3))) {
+      return false;
+    }
+    // check if the previous key in the array is the same as the current one, if so, don't include this current key.
+    return i === 0 || a[i - 1].toLocaleLowerCase().localeCompare(k.toLocaleLowerCase());
+  });
+
+  // For the filtered keys, copy their value
+  keys.forEach(k=>{
+    cleanedResult[k] = response[k];
+  });
+
+  // same procedure for the 'raw' values
+  if (cleanedResult.raw) {
+    cleanedResult.raw = cleanResult(cleanedResult.raw);
+  }
+
+  return cleanedResult;
+};
+
 // This functions handles the query call to Coveo, then sends off the result to the output handler.
 const handleQuery = (z, bundle) => {
   let token = bundle.authData.access_token;
@@ -39,7 +67,7 @@ const handleQuery = (z, bundle) => {
       // return the first element only or empty array
       let retval = [];
       if (results && results.length) {
-        retval.push(results[0]);
+        retval.push(cleanResult(results[0]));
       }
 
       // Send to output handler
@@ -49,5 +77,6 @@ const handleQuery = (z, bundle) => {
 };
 
 module.exports = {
+  cleanResult,
   handleQuery,
 };
