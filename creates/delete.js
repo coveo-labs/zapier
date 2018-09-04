@@ -26,7 +26,7 @@ module.exports = {
   noun: 'Delete',
   display: {
     label: 'Delete Content',
-    description: 'Delete content from a specified push source.',
+    description: 'Deletes content from a specified push source.',
     important: true,
   },
 

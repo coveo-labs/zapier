@@ -41,7 +41,7 @@ module.exports = {
   noun: 'Push',
   display: {
     label: 'Push or Update Content',
-    description: 'Push or update content to a specified push source.',
+    description: 'Pushes or updates content to a specified push source.',
     important: true,
   },
 
