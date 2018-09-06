@@ -38,7 +38,7 @@ describe('pushes', function() {
         ],
         fields: { author: 'Bryan Arnold', site: 'https://coveo.com/' },
         data: 'testing',
-        orgId: process.env.TEST_ORG_ID,
+        organizationId: process.env.TEST_ORG_ID,
         sourceId: process.env.TEST_SOURCE_ID,
       },
     };
@@ -63,7 +63,7 @@ describe('pushes', function() {
         ],
         fields: { author: 'Bryan Arnold', site: 'https://coveo.com/' },
         data: 'testing',
-        orgId: process.env.TEST_ORG_ID,
+        organizationId: process.env.TEST_ORG_ID,
         sourceId: process.env.TEST_SOURCE_ID,
       },
     };

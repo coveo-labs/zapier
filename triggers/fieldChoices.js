@@ -14,14 +14,14 @@ const message = require('../messages');
 // gets the fields used by a specific org, fills the input value with the field name, and displays the field name in a readable format.
 const perform = (z, bundle) => {
   // No source/org ID or both chosen yet, so throw an error
-  if (!bundle.inputData.orgId && !bundle.inputData.sourceId) {
+  if (!bundle.inputData.organizationId && !bundle.inputData.sourceId) {
     throw new Error(message.SELECT_ORG_AND_SOURCE);
   }
 
   // Request to Coveo to get fields that specified source uses in it's mappings.
   // Source ID and Org ID must be given by the user beforehand for this to work.
   const orgFieldsPromise = z.request({
-    url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/indexes/page/fields`,
+    url: `https://${platform}/rest/organizations/${bundle.inputData.organizationId}/indexes/page/fields`,
     method: 'GET',
   });
 

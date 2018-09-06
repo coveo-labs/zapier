@@ -4,7 +4,7 @@ const queryResource = require('../resources/query');
 const handleQuery = require('../resources/queryHandler').handleQuery;
 
 // This is a handoff to the queryHandler. This sets up the defaults of some of the values if none were provided in the input fields.
-// This function is separate from the orgSearch since searching Coveo public docs doesn't require an orgId and
+// This function is separate from the orgSearch since searching Coveo public docs doesn't require an organizationId and
 // the sort criteria wants to be controlled here.
 // Also, simplifies usage on the Zapier site.
 const searchPublicQuery = (z, bundle) => {

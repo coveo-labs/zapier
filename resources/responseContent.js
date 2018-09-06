@@ -28,7 +28,7 @@ const getOrgInfoForOutput = (z, bundle) => {
 
   // Start promise to get org information from Coveo
   const orgInfoPromise = z.request({
-    url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}`,
+    url: `https://${platform}/rest/organizations/${bundle.inputData.organizationId}`,
     method: 'GET',
   });
 
@@ -49,7 +49,7 @@ const getOrgInfoForOutput = (z, bundle) => {
       .then(() => {
         // Get the source information the user pushed to from Coveo
         const orgSourcesPromise = z.request({
-          url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}`,
+          url: `https://${platform}/rest/organizations/${bundle.inputData.organizationId}/sources/${bundle.inputData.sourceId}`,
           method: 'GET',
         });
 
@@ -63,10 +63,8 @@ const getOrgInfoForOutput = (z, bundle) => {
             // Get only the information useful from the response and throw it into the object response.
             const result = z.JSON.parse(response.content);
             outputInfo.sourceName = result.name;
-            // Owner of source comes back at abc@coveo.com-google. '-google' isn't necessary for this and looks cleaner without it.
+            // Owner of source comes back as abc@coveo.com-google. The provider (-google) isn't necessary for this and looks cleaner without it.
             outputInfo.sourceOwner = (result.owner || '').split('-')[0];
-            outputInfo.sourceType = result.sourceType;
-            outputInfo.numDocs = result.information.numberOfDocuments;
             // Make the bytes turn into something more appropriate (KB, MB ,etc.)
             outputInfo.docSize = pretty(result.information.documentsTotalSize);
 

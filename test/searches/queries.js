@@ -65,7 +65,8 @@ describe('searches', function() {
       printableUri: 'localtest://12345/file2',
       clickUri: 'localtest://12345/',
       uniqueId: '42.53734$localtest://12345/file2',
-      excerpt:'December 2016 ... June 2016 ... March 2016 ... Note: You can also refer to the new features visible to end-users and the new ... March 2018 ... The SharePoint connector now supports instances using Okta as a single sign-on ... You can therefore configure your SharePoint source and security providers to ... [more] ... September 2017 ... The Jira and Lithium connectors now support incremental refresh. ... The connectors therefore periodically query Jira and Lithium for the latest item ...',
+      excerpt:
+        'December 2016 ... June 2016 ... March 2016 ... Note: You can also refer to the new features visible to end-users and the new ... March 2018 ... The SharePoint connector now supports instances using Okta as a single sign-on ... You can therefore configure your SharePoint source and security providers to ... [more] ... September 2017 ... The Jira and Lithium connectors now support incremental refresh. ... The connectors therefore periodically query Jira and Lithium for the latest item ...',
       firstSentences: `Community Product DocsMenu Support Product Docs Developer Docs Answers Training More Coveo Cloud V1 Administration Console Coveo Cloud V2 Administration Console Technical Blog Coveo Cloud Coveo Platform 7.0 Coveo Platform 6.5 FR Administrator Help What's New Release Notes Hardware and Software Requirements Deployment Coveo Enterprise Search 7.0 Coveo REST Search API 8.0 Coveo JavaScript Search Interface Coveo .NET Front-End 12.0 Coveo for Sitecore Connectors Third-Party System Procedures`,
       summary: null,
       flags: 'IsAttachment;HasHtmlVersion;SkipSentencesScoring',
@@ -136,7 +137,8 @@ describe('searches', function() {
       PrintableUri: 'localtest://12345/file2',
       ClickUri: 'localtest://12345/',
       UniqueId: '42.53734$localtest://12345/file2',
-      Excerpt: 'December 2016 ... June 2016 ... March 2016 ... Note: You can also refer to the new features visible to end-users and the new ... March 2018 ... The SharePoint connector now supports instances using Okta as a single sign-on ... You can therefore configure your SharePoint source and security providers to ... [more] ... September 2017 ... The Jira and Lithium connectors now support incremental refresh. ... The connectors therefore periodically query Jira and Lithium for the latest item ...',
+      Excerpt:
+        'December 2016 ... June 2016 ... March 2016 ... Note: You can also refer to the new features visible to end-users and the new ... March 2018 ... The SharePoint connector now supports instances using Okta as a single sign-on ... You can therefore configure your SharePoint source and security providers to ... [more] ... September 2017 ... The Jira and Lithium connectors now support incremental refresh. ... The connectors therefore periodically query Jira and Lithium for the latest item ...',
       FirstSentences: `Community Product DocsMenu Support Product Docs Developer Docs Answers Training More Coveo Cloud V1 Administration Console Coveo Cloud V2 Administration Console Technical Blog Coveo Cloud Coveo Platform 7.0 Coveo Platform 6.5 FR Administrator Help What's New Release Notes Hardware and Software Requirements Deployment Coveo Enterprise Search 7.0 Coveo REST Search API 8.0 Coveo JavaScript Search Interface Coveo .NET Front-End 12.0 Coveo for Sitecore Connectors Third-Party System Procedures`,
     };
 
@@ -166,5 +168,4 @@ describe('searches', function() {
 
     should.equal(clean1.raw.author, 'Coveo Doc Team');
   });
-
 });

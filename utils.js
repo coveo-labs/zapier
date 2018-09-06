@@ -218,7 +218,7 @@ const validateArchiveType = details => {
 const setSourceStatus = (z, bundle, status) => {
   // Send request to Coveo
   const statePromise = z.request({
-    url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/status`,
+    url: `https://${push}/v1/organizations/${bundle.inputData.organizationId}/sources/${bundle.inputData.sourceId}/status`,
     method: 'POST',
     params: {
       statusType: status,

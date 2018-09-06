@@ -50,7 +50,7 @@ module.exports = {
     // App template input
     inputFields: [
       {
-        key: 'orgId',
+        key: 'organizationId',
         required: true,
         type: 'string',
         label: 'Organization',
@@ -69,7 +69,8 @@ module.exports = {
         required: true,
         type: 'string',
         label: 'Document ID',
-        helpText: 'The ID you want to give to your document. _It must be a URI_. You can use the original url, or create your own identifier like this: __app://*some-id*__\n\nFor more info see [Push API Reference](https://docs.coveo.com/en/78/cloud-v2-developers/push-api-reference#documentid-query-string-required).',
+        helpText:
+          'The ID you want to give to your document. _It must be a URI_. You can use the original url, or create your own identifier like this: __app://*some-id*__\n\nFor more info see [Push API Reference](https://docs.coveo.com/en/78/cloud-v2-developers/push-api-reference#documentid-query-string-required).',
       },
       {
         key: 'title',
@@ -83,7 +84,8 @@ module.exports = {
         required: false,
         type: 'datetime',
         label: 'Date',
-        helpText: 'The date of the document you are pushing in the source. Although optional, it\'s a good practice to use the last modified date (or the creation date) for this field to use sorting by date in your index.',
+        helpText:
+          `The date of the document you are pushing in the source. Although optional, it's a good practice to use the last modified date (or the creation date) for this field to use sorting by date in your index.`,
       },
       {
         key: 'clickableuri',

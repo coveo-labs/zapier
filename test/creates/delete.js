@@ -31,7 +31,7 @@ describe('deletes', () => {
         documentId: 'localtest://12345',
         title: 'Zapier Delete Test',
         sourceId: process.env.TEST_SOURCE_ID,
-        orgId: process.env.TEST_ORG_ID,
+        organizationId: process.env.TEST_ORG_ID,
       },
     };
 

@@ -1,7 +1,6 @@
 'use strict';
 
 const push = require('../config').PUSH;
-const getOutputInfo = require('./responseContent').getOrgInfoForOutput;
 const fileHandler = require('./fileHandler').fileHandler;
 const utils = require('../utils');
 
@@ -44,7 +43,7 @@ const processBatchPush = (z, bundle, result) => {
     .then(() => {
       // Send request to Coveo
       const batchPushPromise = z.request({
-        url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result}`,
+        url: `https://${push}/v1/organizations/${bundle.inputData.organizationId}/sources/${bundle.inputData.sourceId}/documents/batch?fileId=${result}`,
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -55,18 +54,14 @@ const processBatchPush = (z, bundle, result) => {
       // Handle response from Coveo.
       return batchPushPromise
         .then(response => {
-          const p = utils.setSourceStatus(z, bundle, 'IDLE');
+          utils.setSourceStatus(z, bundle, 'IDLE');
 
           if (response.status !== 202) {
             utils.coveoErrorHandler(response.status);
           }
 
           // Set the status of the source back once the push has succeeded
-          return p;
-        })
-        .then(() => {
-          // Send to responseContent handler.
-          return getOutputInfo(z, bundle);
+          return bundle.inputData;
         })
         .catch(utils.handleError);
     })
@@ -89,7 +84,7 @@ const processPush = (z, bundle) => {
     .then(() => {
       // Send request to Coveo.
       const singleItemPushPromise = z.request({
-        url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/documents`,
+        url: `https://${push}/v1/organizations/${bundle.inputData.organizationId}/sources/${bundle.inputData.sourceId}/documents`,
         method: 'PUT',
         body: JSON.stringify(bundle.inputData),
         params: {
@@ -104,21 +99,14 @@ const processPush = (z, bundle) => {
       // Handle request response
       return singleItemPushPromise
         .then(response => {
-          const p = utils.setSourceStatus(z, bundle, 'IDLE');
+          utils.setSourceStatus(z, bundle, 'IDLE');
 
           if (response.status !== 202) {
             utils.coveoErrorHandler(response.status);
           }
 
           // Set the status of the source back once the push has succeeded
-          return p;
-        })
-        .then(() => {
-          // Don't need this for output info, so remove it
-          delete bundle.inputData.fileExtension;
-
-          // Send to responseContent handler
-          return getOutputInfo(z, bundle);
+          return bundle.inputData;
         })
         .catch(utils.handleError);
     })
@@ -129,7 +117,7 @@ const processPush = (z, bundle) => {
 const createContainer = (z, bundle) => {
   // Send request to Coveo
   const containerPromise = z.request({
-    url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/files`,
+    url: `https://${push}/v1/organizations/${bundle.inputData.organizationId}/files`,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

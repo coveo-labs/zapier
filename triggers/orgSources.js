@@ -13,19 +13,19 @@ const triggerUtils = require('./utils');
 // gets the possible push sources that are in the specified org, puts the source id in the input value, and displays the source name as in a readable format.
 const perform = (z, bundle) => {
   // No org ID selected yet, so throw an error
-  if (!bundle.inputData.orgId) {
+  if (!bundle.inputData.organizationId) {
     throw new Error(message.SELECT_ORG);
   }
 
   // getSources
   const sourcesRequest = z.request({
-    url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/sources`,
+    url: `https://${platform}/rest/organizations/${bundle.inputData.organizationId}/sources`,
     method: 'GET',
   });
 
   // getPrivileges
   const privilegesRequest = z.request({
-    url: `https://${platform}/rest/organizations/${bundle.inputData.orgId}/members/privileges`,
+    url: `https://${platform}/rest/organizations/${bundle.inputData.organizationId}/members/privileges`,
     method: 'GET',
   });
 

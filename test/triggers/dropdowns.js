@@ -132,7 +132,7 @@ describe('get drop downs', () => {
         access_token: process.env.ACCESS_TOKEN,
       },
       inputData: {
-        orgId: process.env.TEST_ORG_ID,
+        organizationId: process.env.TEST_ORG_ID,
       },
     };
 

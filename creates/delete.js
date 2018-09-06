@@ -35,7 +35,7 @@ module.exports = {
     // App template input
     inputFields: [
       {
-        key: 'orgId',
+        key: 'organizationId',
         required: true,
         type: 'string',
         label: 'Organization',
