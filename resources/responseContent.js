@@ -9,7 +9,7 @@ const platform = require('../config').PLATFORM;
 // responses...manually construct the response content with other calls to Coveo.
 const getOrgInfoForOutput = (z, bundle) => {
   // Make bytes more readable and understandable
-  const pretty = require('prettysize');
+  // const pretty = require('prettysize');
 
   // On top of the input information the user supplied being returned as output
   // of the action on Zapier, these are the custom ones constructed. The source type,
@@ -66,7 +66,7 @@ const getOrgInfoForOutput = (z, bundle) => {
             // Owner of source comes back as abc@coveo.com-google. The provider (-google) isn't necessary for this and looks cleaner without it.
             outputInfo.sourceOwner = (result.owner || '').split('-')[0];
             // Make the bytes turn into something more appropriate (KB, MB ,etc.)
-            outputInfo.docSize = pretty(result.information.documentsTotalSize);
+            // outputInfo.docSize = pretty(result.information.documentsTotalSize);
 
             return outputInfo;
           })
