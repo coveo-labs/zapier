@@ -32,7 +32,8 @@ const App = {
     [DeleteResource.key]: DeleteResource,
   },
 
-  // If you want your trigger to show up, you better include it here! These need to be included for creates to generate dynamic drop downs
+  // If you want your trigger to show up, you better include it here!
+  // These need to be included for creates to generate dynamic drop downs
   triggers: {
     [orgChoices.key]: orgChoices,
     [orgSources.key]: orgSources,

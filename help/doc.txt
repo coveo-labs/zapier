@@ -1,0 +1,9 @@
+App Name:
+Coveo
+
+Auth Type:
+OAuth
+
+3(a):
+Allow full access to all your organizations
+
