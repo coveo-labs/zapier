@@ -228,7 +228,7 @@ describe('utils', () => {
         access_token: process.env.ACCESS_TOKEN,
       },
       inputData: {
-        orgId: process.env.TEST_ORG_ID,
+        organizationId: process.env.TEST_ORG_ID,
         sourceId: process.env.TEST_SOURCE_ID,
       },
     };
@@ -242,7 +242,7 @@ describe('utils', () => {
         access_token: process.env.ACCESS_TOKEN,
       },
       inputData: {
-        orgId: process.env.TEST_ORG_ID,
+        organizationId: process.env.TEST_ORG_ID,
         sourceId: process.env.TEST_SOURCE_ID,
       },
     };
@@ -258,7 +258,7 @@ describe('utils', () => {
 
     // Send request to Coveo
     const statePromise = http.request({
-      url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/status`,
+      url: `https://${push}/v1/organizations/${bundle.inputData.organizationId}/sources/${bundle.inputData.sourceId}/status`,
       method: 'POST',
       params: {
         statusType: status,

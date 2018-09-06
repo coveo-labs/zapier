@@ -6,22 +6,13 @@ const outputFields = () => {
   // in the returned object, then displays the values corresponding to those keys. The label
   // tag is what is displayed to be readable and make more sense to the user when they see it.
   const output = [
-    { key: 'documentId', label: 'Document ID' },
-    { key: 'orgName', label: 'Organization Name' },
-    { key: 'orgId', label: 'Organization ID' },
-    { key: 'orgOwner', label: 'Organization Owner' },
-    { key: 'sourceName', label: 'Source Name' },
-    { key: 'sourceId', label: 'Source ID' },
-    { key: 'sourceOwner', label: 'Source Owner' },
-    { key: 'sourceType', label: 'Source Type' },
-    { key: 'numDocs', label: 'Number of Documents in Source' },
-    { key: 'title', label: 'Pushed Document Title' },
-    { key: 'content', label: 'File(s) Pushed' },
-    { key: 'data', label: 'Plain Text Content' },
-    { key: 'docSize', label: 'Size of all the Documents in the Source' },
     { key: 'clickableuri', label: 'Clickable Document URL' },
+    { key: 'data', label: 'Plain Text Content' },
     { key: 'date', label: 'Date of Document Creation' },
-    { key: 'numFilesPushed', label: 'Number of Files Successfully Pushed' },
+    { key: 'documentId', label: 'Document ID' },
+    { key: 'organizationId', label: 'Organization ID' },
+    { key: 'sourceId', label: 'Source ID' },
+    { key: 'title', label: 'Pushed Document Title' },
   ];
 
   return output;
@@ -33,11 +24,12 @@ module.exports = {
 
   // Samples are used for the output of the app if no fetch can be performed or some issues getting the details occurs.
   sample: {
-    docId: 'http://example.com/',
+    organizationId: 'coveo-organization-id',
     sourceId: 'coveo-source-id',
-    orgId: 'coveo-organization-id',
+    documentId: 'http://example.com/',
     title: 'my-file.html',
-    content: 'content-to-extract',
+    date: '2018-08-28T10:53:50-04:00',
+    clickableuri: 'http://example.com/',
   },
 
   // If the resource can have fields that are custom on a per-user basis, define a function to fetch the custom

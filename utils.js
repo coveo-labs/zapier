@@ -18,23 +18,14 @@ const handleError = error => {
 // Function to handle the logic of all Coveo errors that can occur
 // to make them more user friendly and sorted.
 const coveoErrorHandler = status => {
-  if (status === 400) {
-    throw new Error(messages.ERROR_400);
-  } else if (status === 401) {
-    throw new Error(messages.ERROR_401);
-  } else if (status === 403) {
-    throw new Error(messages.ERROR_403);
-  } else if (status === 412) {
-    throw new Error(messages.ERROR_412);
-  } else if (status === 413) {
-    throw new Error(messages.ERROR_413);
-  } else if (status === 429) {
-    throw new Error(messages.ERROR_429);
-  } else if (status >= 500 || status === 415 || status === 404) {
-    throw new Error(messages.SHOULD_NOT_OCCUR_ERRORS);
-  } else {
-    throw new Error(messages.FALLBACK_ERROR);
+  let errorMessage = messages['ERROR_' + status]; // find error by status code
+  if (!errorMessage) {
+    if (status >= 500 || status === 415 || status === 404) {
+      errorMessage = messages.SHOULD_NOT_OCCUR_ERRORS;
+    }
   }
+
+  throw new Error(errorMessage || messages.FALLBACK_ERROR);
 };
 
 // function to check whether or not the url given for the fetch is absolute or the fetch got bad content.
@@ -227,7 +218,7 @@ const validateArchiveType = details => {
 const setSourceStatus = (z, bundle, status) => {
   // Send request to Coveo
   const statePromise = z.request({
-    url: `https://${push}/v1/organizations/${bundle.inputData.orgId}/sources/${bundle.inputData.sourceId}/status`,
+    url: `https://${push}/v1/organizations/${bundle.inputData.organizationId}/sources/${bundle.inputData.sourceId}/status`,
     method: 'POST',
     params: {
       statusType: status,

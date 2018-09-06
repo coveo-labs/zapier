@@ -1,5 +1,6 @@
 'use strict';
 
+const messages = require('../messages');
 const deleteResource = require('../resources/delete');
 const deleteHandler = require('../resources/deleteHandler');
 
@@ -8,6 +9,12 @@ const deleteHandler = require('../resources/deleteHandler');
 const createDelete = (z, bundle) => {
   // Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
   bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
+
+  if (!/^\w+:\/\/\w+/.test(bundle.inputData.documentId)) {
+    // documentId is not an URL, which is a requirement for Push.
+    // Stopping.
+    throw new Error(messages.ERROR_DOCUMENT_ID_INVALID);
+  }
 
   return deleteHandler.handleDeleteCreation(z, bundle);
 };
@@ -19,7 +26,7 @@ module.exports = {
   noun: 'Delete',
   display: {
     label: 'Delete Content',
-    description: 'Delete content from a specified push source.',
+    description: 'Deletes content from a specified push source.',
     important: true,
   },
 
@@ -28,10 +35,10 @@ module.exports = {
     // App template input
     inputFields: [
       {
-        key: 'orgId',
+        key: 'organizationId',
         required: true,
         type: 'string',
-        label: 'Organization ID',
+        label: 'Organization',
         dynamic: 'orgChoices.id.displayName', // For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
       },
       {
@@ -46,16 +53,16 @@ module.exports = {
         key: 'documentId',
         required: true,
         type: 'string',
-        label: 'Item ID',
+        label: 'Document ID',
         helpText:
-          'The ID of the item you wish to delete. It should follow a URL format. If you wish to delete a specific child item of a parent item, simply add `/file#` to the item ID ( e.g., `ITEM_ID/file2`).',
+          'The ID of the document you wish to delete. _It must be a URI_. If you wish to delete a specific child document of a parent document, simply add `/file#` to the document ID ( e.g., `DOCUMENT_ID/file2`).',
       },
       {
         key: 'title',
         required: false,
         type: 'string',
-        label: 'Item Title',
-        helpText: 'The title of the content being deleted. Use this if you want more detailed output of this action.',
+        label: 'Title',
+        helpText: 'The title of the document being deleted. Use this if you want more detailed output of this action.',
       },
     ],
     // Action function

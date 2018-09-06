@@ -12,10 +12,11 @@ const messages = {
   SELECT_ORG_AND_SOURCE: 'You must choose and organization ID and source ID before you can get a list of fields. Please choose you organization and source IDs first and try again.',
   ERROR_400: 'There was an error processing your request to Coveo. Ensure your inputs were correct and that the organization you are pushing to is not paused.',
   ERROR_401: 'There was an authentication issue during your request. Ensure your connected account is still working and try again.',
-  ERROR_403: 'You do not have sufficient privileges to perform this request. Ensure the connected account has the necessary privileges to carry out the action and try again.',
+  ERROR_403: 'You do not have sufficient privileges to perform this operation. Log in to https://platform.cloud.coveo.com and validate your account has the necessary privileges to the targeted source.',
   ERROR_412: 'There were incorrect or missing parameters sent with your request. Ensure all the required input fields are valid and try again.',
   ERROR_413: 'The search query you are sending is too large. Reduce the size of the search query and try again.',
   ERROR_429: 'You are attempting to send too many requests at a time. Wait a few minutes and try again.',
+  ERROR_DOCUMENT_ID_INVALID: 'Document Id should be a URI. More info at https://docs.coveo.com/en/78/cloud-v2-developers/push-api-reference#documentid-query-string-required.',
   SHOULD_NOT_OCCUR_ERRORS: 'There was an unexpected error with Coveo. If the error persists, contact Coveo Support.',
   FALLBACK_ERROR: 'There was an issue processing the request to Coveo. Ensure the connected account is working and your inputs are valid before trying again.',
 };

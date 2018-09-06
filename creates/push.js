@@ -1,5 +1,6 @@
 'use strict';
 
+const messages = require('../messages');
 const pushResource = require('../resources/push');
 const pushHandler = require('../resources/pushHandler');
 
@@ -9,13 +10,19 @@ const createNewPush = (z, bundle) => {
   // Take the fields the user submitted and put them into the input data to be sent in the push.
   Object.assign(bundle.inputData, bundle.inputData.fields);
   delete bundle.inputData.fields;
+  // Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
+  bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
+
+  if (!/^\w+:\/\/\w+/.test(bundle.inputData.documentId)) {
+    // documentId is not an URL, which is a requirement for Push.
+    // Stopping.
+    throw new Error(messages.ERROR_DOCUMENT_ID_INVALID);
+  }
 
   if (!bundle.inputData.clickableuri) {
     // Keep original url in clickableuri (if clickableuri isn't set already)
     bundle.inputData.clickableuri = bundle.inputData.documentId;
   }
-  // Sanitize documentId by removing hash and parameters (? & and # are not valid in documentIds)
-  bundle.inputData.documentId = bundle.inputData.documentId.replace(/[?&#]/g, '=');
 
   // Eliminate repeat url/file inputs in the Files input field
   if (bundle.inputData.content && bundle.inputData.content.length > 1) {
@@ -34,7 +41,7 @@ module.exports = {
   noun: 'Push',
   display: {
     label: 'Push or Update Content',
-    description: 'Push or update content to a specified push source.',
+    description: 'Pushes or updates content to a specified push source.',
     important: true,
   },
 
@@ -43,7 +50,7 @@ module.exports = {
     // App template input
     inputFields: [
       {
-        key: 'orgId',
+        key: 'organizationId',
         required: true,
         type: 'string',
         label: 'Organization',
@@ -55,28 +62,30 @@ module.exports = {
         type: 'string',
         label: 'Source',
         dynamic: 'orgSources.id.name', // For user input and dynamic drop down. Do not remove. The first component is the trigger key where to find the function to perform here, the second is the value to put as the input, and the last is how it is displayed (readable).
-        helpText: 'Choose an Organization before selecting a source.',
+        helpText: 'Please choose an Organization first.',
       },
       {
         key: 'documentId',
         required: true,
         type: 'string',
-        label: 'Item ID',
-        helpText: 'The ID you want to give to your item. It must follow a URL format. You can use the original url, or create your own identifier like this: app-name://<ID>.',
+        label: 'Document ID',
+        helpText:
+          'The ID you want to give to your document. _It must be a URI_. You can use the original url, or create your own identifier like this: __app://*some-id*__\n\nFor more info see [Push API Reference](https://docs.coveo.com/en/78/cloud-v2-developers/push-api-reference#documentid-query-string-required).',
       },
       {
         key: 'title',
         required: true,
         type: 'string',
         label: 'Title',
-        helpText: 'The title of the pushed item.',
+        helpText: 'The title of the pushed document.',
       },
       {
         key: 'date',
         required: false,
         type: 'datetime',
         label: 'Date',
-        helpText: 'The date of the item you are pushing in the source. You are strongly encouraged to enter a value for this field.',
+        helpText:
+          `The date of the document you are pushing in the source. Although optional, it's a good practice to use the last modified date (or the creation date) for this field to use sorting by date in your index.`,
       },
       {
         key: 'clickableuri',
@@ -84,7 +93,7 @@ module.exports = {
         type: 'string',
         label: 'Content Url',
         helpText:
-          'A URL pointing to the original content you are pushing. Use this if you manually constructed the Item ID and still want a URL to your content, or you want an additional/alternate URL to the content in your submission.',
+          'A URL pointing to the original content you are pushing. Use this if you manually constructed the Document ID and still want a URL to your content, or you want an additional/alternate URL to the content in your submission.',
       },
       {
         key: 'content',
@@ -98,10 +107,10 @@ module.exports = {
       {
         key: 'data',
         required: false,
-        type: 'string',
-        label: 'Item Body',
+        type: 'text',
+        label: 'Document Body',
         helpText:
-          'The main content of the item, when not using files. This text is usually interpreted as HTML content. You should use this when no valid files or URLs are supplied for content extraction.',
+          'The main content of the document, when not using files. This text is usually interpreted as HTML content. You should use this when no valid files or URLs are supplied for content extraction.',
       },
       {
         key: 'fields',
