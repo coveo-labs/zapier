@@ -40,8 +40,8 @@ module.exports = {
   // You'll want to provide some helpful display labels and descriptions for users. Zapier will put them into the UI/UX.
   noun: 'Push',
   display: {
-    label: 'Push or Update Content',
-    description: 'Pushes or updates content to a specified push source.',
+    label: 'Add or Update Content',
+    description: 'Adds or update an item in a source of your Coveo Cloud organization.',
     important: true,
   },
 
