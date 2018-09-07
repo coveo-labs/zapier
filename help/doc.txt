@@ -7,3 +7,27 @@ OAuth
 3(a):
 Allow full access to all your organizations
 
+https://raw.githubusercontent.com/coveo-labs/zapier/master/help/oauth1.png
+https://raw.githubusercontent.com/coveo-labs/zapier/master/help/oauth2.png
+https://raw.githubusercontent.com/coveo-labs/zapier/master/help/oauth3.png
+https://raw.githubusercontent.com/coveo-labs/zapier/master/help/oauth4.png
+
+
+------
+
+1. Need paid account?
+No
+
+
+2. Need permissions?
+Yes
+
+Need Edit permission on a Push source.
+
+https://onlinehelp.coveo.com/en/cloud/sources.htm#privileges
+https://docs.coveo.com/en/50/cloud-v2-developers/push-api-usage-overview
+
+
+3. Other restrictions?
+No
+
