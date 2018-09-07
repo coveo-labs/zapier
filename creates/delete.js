@@ -26,7 +26,7 @@ module.exports = {
   noun: 'Delete',
   display: {
     label: 'Delete Content',
-    description: 'Deletes content from a specified push source.',
+    description: 'Deletes an item from your Coveo Cloud orgnization.',
     important: true,
   },
 
