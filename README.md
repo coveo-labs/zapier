@@ -2,6 +2,8 @@
 
 This is the code for the integration of the Coveo app on Zapier. It is capable of extracting the content of files or urls, then indexing that content into a specified push source on the Coveo Cloud Platform as either a single item push, or a batch. It also allows for documents to be searched for in an organization, or for public help documents regarding Coveo.
 
+The Coveo Zapier integration is now available [directly in Zapier](https://zapier.com/apps/coveo/integrations).
+
 ## Setting Up The App
 
 Before starting anything Zapier related, it will probably be helpful to brush up on some of Coveo's API.
