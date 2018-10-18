@@ -17,7 +17,7 @@ module.exports = {
   // You'll want to provide some helpful display labels and descriptions for users. Zapier will put them into the UI/UX.
   display: {
     label: 'Find Document',
-    description: 'Finds document in a specified organization.',
+    description: 'Searches for items in your Coveo Cloud organization.',
     important: true,
   },
 
