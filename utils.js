@@ -2,7 +2,7 @@
 
 const push = require('./config').PUSH;
 const messages = require('./messages');
-const fileType = require('file-type');
+const FileType = require('file-type');
 
 // Get the size of a buffer if a size wasn't given in the file description
 const getStringByteSize = string => Buffer.byteLength(string, 'utf8');
@@ -67,7 +67,7 @@ const validateFileSize = (fileSize, fileBuffer) => {
 };
 
 // Function for finding the filetype/extension of a file after it's contents have been fetched
-const findExtension = (file, response) => {
+const findExtension = async (file, response) => {
   const mime = require('mime-types');
   const path = require('path');
   let fileExtension = '';
@@ -78,9 +78,7 @@ const findExtension = (file, response) => {
 
     // If mime-type couldn't pick up an extension, try file-type to get it based on the data buffer
     if (!fileExtension) {
-      if (fileType(fileExtension) !== null) {
-        fileExtension = fileType(file.content).ext;
-      }
+      fileExtension = ( await FileType.fromFile(file.content) || {}).ext;
     }
 
     // If mime-type and file-type fail, last resort is the file name for an extension.
@@ -97,7 +95,7 @@ const findExtension = (file, response) => {
 
     // Files within archive files checker
   } else {
-    let type = fileType(file.data); // To get the extension/file type
+    let type = (await FileType.fromBuffer(file.data) || {}).ext; // To get the extension/file type
 
     // If file-type didn't find anything, try mime-types.
     // If mime-types succeeded where file-type failed, get the extension from there.
@@ -255,16 +253,16 @@ const isCompressionZlib = c => {
 // This is a function to determine the type of compression used on a file. If none of these are detected, it will be indexed with the default of UNCOMPRESSED.
 // Used this as a reference: https://stackoverflow.com/questions/19120676/how-to-detect-type-of-compression-used-on-the-file-if-no-file-extension-is-spe for compression detecting as
 // well as documents about the file format headers for these types of compressions.
-const validateCompressionType = (zipContent, uncompressedSize) => {
+const validateCompressionType = async (zipContent, uncompressedSize) => {
   // Default
   let compressionType = 'UNCOMPRESSED';
 
   // Check file type only from the buffer, as file names can be unreliable
   const c = zipContent.content;
-  let type = fileType(c);
+  let type = await FileType.fromBuffer(c);
 
   // If can't find the file type, set the contents to null as well just to avoid errors
-  if (type === null) {
+  if (!type) {
     type = {
       ext: 'null',
       mime: 'null',

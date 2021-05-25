@@ -78,7 +78,7 @@ zapier env <coveo-app-version> CLIENT_SECRET <coveo-client-secret>
 zapier env <coveo-app-version> SEARCH_TOKEN <coveo-search-token>
 ```
 
-To ensure the environment was setup correctly, run `zapier env <coveo-app-version>`. If the credentials match up, you've finished setting up the app.
+To ensure the environment was setup correctly, run `zapier env:get <coveo-app-version>`. If the credentials match up, you've finished setting up the app.
 You should now set up a `.env` file to store these credentials and prep for testing. This isn't required, but it is very helpful for Zapier and let's you have access to credentials at any time.
 Create a `.env` file, ensure it is ignored in `.gitignore` if you are pushing to a repo, and store the credentials like this:
 

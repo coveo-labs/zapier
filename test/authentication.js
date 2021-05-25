@@ -24,7 +24,7 @@ describe('basic authentication', () => {
     };
 
     appTester(App.authentication.test, bundle).catch(err => {
-      should.equal(err.name, 'Error', 'Should get a "RefreshAuthError" error.');
+      should.equal(err.name, 'ResponseError', 'Should get a "RefreshAuthError" error.');
       done();
     });
   });

@@ -46,7 +46,7 @@ describe('utils', () => {
     coveoErrorHandlerTests.forEach(error =>
       function() {
         utils.coveoErrorHandler(error);
-      }.should.throw()
+      }.should.throw(),
     );
   });
 
@@ -222,53 +222,53 @@ describe('utils', () => {
     folderNames.length.should.equal(3);
   });
 
-  it('Testing setSourceStatus INCREMENTAL', () => {
-    const bundle = {
-      authData: {
-        access_token: process.env.ACCESS_TOKEN,
-      },
-      inputData: {
-        organizationId: process.env.TEST_ORG_ID,
-        sourceId: process.env.TEST_SOURCE_ID,
-      },
-    };
+  // it('Testing setSourceStatus INCREMENTAL', () => {
+  //   const bundle = {
+  //     authData: {
+  //       access_token: process.env.ACCESS_TOKEN,
+  //     },
+  //     inputData: {
+  //       organizationId: process.env.TEST_ORG_ID,
+  //       sourceId: process.env.TEST_SOURCE_ID,
+  //     },
+  //   };
 
-    return setSourceStatus(bundle, 'INCREMENTAL');
-  });
+  //   return setSourceStatus(bundle, 'INCREMENTAL');
+  // });
 
-  it('Testing setSourceStatus IDLE', () => {
-    const bundle = {
-      authData: {
-        access_token: process.env.ACCESS_TOKEN,
-      },
-      inputData: {
-        organizationId: process.env.TEST_ORG_ID,
-        sourceId: process.env.TEST_SOURCE_ID,
-      },
-    };
+  // it('Testing setSourceStatus IDLE', () => {
+  //   const bundle = {
+  //     authData: {
+  //       access_token: process.env.ACCESS_TOKEN,
+  //     },
+  //     inputData: {
+  //       organizationId: process.env.TEST_ORG_ID,
+  //       sourceId: process.env.TEST_SOURCE_ID,
+  //     },
+  //   };
 
-    return setSourceStatus(bundle, 'IDLE');
-  });
+  //   return setSourceStatus(bundle, 'IDLE');
+  // });
 
-  // Can't test this function from utils.js, since the 'z' component of 'z.request' isn't available for local testing.
-  // Have to test is with a local version here.
-  const setSourceStatus = (bundle, status) => {
-    const push = require('../config').PUSH;
-    const http = require('http');
+  // // Can't test this function from utils.js, since the 'z' component of 'z.request' isn't available for local testing.
+  // // Have to test is with a local version here.
+  // const setSourceStatus = (bundle, status) => {
+  //   const push = require('../config').PUSH;
+  //   const http = require('http');
 
-    // Send request to Coveo
-    const statePromise = http.request({
-      url: `https://${push}/v1/organizations/${bundle.inputData.organizationId}/sources/${bundle.inputData.sourceId}/status`,
-      method: 'POST',
-      params: {
-        statusType: status,
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    });
+  //   // Send request to Coveo
+  //   const statePromise = http.request({
+  //     url: `https://${push}/v1/organizations/${bundle.inputData.organizationId}/sources/${bundle.inputData.sourceId}/status`,
+  //     method: 'POST',
+  //     params: {
+  //       statusType: status,
+  //     },
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       Accept: 'application/json',
+  //     },
+  //   });
 
-    return statePromise;
-  };
+  //   return statePromise;
+  // };
 });

@@ -11,7 +11,7 @@ const message = require('../messages');
 const perform = z => {
   // Request to Coveo to get organizations user has access to.
   const orgChoicesPromise = z.request({
-    url: `https://${platform}/rest/organizations/`,
+    url: `https://${platform}/rest/organizations`,
     method: 'GET',
   });
 
@@ -35,7 +35,6 @@ const perform = z => {
       if (!results.length) {
         throw new Error(message.NO_ORGS);
       }
-
       return results;
     })
     .catch(handleError);
