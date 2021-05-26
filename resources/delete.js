@@ -6,7 +6,7 @@ const outputFields = () => {
   // then displays the values corresponding to those keys.
   // The label tag is what is displayed to be readable and make more sense to the user when they see it.
   const output = [
-    { key: 'documentId', label: 'Document ID' },
+    { key: 'documentId', dynamic: 'query.uri.title', label: 'Document ID' },
     { key: 'organizationId', label: 'Organization ID' },
     { key: 'sourceId', label: 'Source ID' },
     { key: 'title', label: 'Pushed Document Title' },

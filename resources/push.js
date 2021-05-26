@@ -9,7 +9,7 @@ const outputFields = () => {
     { key: 'clickableuri', label: 'Clickable Document URL' },
     { key: 'data', label: 'Plain Text Content' },
     { key: 'date', label: 'Date of Document Creation' },
-    { key: 'documentId', label: 'Document ID' },
+    { key: 'documentId', dynamic: 'query.uri.title', label: 'Document ID' },
     { key: 'organizationId', label: 'Organization ID' },
     { key: 'sourceId', label: 'Source ID' },
     { key: 'title', label: 'Pushed Document Title' },
